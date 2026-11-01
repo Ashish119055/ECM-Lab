@@ -1,0 +1,270 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ECM Lab</title>
+<meta name="description" content="Interactive petrol & diesel engine-management and auto-electrical training simulator: wiring diagrams, sensors, actuators and body electrics.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<!--APP-START-->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="gdefs"></defs></svg>
+
+<header class="top">
+  <div class="brand">
+    <svg class="logo" viewBox="0 0 40 40" aria-hidden="true">
+      <rect x="7" y="7" width="26" height="26" rx="4" fill="none" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M12 2v5M20 2v5M28 2v5M12 33v5M20 33v5M28 33v5M2 12h5M2 20h5M2 28h5M33 12h5M33 20h5M33 28h5" stroke="currentColor" stroke-width="2.5"/>
+      <path d="M13 23l4-7 4 5 3-4 3 6" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linejoin="round"/>
+    </svg>
+    <div>
+      <div class="brand-name">ECM Lab</div>
+      <div class="brand-sub">Engine management &amp; auto-electrical trainer</div>
+    </div>
+  </div>
+  <div class="top-actions">
+    <div class="seg" role="radiogroup" aria-label="Engine type" id="engineSeg">
+      <button role="radio" data-engine="petrol" aria-checked="true">Petrol</button>
+      <button role="radio" data-engine="diesel" aria-checked="false">Diesel</button>
+    </div>
+    <button class="icon-btn" id="themeBtn" aria-label="Toggle light or dark theme" title="Light / dark">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
+    </button>
+  </div>
+</header>
+
+<nav class="tabs" aria-label="Sections">
+  <a href="#map" data-view="map">Car map</a>
+  <a href="#wiring" data-view="wiring">Wiring diagram</a>
+  <a href="#sim" data-view="sim">Live simulator</a>
+  <a href="#body" data-view="body">Body electrics</a>
+  <a href="#parts" data-view="parts">Parts library</a>
+  <a href="#quiz" data-view="quiz">Quiz</a>
+</nav>
+
+<!-- Persistent driver controls -->
+<section class="dash" id="dash" aria-label="Vehicle controls">
+  <div class="dash-inner">
+    <div class="ctl key-ctl">
+      <span class="ctl-label">Ignition key</span>
+      <div class="key-row" id="keyRow">
+        <button data-key="0" class="on">LOCK</button>
+        <button data-key="1">ACC</button>
+        <button data-key="2">ON</button>
+        <button data-key="3" class="start">START</button>
+      </div>
+    </div>
+    <div class="ctl pedal-ctl">
+      <label class="ctl-label" for="pedal">Accelerator <b id="pedalVal">0 %</b></label>
+      <input type="range" id="pedal" min="0" max="100" value="0">
+    </div>
+    <div class="ctl">
+      <span class="ctl-label">Gear</span>
+      <div class="seg small" id="gearSeg">
+        <button data-gear="N" aria-pressed="true">N</button>
+        <button data-gear="D" aria-pressed="false">D</button>
+      </div>
+    </div>
+    <div class="ctl">
+      <span class="ctl-label">Extras</span>
+      <div class="chip-row">
+        <button class="tog" id="acBtn" aria-pressed="false">A/C</button>
+        <button class="tog" id="brakeBtn" aria-pressed="false">Brake</button>
+      </div>
+    </div>
+    <div class="ctl readouts">
+      <div class="ro"><span>RPM</span><b id="roRpm">0</b></div>
+      <div class="ro"><span>Battery</span><b id="roBat">12.6 V</b></div>
+      <div class="ro"><span>Status</span><b id="roStatus">Off</b></div>
+      <div class="lamps">
+        <span class="wlamp mil" id="lampMil" title="Check engine (MIL)">
+          <svg viewBox="0 0 32 20"><path d="M3 15v-8h3v-2h8v2h5l3 3h3v-2h2v11h-2v-2h-3l-2 3h-12l-2-2h-3z" fill="currentColor"/></svg>
+        </span>
+        <span class="wlamp glow" id="lampGlow" title="Glow plug">
+          <svg viewBox="0 0 32 20"><path d="M6 10c0-4 4-6 4-6M26 10c0-4-4-6-4-6M6 10c0 4 4 6 4 6M26 10c0 4-4 6-4 6M10 10h12" stroke="currentColor" stroke-width="2.2" fill="none"/><circle cx="16" cy="10" r="3" fill="currentColor"/></svg>
+        </span>
+        <span class="wlamp bat" id="lampBat" title="Charging">
+          <svg viewBox="0 0 32 20"><rect x="5" y="5" width="22" height="12" rx="1" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M9 3v2M23 3v2M9 11h4M19 11h4M21 9v4" stroke="currentColor" stroke-width="2"/></svg>
+        </span>
+        <span class="wlamp oil" id="lampOil" title="Oil pressure">
+          <svg viewBox="0 0 32 20"><path d="M4 9h4l3-2h8l7-3-6 9h-12l-4-2z M26 12c0 2 2 2 2 0l-1-3z" fill="currentColor"/></svg>
+        </span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main>
+  <!-- CAR MAP -->
+  <section class="view" id="view-map" hidden>
+    <div class="view-head">
+      <div>
+        <h1>Where every part lives</h1>
+        <p class="lede">Tap a dot to open the part: real look, function, wiring, voltages and fault codes. Dots pulse while the part is working.</p>
+      </div>
+      <div class="chip-row" id="mapFilters">
+        <button class="chip on" data-kind="all">All</button>
+        <button class="chip" data-kind="sensor"><i class="dot k-sensor"></i>Sensors</button>
+        <button class="chip" data-kind="actuator"><i class="dot k-actuator"></i>Actuators</button>
+        <button class="chip" data-kind="power"><i class="dot k-power"></i>Power &amp; control</button>
+        <button class="chip" data-kind="load"><i class="dot k-load"></i>Body loads</button>
+        <button class="chip" id="labelsBtn" aria-pressed="true">Labels</button>
+      </div>
+    </div>
+    <div class="map-layout">
+      <div class="map-wrap scroll-x"><svg id="carMap" viewBox="0 0 1000 440" aria-label="Car cut-away with component locations"></svg></div>
+      <div class="map-list" id="mapList"></div>
+    </div>
+  </section>
+
+  <!-- WIRING -->
+  <section class="view" id="view-wiring" hidden>
+    <div class="view-head">
+      <div>
+        <h1>ECM wiring diagram</h1>
+        <p class="lede">Sensors feed the ECM on the left, actuators are driven on the right. Wire colours follow common practice. Turn the key ON to see live voltages, then tap any wire to probe it with the multimeter.</p>
+      </div>
+      <div class="dmm" id="dmm" aria-live="polite">
+        <div class="dmm-screen"><span id="dmmVal">– – –</span><small id="dmmUnit">V DC</small></div>
+        <div class="dmm-info" id="dmmInfo">Tap a wire to probe</div>
+      </div>
+    </div>
+    <div class="wire-legend" id="wireLegend"></div>
+    <div class="wiring-wrap scroll-x"><svg id="wiring" aria-label="ECM wiring diagram"></svg></div>
+  </section>
+
+  <!-- SIMULATOR -->
+  <section class="view" id="view-sim" hidden>
+    <div class="view-head">
+      <div>
+        <h1>Live engine simulator</h1>
+        <p class="lede">Turn the key to ON (watch the fuel pump prime and glow plugs on diesel), then START. Use the accelerator, inject faults and read the codes like a scan tool.</p>
+      </div>
+    </div>
+    <div class="sim-grid">
+      <div class="panel cluster-panel">
+        <div class="gauges">
+          <canvas id="gRpm" class="gauge" aria-label="Tachometer"></canvas>
+          <canvas id="gSpeed" class="gauge" aria-label="Speedometer"></canvas>
+          <canvas id="gTemp" class="gauge small" aria-label="Coolant temperature"></canvas>
+        </div>
+        <div class="msg" id="simMsg">Key is in LOCK. Turn to ON.</div>
+      </div>
+      <div class="panel engine-panel">
+        <div class="panel-head">
+          <h2>Engine cycle <small id="cycleInfo">firing order 1-3-4-2</small></h2>
+          <label class="slow">Slow motion <input type="range" id="slowmo" min="1" max="60" value="20"><b id="slowVal">1/40</b></label>
+        </div>
+        <canvas id="engineCv" class="engine-cv"></canvas>
+      </div>
+      <div class="panel scope-panel">
+        <div class="panel-head">
+          <h2>Oscilloscope</h2>
+          <select id="scopeCh" aria-label="Scope channel"></select>
+        </div>
+        <canvas id="scopeCv" class="scope-cv"></canvas>
+        <div class="scope-foot" id="scopeFoot"></div>
+      </div>
+      <div class="panel data-panel">
+        <div class="panel-head"><h2>Scan tool · live data</h2><span class="pill" id="loopPill">OL</span></div>
+        <table class="live" id="liveTable"></table>
+      </div>
+      <div class="panel dtc-panel">
+        <div class="panel-head"><h2>Fault codes</h2><button class="btn" id="clearDtc">Clear codes</button></div>
+        <ul class="dtc-list" id="dtcList"></ul>
+      </div>
+      <div class="panel fault-panel">
+        <div class="panel-head"><h2>Inject a fault</h2><button class="btn ghost" id="repairAll">Repair all</button></div>
+        <p class="hint">Switch on a fault, then watch live data, the scope and the MIL. Trainers: hide this panel and ask students to diagnose.</p>
+        <div class="fault-list" id="faultList"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BODY ELECTRICS -->
+  <section class="view" id="view-body" hidden>
+    <div class="view-head">
+      <div>
+        <h1>Body electrics bench</h1>
+        <p class="lede">Operate every switch and watch the car respond. The circuit below shows battery → fuse → switch / relay → load → ground with live current. Break a fuse or a ground to practise fault-finding.</p>
+      </div>
+      <div class="ammeter"><span>Body load current</span><b id="ampVal">0.0 A</b></div>
+    </div>
+    <div class="body-grid">
+      <div class="panel switch-panel" id="switchPanel"></div>
+      <div class="panel topcar-panel">
+        <svg id="topCar" viewBox="0 0 360 820" aria-label="Car top view"></svg>
+      </div>
+      <div class="panel circuit-panel">
+        <div class="panel-head">
+          <h2 id="circTitle">Circuit</h2>
+          <select id="circSel" aria-label="Choose circuit"></select>
+        </div>
+        <div class="scroll-x"><svg id="circuit" viewBox="0 0 760 300" aria-label="Circuit diagram"></svg></div>
+        <div class="circ-info" id="circInfo"></div>
+        <div class="chip-row" id="bodyFaults"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PARTS LIBRARY -->
+  <section class="view" id="view-parts" hidden>
+    <div class="view-head">
+      <div>
+        <h1>Parts library</h1>
+        <p class="lede"><span id="partCount"></span> components drawn in their real colours and shapes. Tap one for a full breakdown and an animation of how it works.</p>
+      </div>
+      <div class="lib-tools">
+        <input type="search" id="partSearch" placeholder="Search: MAF, injector, P0335…" aria-label="Search parts">
+        <div class="chip-row" id="libFilters">
+          <button class="chip on" data-kind="all">All</button>
+          <button class="chip" data-kind="sensor">Sensors</button>
+          <button class="chip" data-kind="actuator">Actuators</button>
+          <button class="chip" data-kind="power">Power</button>
+          <button class="chip" data-kind="load">Body loads</button>
+        </div>
+      </div>
+    </div>
+    <div class="lib-grid" id="libGrid"></div>
+  </section>
+
+  <!-- QUIZ -->
+  <section class="view" id="view-quiz" hidden>
+    <div class="view-head">
+      <div>
+        <h1>Check your knowledge</h1>
+        <p class="lede">Fifteen workshop questions on sensors, actuators and circuits.</p>
+      </div>
+    </div>
+    <div class="panel quiz" id="quiz"></div>
+  </section>
+</main>
+
+<aside class="drawer" id="drawer" aria-label="Part details" hidden>
+  <div class="drawer-scrim" data-close></div>
+  <div class="drawer-body" role="dialog" aria-modal="true" aria-labelledby="dTitle">
+    <div class="drawer-top">
+      <div class="chip-row" id="dChips"></div>
+      <button class="icon-btn" data-close aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4"/></svg>
+      </button>
+    </div>
+    <div id="dContent"></div>
+  </div>
+</aside>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<!--APP-END-->
+<script src="js/data.js"></script>
+<script src="js/parts.js"></script>
+<script src="js/sim.js"></script>
+<script src="js/anim.js"></script>
+<script src="js/views.js"></script>
+<script src="js/body.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
