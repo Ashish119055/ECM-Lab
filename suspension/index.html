@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Suspension Lab</title>
-<meta name="description" content="Interactive 3D tear-down simulator for car suspension systems: MacPherson strut, double wishbone, multi-link, twist beam, leaf-spring live axle and air suspension, with kinematics and ride-dynamics labs.">
+<meta name="description" content="Interactive 3D tear-down simulator for car suspension systems: MacPherson strut, double wishbone, multi-link, twist beam, leaf-spring live axle and air suspension, with an illustrated theory section.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
@@ -36,8 +36,8 @@
 
 <nav class="tabs" aria-label="Sections">
   <a href="#bench" data-view="bench" data-i18n="tab_bench">Tear-down bench</a>
-  <a href="#kin" data-view="kin" data-i18n="tab_kin">Kinematics</a>
-  <a href="#dyn" data-view="dyn" data-i18n="tab_dyn">Ride dynamics</a>
+  <a href="#diagram" data-view="diagram" data-i18n="tab_diagram">Diagram</a>
+  <a href="#theory" data-view="theory" data-i18n="tab_theory">Theory</a>
   <a href="#compare" data-view="compare" data-i18n="tab_cmp">Compare systems</a>
 </nav>
 
@@ -49,14 +49,14 @@
     <div class="bench">
       <div class="stage-wrap">
         <div class="stage" id="stage">
-          <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span><button class="btn accent how-btn" id="howBtn" data-i18n="how_btn">▶ How it works</button></div>
-          <div class="how" id="how" hidden aria-live="polite">
-            <div class="how-top"><span class="pill" id="howCount"></span>
-              <div class="how-ctl"><button class="btn ghost" id="howPrev" aria-label="Previous">‹</button><button class="btn ghost" id="howPause" aria-label="Pause">❚❚</button><button class="btn ghost" id="howNext" aria-label="Next">›</button><button class="btn" id="howStop" data-i18n="how_stop">■ Stop</button></div></div>
-            <p id="howText"></p>
-            <div class="how-bar"><i id="howProg"></i></div>
+          <div class="viewport" id="viewport">
+            <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span><button class="btn accent how-btn" id="howBtn" data-i18n="how_btn">▶ How it works</button></div>
+            <div class="readout" id="readout" aria-live="off"></div>
+            <div class="stage-hint" id="stageHint" data-i18n="hint">Tap any part to see its name · drag to turn · pinch to zoom</div>
+            <div class="diagram-hint" id="diagramHint" data-i18n="diagram_hint" hidden></div>
           </div>
-          <div class="toolbar" role="toolbar" aria-label="View tools">
+          <div class="dock">
+            <div class="toolbar" role="toolbar" aria-label="View tools">
             <button class="tb" id="tbExplode" aria-pressed="false" title="Exploded view (all parts)"><svg viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span data-i18n="tb_explode">Explode</span></button>
             <button class="tb" id="tbSection" aria-pressed="false" title="Half-section cut through dampers, bushings, bearings, tyre"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span data-i18n="tb_section">Section</span></button>
             <button class="tb" id="tbLabels" aria-pressed="false" title="BOM balloons"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.5 13.5L20 20" stroke="currentColor" stroke-width="2"/><text x="9" y="12" font-size="8" text-anchor="middle" fill="currentColor" font-family="monospace">1</text></svg><span data-i18n="tb_labels">Balloons</span></button>
@@ -65,17 +65,24 @@
             <button class="tb" id="tbRotate" aria-pressed="false" title="Auto-rotate"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 2v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_rotate">Rotate</span></button>
             <button class="tb" id="tbReset" title="Reset camera"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_view">View</span></button>
             <button class="tb" id="tbFull" aria-pressed="false" title="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_full">Full screen</span></button>
+            <button class="tb" id="tbBody" aria-pressed="true" title="See-through vehicle body"><svg viewBox="0 0 24 24"><path d="M3 15l2-5 4-3h6l4 3 2 5v3H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="17.5" r="2" fill="currentColor"/><circle cx="16.5" cy="17.5" r="2" fill="currentColor"/></svg><span data-i18n="tb_body">Body</span></button>
+            <button class="tb" id="tbCar" title="Show the whole vehicle"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 14l2-3h8l2 3" fill="none" stroke="currentColor" stroke-width="2"/></svg><span data-i18n="tb_car">Car view</span></button>
+            </div>
+          <div class="how" id="how" hidden aria-live="polite">
+            <div class="how-top"><span class="pill" id="howCount"></span>
+              <div class="how-ctl"><button class="btn ghost" id="howPrev" aria-label="Previous">‹</button><button class="btn ghost" id="howPause" aria-label="Pause">❚❚</button><button class="btn ghost" id="howNext" aria-label="Next">›</button><button class="btn" id="howStop" data-i18n="how_stop">■ Stop</button></div></div>
+            <p id="howText"></p>
+            <div class="how-bar"><i id="howProg"></i></div>
           </div>
-          <div class="stage-hint" id="stageHint" data-i18n="hint">Tap any part to see its name · drag to turn · pinch to zoom</div>
           <div class="travel" id="travelBox">
             <div class="travel-row">
               <label for="travel" class="ctl-label"><span data-i18n="travel">Wheel travel</span> <b id="travelVal">0 mm</b></label>
-              <button class="chip" id="cycleBtn" aria-pressed="false" data-i18n="bounce">Bounce</button>
+              <span class="chip-row"><button class="chip" id="driveBtn" aria-pressed="true" data-i18n="drive">Drive</button><button class="chip" id="cycleBtn" aria-pressed="false" data-i18n="bounce">Bounce</button></span>
             </div>
             <input type="range" id="travel" min="-80" max="80" value="0" step="1" aria-describedby="travelNote">
             <div class="travel-note" id="travelNote" data-i18n="rebound_bump">rebound ← → bump</div>
           </div>
-          <div class="readout" id="readout" aria-live="off"></div>
+          </div>
         </div>
       </div>
 
@@ -101,59 +108,11 @@
     </div>
   </section>
 
-  <!-- KINEMATICS -->
-  <section class="view" id="view-kin" hidden>
-    <div class="view-head">
-      <div>
-        <h1 id="kinTitle">Kinematics</h1>
-        <p class="lede" id="kinLede"></p>
-      </div>
-      <div class="ctl kin-travel">
-        <label for="kinTravel" class="ctl-label"><span data-i18n="travel">Wheel travel</span> <b id="kinTravelVal">0 mm</b></label>
-        <input type="range" id="kinTravel" min="-80" max="80" value="0">
-      </div>
-    </div>
-    <div class="kin-grid">
-      <div class="panel">
-        <div class="panel-head"><h2 id="kinDiagTitle">Front-view geometry</h2><div class="kin-legend" id="kinLegend"></div></div>
-        <svg id="kinSvg" class="kin-svg" role="img" aria-label="Suspension geometry diagram"></svg>
-      </div>
-      <div class="kin-side">
-        <div class="kpi-row" id="kinKpis"></div>
-        <div class="panel"><div class="panel-head"><h2 id="c1Title">Camber vs wheel travel</h2></div><svg id="kinC1" class="chart"></svg></div>
-        <div class="panel"><div class="panel-head"><h2 id="c2Title">Roll-centre height</h2></div><svg id="kinC2" class="chart"></svg></div>
-        <div class="panel"><div class="panel-head"><h2 id="c3Title">Motion ratio &amp; wheel rate</h2></div><svg id="kinC3" class="chart"></svg></div>
-      </div>
-    </div>
-    <div class="panel theory" id="kinTheory"></div>
-  </section>
-
-  <!-- RIDE DYNAMICS -->
-  <section class="view" id="view-dyn" hidden>
-    <div class="view-head">
-      <div>
-        <h1 data-i18n="dyn_title">Quarter-car ride lab</h1>
-        <p class="lede" data-i18n="dyn_lede">A 2-degree-of-freedom quarter-car model.</p>
-      </div>
-      <div class="chip-row">
-        <button class="btn accent" id="dynRun">Pause</button>
-        <button class="btn ghost" id="dynReset">Reload preset</button>
-      </div>
-    </div>
-    <div class="dyn-grid">
-      <div class="panel dyn-ctl" id="dynCtl"></div>
-      <div class="dyn-main">
-        <div class="panel dyn-anim-wrap"><canvas id="dynCanvas" aria-label="Animated quarter-car model"></canvas></div>
-        <div class="kpi-row" id="dynKpis"></div>
-        <div class="dyn-scopes">
-          <div class="panel"><div class="panel-head"><h2>Body acceleration <small>m/s²</small></h2></div><canvas class="scope" id="sc1"></canvas></div>
-          <div class="panel"><div class="panel-head"><h2>Suspension travel <small>mm, + = bump</small></h2></div><canvas class="scope" id="sc2"></canvas></div>
-          <div class="panel"><div class="panel-head"><h2>Tyre load <small>N</small></h2></div><canvas class="scope" id="sc3"></canvas></div>
-        </div>
-        <div class="panel"><div class="panel-head"><h2>Frequency response <small>linearised model</small></h2><div class="kin-legend" id="frfLegend"></div></div><svg id="frf" class="chart tall"></svg></div>
-      </div>
-    </div>
-    <div class="panel theory" id="dynTheory"></div>
+  <!-- THEORY -->
+  <section class="view" id="view-theory" hidden>
+    <div class="view-head"><div><h1 data-i18n="theory_title">How a suspension works</h1><p class="lede" data-i18n="theory_lede"></p></div></div>
+    <nav class="th-toc" id="thToc" aria-label="Topics"></nav>
+    <div class="th-list" id="thList"></div>
   </section>
 
   <!-- COMPARE -->
@@ -180,9 +139,7 @@
 <script src="js/kinmath.js"></script>
 <script src="js/systems.js"></script>
 <script src="js/bench.js"></script>
-<script src="js/charts.js"></script>
-<script src="js/kinview.js"></script>
-<script src="js/dynamics.js"></script>
+<script src="js/theory.js"></script>
 <script src="js/app.js"></script>
 </body>
 </html>

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Suspension Lab</title>
-<meta name="description" content="Interactive 3D tear-down simulator for car suspension systems: MacPherson strut, double wishbone, multi-link, twist beam, leaf-spring live axle and air suspension, with kinematics and ride-dynamics labs.">
+<meta name="description" content="Interactive 3D tear-down simulator for car suspension systems: MacPherson strut, double wishbone, multi-link, twist beam, leaf-spring live axle and air suspension, with an illustrated theory section.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
@@ -295,12 +295,7 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
   .dyn-ctl { order: 2; }
 }
 @media (max-width: 640px) {
-  .stage { height: 62vh; min-height: 380px; }
-  .toolbar { flex-direction: row; flex-wrap: wrap; left: 8px; right: 8px; top: auto; bottom: 92px; justify-content: space-between; }
-  .tb { width: auto; flex: 1; }
-  .tb span { font-size: 9px; }
   .stage-hint { display: none; }
-  .travel { width: calc(100% - 16px); bottom: 8px; }
   .readout { top: 100px; font-size: 10px; }
   .dyn-scopes { grid-template-columns: 1fr; }
   .pc { grid-template-columns: 1fr; }
@@ -355,15 +350,110 @@ html:not([lang="en"]) .prep b, html:not([lang="en"]) .kv > span:first-child, htm
   .cmp-cards { display: grid; gap: 10px; margin-bottom: 14px; }
   .cmp-wide { display: none; }
   .how p { font-size: 15px; }
-  .stage.how-on .toolbar { bottom: auto; top: 96px; left: auto; right: 8px; flex-direction: column; flex-wrap: nowrap; }
-  .stage.how-on .tb { flex: none; width: 46px; }
-  .stage.how-on .tb span { display: none; }
+
   .stage-title .how-btn { font-size: 13px; padding: 7px 12px; }
 }
 .st-en { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink-2); line-height: 1.3; margin-top: 1px; }
 .simple { background: color-mix(in srgb, var(--accent) 9%, var(--panel)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: 10px; padding: 4px 12px 10px; margin: 10px 0; }
 .simple p { font-size: 15px; line-height: 1.55; }
 .simple h3 { color: var(--accent); }
+
+/* ── stage = 3D viewport + control dock below it (nothing covers the model) ── */
+.stage { display: flex; flex-direction: column; height: auto; min-height: 0; background: var(--panel); touch-action: auto; }
+.viewport { position: relative; flex: 1 1 auto; height: min(66vh, 660px); min-height: 360px; overflow: hidden; touch-action: none;
+  background: radial-gradient(120% 90% at 50% 25%, var(--stage-a), var(--stage-b)); }
+.dock { flex: none; display: flex; flex-direction: column; gap: 8px; padding: 8px 10px 10px; border-top: 1px solid var(--line); background: var(--panel); }
+.toolbar { position: static; flex-direction: row; flex-wrap: nowrap; overflow-x: auto; background: transparent; backdrop-filter: none; border: 0; border-radius: 0; padding: 0; gap: 2px; scrollbar-width: none; }
+.toolbar::-webkit-scrollbar { display: none; }
+.tb { width: auto; flex: 1 0 56px; }
+.travel { position: static; transform: none; width: auto; background: transparent; backdrop-filter: none; border: 0; padding: 0; }
+.travel .chip-row { flex-wrap: nowrap; }
+.how { position: static; transform: none; width: auto; box-shadow: none; }
+.stage.how-on .travel { display: none; }
+.stage-hint { bottom: 10px; }
+.side { height: auto; min-height: 0; }
+.side-body { max-height: calc(min(66vh, 660px) + 120px); }
+.stage:fullscreen, .stage.max { display: flex; }
+.stage:fullscreen .viewport, .stage.max .viewport { height: auto; min-height: 0; }
+.stage.max { background: var(--panel); }
+.diagram-hint { position: absolute; left: 14px; right: 14px; bottom: 10px; font-size: 13px; color: var(--ink-2); pointer-events: none; }
+body.diagram-mode .how-btn, body.diagram-mode .travel, body.diagram-mode .readout, body.diagram-mode .stage-hint { display: none; }
+.plabel.mini { padding: 3px 8px 4px; font-size: 12px; border-radius: 8px; background: color-mix(in srgb, var(--panel) 92%, transparent); color: var(--ink); border: 1px solid var(--line); box-shadow: 0 2px 8px rgba(0, 0, 0, .15); }
+.plabel.mini b { font-size: 12px; font-weight: 600; }
+.plabel.mini b i { background: var(--ink); color: var(--panel); min-width: 18px; height: 18px; font-size: 10px; }
+.plabel.far::after, .plabel.mini::after { display: none; }
+@media (max-width: 1080px) { .side-body { max-height: none; } }
+@media (max-width: 640px) {
+  .viewport { height: 58vh; min-height: 320px; }
+  .tb { flex: 0 0 52px; }
+  .tb span { font-size: 9.5px; }
+  .stage-hint, .diagram-hint { display: none; }
+  .readout { top: 96px; }
+}
+
+/* ── theory ── */
+.th-toc { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.th-toc a { text-decoration: none; color: var(--ink); border: 1px solid var(--line); background: var(--panel); border-radius: 18px; padding: 5px 12px; font-size: 13.5px; font-weight: 600; }
+.th-toc a:hover { border-color: var(--accent); }
+.th-list { display: grid; gap: 14px; }
+.th-card { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 18px; align-items: start; scroll-margin-top: 56px; }
+.th-card.nosvg { grid-template-columns: 1fr; }
+.th-card h2 { font-size: 24px; margin-bottom: 8px; display: flex; gap: 10px; align-items: baseline; }
+.th-card h2 span { font-family: var(--f-mono); font-size: 13px; color: var(--accent); }
+.th-card p { margin: 0 0 8px; font-size: 15.5px; max-width: 68ch; }
+.th-card ul { margin: 0; padding-left: 20px; font-size: 15.5px; display: grid; gap: 6px; max-width: 70ch; }
+.th-eq { font-family: var(--f-mono); font-size: 22px; font-weight: 600; color: var(--accent); background: var(--bg-2); border-radius: 8px; padding: 8px 14px; display: inline-block; margin: 2px 0 10px; }
+.th-fig { background: radial-gradient(120% 90% at 50% 25%, var(--stage-a), var(--stage-b)); border-radius: 10px; border: 1px solid var(--line); padding: 10px; }
+.th-svg { width: 100%; height: auto; display: block; max-height: 260px; }
+.th-svg .th-t { font-family: var(--f-mono); font-size: 13px; font-weight: 700; fill: var(--ink); }
+.th-svg .th-tc { text-anchor: middle; }
+.th-svg .th-inv { fill: var(--panel); }
+.th-svg .th-road { stroke: var(--ink-2); stroke-width: 3; fill: none; }
+.th-svg .th-body { fill: var(--accent); fill-opacity: .85; }
+.th-svg .th-tyre { fill: #1f2226; }
+.th-svg .th-hub { fill: #b8c0c8; }
+.th-svg .th-link, .th-svg .th-rod { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; fill: none; }
+.th-svg .th-axle { stroke: var(--ink); stroke-width: 6; }
+.th-svg .th-spring, .th-svg .th-spring2 { stroke: var(--bad); stroke-width: 4; fill: none; stroke-linejoin: round; }
+.th-svg .th-damp, .th-svg .th-damp-body { fill: var(--signal); }
+.th-svg .th-oil { fill: #e09a2b; fill-opacity: .55; }
+.th-svg .th-pist { fill: #d6b14a; }
+.th-svg .th-hole { fill: #333; }
+.th-svg .th-drop { fill: #b8680a; }
+.th-svg .th-base { fill: var(--ink-2); }
+.th-svg .th-dim { stroke: var(--ink-2); stroke-width: 1.5; stroke-dasharray: 4 4; fill: none; }
+.th-svg .th-axis { stroke: var(--accent); stroke-width: 3; }
+.th-svg .th-arb { stroke: var(--signal); stroke-width: 5; fill: none; }
+.th-svg .th-bracket, .th-svg .th-bracket2 { stroke: var(--ink-2); stroke-width: 2; fill: none; }
+.th-svg .th-bumpr { stroke: var(--ink-2); stroke-width: 3; fill: none; }
+.th-svg .th-carbody { animation: thBody 2.4s ease-in-out infinite; }
+.th-svg .th-wheel-a { animation: thWheel 2.4s ease-in-out infinite; }
+.th-svg .th-bob { animation: thBob 2.2s ease-in-out infinite; }
+.th-svg .th-press { animation: thPress 2.6s ease-in-out infinite; }
+.th-svg .th-coil { transform-origin: 130px 150px; animation: thCoil 2.6s ease-in-out infinite; }
+.th-svg .th-piston { animation: thPiston 2.2s ease-in-out infinite; }
+.th-svg .th-drops { animation: thDrops 1.1s linear infinite; }
+.th-svg .th-indep { animation: thIndep 2.4s ease-in-out infinite; }
+.th-svg .th-rigid { transform-origin: 290px 150px; animation: thRigid 2.4s ease-in-out infinite; }
+.th-svg .th-lean { transform-origin: 150px 90px; animation: thLean 3s ease-in-out infinite; }
+@keyframes thBody { 0%, 100% { transform: translateY(0); } 30% { transform: translateY(-3px); } 55% { transform: translateY(1px); } }
+@keyframes thWheel { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-16px); } 50% { transform: translateY(0); } }
+@keyframes thBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+@keyframes thPress { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(36px); } }
+@keyframes thCoil { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(.64); } }
+@keyframes thPiston { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(50px); } }
+@keyframes thDrops { 0% { transform: translateY(-8px); opacity: .2; } 50% { opacity: 1; } 100% { transform: translateY(10px); opacity: .2; } }
+@keyframes thIndep { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-22px); } }
+@keyframes thRigid { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(9deg); } }
+@keyframes thLean { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(5deg); } }
+.th-table { width: 100%; border-collapse: collapse; font-size: 15px; }
+.th-table th, .th-table td { border-bottom: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top; }
+.th-table th { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+.th-table td:first-child { font-weight: 600; }
+@media (max-width: 760px) { .th-card { grid-template-columns: 1fr; } .th-card .th-fig { order: -1; } }
+@media (prefers-reduced-motion: reduce) { .th-svg * { animation: none !important; } }
+
+.stage-hint, .diagram-hint { background: color-mix(in srgb, var(--panel) 85%, transparent); color: var(--ink); border-radius: 6px; padding: 3px 8px; right: auto; max-width: calc(100% - 28px); }
 
 </style>
 </head>
@@ -393,8 +483,8 @@ html:not([lang="en"]) .prep b, html:not([lang="en"]) .kv > span:first-child, htm
 
 <nav class="tabs" aria-label="Sections">
   <a href="#bench" data-view="bench" data-i18n="tab_bench">Tear-down bench</a>
-  <a href="#kin" data-view="kin" data-i18n="tab_kin">Kinematics</a>
-  <a href="#dyn" data-view="dyn" data-i18n="tab_dyn">Ride dynamics</a>
+  <a href="#diagram" data-view="diagram" data-i18n="tab_diagram">Diagram</a>
+  <a href="#theory" data-view="theory" data-i18n="tab_theory">Theory</a>
   <a href="#compare" data-view="compare" data-i18n="tab_cmp">Compare systems</a>
 </nav>
 
@@ -406,14 +496,14 @@ html:not([lang="en"]) .prep b, html:not([lang="en"]) .kv > span:first-child, htm
     <div class="bench">
       <div class="stage-wrap">
         <div class="stage" id="stage">
-          <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span><button class="btn accent how-btn" id="howBtn" data-i18n="how_btn">▶ How it works</button></div>
-          <div class="how" id="how" hidden aria-live="polite">
-            <div class="how-top"><span class="pill" id="howCount"></span>
-              <div class="how-ctl"><button class="btn ghost" id="howPrev" aria-label="Previous">‹</button><button class="btn ghost" id="howPause" aria-label="Pause">❚❚</button><button class="btn ghost" id="howNext" aria-label="Next">›</button><button class="btn" id="howStop" data-i18n="how_stop">■ Stop</button></div></div>
-            <p id="howText"></p>
-            <div class="how-bar"><i id="howProg"></i></div>
+          <div class="viewport" id="viewport">
+            <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span><button class="btn accent how-btn" id="howBtn" data-i18n="how_btn">▶ How it works</button></div>
+            <div class="readout" id="readout" aria-live="off"></div>
+            <div class="stage-hint" id="stageHint" data-i18n="hint">Tap any part to see its name · drag to turn · pinch to zoom</div>
+            <div class="diagram-hint" id="diagramHint" data-i18n="diagram_hint" hidden></div>
           </div>
-          <div class="toolbar" role="toolbar" aria-label="View tools">
+          <div class="dock">
+            <div class="toolbar" role="toolbar" aria-label="View tools">
             <button class="tb" id="tbExplode" aria-pressed="false" title="Exploded view (all parts)"><svg viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span data-i18n="tb_explode">Explode</span></button>
             <button class="tb" id="tbSection" aria-pressed="false" title="Half-section cut through dampers, bushings, bearings, tyre"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span data-i18n="tb_section">Section</span></button>
             <button class="tb" id="tbLabels" aria-pressed="false" title="BOM balloons"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.5 13.5L20 20" stroke="currentColor" stroke-width="2"/><text x="9" y="12" font-size="8" text-anchor="middle" fill="currentColor" font-family="monospace">1</text></svg><span data-i18n="tb_labels">Balloons</span></button>
@@ -422,17 +512,24 @@ html:not([lang="en"]) .prep b, html:not([lang="en"]) .kv > span:first-child, htm
             <button class="tb" id="tbRotate" aria-pressed="false" title="Auto-rotate"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 2v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_rotate">Rotate</span></button>
             <button class="tb" id="tbReset" title="Reset camera"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_view">View</span></button>
             <button class="tb" id="tbFull" aria-pressed="false" title="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_full">Full screen</span></button>
+            <button class="tb" id="tbBody" aria-pressed="true" title="See-through vehicle body"><svg viewBox="0 0 24 24"><path d="M3 15l2-5 4-3h6l4 3 2 5v3H3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="17.5" r="2" fill="currentColor"/><circle cx="16.5" cy="17.5" r="2" fill="currentColor"/></svg><span data-i18n="tb_body">Body</span></button>
+            <button class="tb" id="tbCar" title="Show the whole vehicle"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 14l2-3h8l2 3" fill="none" stroke="currentColor" stroke-width="2"/></svg><span data-i18n="tb_car">Car view</span></button>
+            </div>
+          <div class="how" id="how" hidden aria-live="polite">
+            <div class="how-top"><span class="pill" id="howCount"></span>
+              <div class="how-ctl"><button class="btn ghost" id="howPrev" aria-label="Previous">‹</button><button class="btn ghost" id="howPause" aria-label="Pause">❚❚</button><button class="btn ghost" id="howNext" aria-label="Next">›</button><button class="btn" id="howStop" data-i18n="how_stop">■ Stop</button></div></div>
+            <p id="howText"></p>
+            <div class="how-bar"><i id="howProg"></i></div>
           </div>
-          <div class="stage-hint" id="stageHint" data-i18n="hint">Tap any part to see its name · drag to turn · pinch to zoom</div>
           <div class="travel" id="travelBox">
             <div class="travel-row">
               <label for="travel" class="ctl-label"><span data-i18n="travel">Wheel travel</span> <b id="travelVal">0 mm</b></label>
-              <button class="chip" id="cycleBtn" aria-pressed="false" data-i18n="bounce">Bounce</button>
+              <span class="chip-row"><button class="chip" id="driveBtn" aria-pressed="true" data-i18n="drive">Drive</button><button class="chip" id="cycleBtn" aria-pressed="false" data-i18n="bounce">Bounce</button></span>
             </div>
             <input type="range" id="travel" min="-80" max="80" value="0" step="1" aria-describedby="travelNote">
             <div class="travel-note" id="travelNote" data-i18n="rebound_bump">rebound ← → bump</div>
           </div>
-          <div class="readout" id="readout" aria-live="off"></div>
+          </div>
         </div>
       </div>
 
@@ -458,59 +555,11 @@ html:not([lang="en"]) .prep b, html:not([lang="en"]) .kv > span:first-child, htm
     </div>
   </section>
 
-  <!-- KINEMATICS -->
-  <section class="view" id="view-kin" hidden>
-    <div class="view-head">
-      <div>
-        <h1 id="kinTitle">Kinematics</h1>
-        <p class="lede" id="kinLede"></p>
-      </div>
-      <div class="ctl kin-travel">
-        <label for="kinTravel" class="ctl-label"><span data-i18n="travel">Wheel travel</span> <b id="kinTravelVal">0 mm</b></label>
-        <input type="range" id="kinTravel" min="-80" max="80" value="0">
-      </div>
-    </div>
-    <div class="kin-grid">
-      <div class="panel">
-        <div class="panel-head"><h2 id="kinDiagTitle">Front-view geometry</h2><div class="kin-legend" id="kinLegend"></div></div>
-        <svg id="kinSvg" class="kin-svg" role="img" aria-label="Suspension geometry diagram"></svg>
-      </div>
-      <div class="kin-side">
-        <div class="kpi-row" id="kinKpis"></div>
-        <div class="panel"><div class="panel-head"><h2 id="c1Title">Camber vs wheel travel</h2></div><svg id="kinC1" class="chart"></svg></div>
-        <div class="panel"><div class="panel-head"><h2 id="c2Title">Roll-centre height</h2></div><svg id="kinC2" class="chart"></svg></div>
-        <div class="panel"><div class="panel-head"><h2 id="c3Title">Motion ratio &amp; wheel rate</h2></div><svg id="kinC3" class="chart"></svg></div>
-      </div>
-    </div>
-    <div class="panel theory" id="kinTheory"></div>
-  </section>
-
-  <!-- RIDE DYNAMICS -->
-  <section class="view" id="view-dyn" hidden>
-    <div class="view-head">
-      <div>
-        <h1 data-i18n="dyn_title">Quarter-car ride lab</h1>
-        <p class="lede" data-i18n="dyn_lede">A 2-degree-of-freedom quarter-car model.</p>
-      </div>
-      <div class="chip-row">
-        <button class="btn accent" id="dynRun">Pause</button>
-        <button class="btn ghost" id="dynReset">Reload preset</button>
-      </div>
-    </div>
-    <div class="dyn-grid">
-      <div class="panel dyn-ctl" id="dynCtl"></div>
-      <div class="dyn-main">
-        <div class="panel dyn-anim-wrap"><canvas id="dynCanvas" aria-label="Animated quarter-car model"></canvas></div>
-        <div class="kpi-row" id="dynKpis"></div>
-        <div class="dyn-scopes">
-          <div class="panel"><div class="panel-head"><h2>Body acceleration <small>m/s²</small></h2></div><canvas class="scope" id="sc1"></canvas></div>
-          <div class="panel"><div class="panel-head"><h2>Suspension travel <small>mm, + = bump</small></h2></div><canvas class="scope" id="sc2"></canvas></div>
-          <div class="panel"><div class="panel-head"><h2>Tyre load <small>N</small></h2></div><canvas class="scope" id="sc3"></canvas></div>
-        </div>
-        <div class="panel"><div class="panel-head"><h2>Frequency response <small>linearised model</small></h2><div class="kin-legend" id="frfLegend"></div></div><svg id="frf" class="chart tall"></svg></div>
-      </div>
-    </div>
-    <div class="panel theory" id="dynTheory"></div>
+  <!-- THEORY -->
+  <section class="view" id="view-theory" hidden>
+    <div class="view-head"><div><h1 data-i18n="theory_title">How a suspension works</h1><p class="lede" data-i18n="theory_lede"></p></div></div>
+    <nav class="th-toc" id="thToc" aria-label="Topics"></nav>
+    <div class="th-list" id="thList"></div>
   </section>
 
   <!-- COMPARE -->
@@ -966,6 +1015,8 @@ const LANGS = [['en', 'EN'], ['gu', 'ગુજ'], ['hi', 'हिं']];
 
 const UI = {
   en: {
+    tab_diagram: 'Diagram', tab_theory: 'Theory', tb_body: 'Body', tb_car: 'Car view', drive: 'Drive', diagram_hint: 'Exploded diagram — every part is pulled apart and named. Tap a name to learn about the part.',
+    theory_title: 'How a suspension works', theory_lede: 'Simple explanations with moving pictures. Read them in order, then open the bench and take a real system apart.',
     tab_bench: 'Tear-down bench', tab_kin: 'Kinematics', tab_dyn: 'Ride dynamics', tab_cmp: 'Compare systems',
     tb_explode: 'Explode', tb_section: 'Section', tb_labels: 'Numbers', tb_isolate: 'Isolate', tb_tray: 'Tray', tb_rotate: 'Rotate', tb_view: 'View', tb_full: 'Full screen', tb_exitfull: 'Exit',
     travel: 'Wheel travel', bounce: 'Bounce', rebound_bump: 'rebound ← → bump', locked: 'locked — parts removed',
@@ -992,6 +1043,8 @@ const UI = {
     run: 'Run', theory_note: 'Theory notes are in English.', lang: 'Language', tap_details: 'Details ↓'
   },
   gu: {
+    tab_diagram: 'આકૃતિ', tab_theory: 'થિયરી', tb_body: 'બૉડી', tb_car: 'આખી ગાડી', drive: 'ચલાવો', diagram_hint: 'છૂટા ભાગની આકૃતિ — દરેક ભાગ અલગ કરીને તેનું નામ લખ્યું છે. ભાગ વિશે જાણવા નામ પર ટચ કરો.',
+    theory_title: 'સસ્પેન્શન કેવી રીતે કામ કરે છે', theory_lede: 'હલતી આકૃતિઓ સાથે સરળ સમજૂતી. ક્રમમાં વાંચો, પછી બેન્ચ પર જઈને સાચી સિસ્ટમ ખોલીને જુઓ.',
     tab_bench: 'ખોલવાનો બેન્ચ', tab_kin: 'કાઇનેમેટિક્સ', tab_dyn: 'રાઇડ ડાયનેમિક્સ', tab_cmp: 'સરખામણી',
     tb_explode: 'છૂટા ભાગ', tb_section: 'કટ સેક્શન', tb_labels: 'નંબર', tb_isolate: 'એકલો ભાગ', tb_tray: 'ટ્રે', tb_rotate: 'ફેરવો', tb_view: 'વ્યૂ', tb_full: 'ફુલ સ્ક્રીન', tb_exitfull: 'બહાર',
     travel: 'વ્હીલ ટ્રાવેલ', bounce: 'ઉછાળો', rebound_bump: 'નીચે (રિબાઉન્ડ) ← → ઉપર (બમ્પ)', locked: 'લૉક — ભાગ ખોલેલા છે',
@@ -1018,6 +1071,8 @@ const UI = {
     run: 'ચલાવો', theory_note: 'થિયરી નોંધ અંગ્રેજીમાં છે.', lang: 'ભાષા', tap_details: 'વિગત ↓'
   },
   hi: {
+    tab_diagram: 'आकृति', tab_theory: 'थ्योरी', tb_body: 'बॉडी', tb_car: 'पूरी गाड़ी', drive: 'चलाएँ', diagram_hint: 'अलग पार्ट की आकृति — हर पार्ट अलग करके उसका नाम लिखा है. पार्ट के बारे में जानने के लिए नाम को टच करें.',
+    theory_title: 'सस्पेंशन कैसे काम करता है', theory_lede: 'चलती आकृतियों के साथ आसान समझ. क्रम से पढ़ें, फिर बेंच पर जाकर असली सिस्टम खोलकर देखें.',
     tab_bench: 'खोलने की बेंच', tab_kin: 'काइनेमेटिक्स', tab_dyn: 'राइड डायनेमिक्स', tab_cmp: 'तुलना',
     tb_explode: 'अलग पार्ट', tb_section: 'कट सेक्शन', tb_labels: 'नंबर', tb_isolate: 'एक पार्ट', tb_tray: 'ट्रे', tb_rotate: 'घुमाएँ', tb_view: 'व्यू', tb_full: 'फुल स्क्रीन', tb_exitfull: 'बाहर',
     travel: 'व्हील ट्रैवल', bounce: 'उछाल', rebound_bump: 'नीचे (रिबाउंड) ← → ऊपर (बम्प)', locked: 'लॉक — पार्ट खुले हैं',
@@ -1377,8 +1432,12 @@ function initMaterials() {
     grease: S({ color: 0x5c8d2e, roughness: 0.55 }),
     ball: S({ color: 0xe6ebf0, metalness: 1, roughness: 0.12 }),
     bellows: S({ color: 0x232527, roughness: 0.6 }),
-    green: S({ color: 0x2b9a5a, roughness: 0.5 })
+    green: S({ color: 0x2b9a5a, roughness: 0.5 }),
+    ghost: P({ color: 0xbfd6ec, metalness: 0.2, roughness: 0.15, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide }),
+    ghostWin: S({ color: 0x23384d, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide }),
+    ghostTyre: S({ color: 0x25282c, roughness: 0.9, transparent: true, opacity: 0.45, depthWrite: false })
   });
+  MAT.ghostLine = new THREE.LineBasicMaterial({ color: 0x5f8db8, transparent: true, opacity: 0.55 });
   for (const m of Object.values(MAT)) if (m.transparent) m.side = THREE.DoubleSide;
 }
 
@@ -1669,6 +1728,72 @@ function airSpringMesh(len = 0.3, R = 0.075, pistonR = 0.05) {
   return g;
 }
 
+/* ── light (see-through) vehicle body + ghost wheels, so the corner can be seen in its car ── */
+const CAR_SHAPES = {
+  // side-profile points (z relative to the front axle, y), front-bottom first, going over the roof to the rear
+  hatch: (wb) => [[0.8, 0.3], [0.87, 0.47], [0.84, 0.64], [0.6, 0.77], [0.05, 0.87], [-0.4, 0.92], [-1.05, 1.45], [-wb + 0.1, 1.47], [-wb - 0.42, 1.3], [-wb - 0.6, 0.95], [-wb - 0.65, 0.5], [-wb - 0.6, 0.3]],
+  sedan: (wb) => [[0.9, 0.3], [0.97, 0.47], [0.94, 0.63], [0.68, 0.74], [0.0, 0.84], [-0.5, 0.9], [-1.25, 1.43], [-wb + 0.25, 1.45], [-wb - 0.45, 1.02], [-wb - 0.95, 0.98], [-wb - 1.02, 0.72], [-wb - 0.97, 0.3]],
+  suv: (wb) => [[0.85, 0.36], [0.92, 0.6], [0.88, 0.86], [0.55, 0.98], [-0.1, 1.04], [-0.55, 1.08], [-1.15, 1.72], [-wb - 0.55, 1.74], [-wb - 0.8, 1.55], [-wb - 0.86, 1.0], [-wb - 0.86, 0.5], [-wb - 0.8, 0.36]],
+  pickup: (wb) => [[0.85, 0.45], [0.92, 0.72], [0.88, 0.98], [0.35, 1.08], [-0.2, 1.12], [-0.85, 1.8], [-1.95, 1.8], [-2.0, 1.12], [-wb - 1.25, 1.12], [-wb - 1.27, 0.56], [-wb - 1.2, 0.45]]
+};
+function carBody(car) {
+  const g = new THREE.Group();
+  const { kind, wb, R, track } = car;
+  const zf = car.axle === 'front' ? 0 : wb; // world z of the front axle
+  const pts = CAR_SHAPES[kind](wb);
+  const ra = R + 0.07; const yb = pts[pts.length - 1][1];
+  const shape = new THREE.Shape();
+  shape.moveTo(pts[0][0], pts[0][1]);
+  pts.slice(1).forEach(([z, y]) => shape.lineTo(z, y));
+  // bottom edge from rear to front, arching over the rear then the front wheel
+  [[-wb, ra], [0, ra]].forEach(([zc, r]) => {
+    shape.lineTo(zc - r, yb);
+    for (let i = 0; i <= 16; i++) { const a = Math.PI - (i / 16) * Math.PI; shape.lineTo(zc + r * Math.cos(a), Math.max(yb, R + r * Math.sin(a) * 0.98)); }
+    shape.lineTo(zc + r, yb);
+  });
+  shape.lineTo(pts[0][0], pts[0][1]);
+  const width = kind === 'suv' || kind === 'pickup' ? 1.88 : 1.78;
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: width, bevelEnabled: true, bevelSize: 0.06, bevelThickness: 0.06, bevelSegments: 3, curveSegments: 6 });
+  geo.translate(0, 0, -width / 2);
+  const shell = new THREE.Mesh(geo, MAT.ghost); shell.rotation.y = -Math.PI / 2; shell.position.z = zf; shell.renderOrder = 5;
+  g.add(shell);
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 28), MAT.ghostLine);
+  edges.rotation.copy(shell.rotation); edges.position.copy(shell.position); g.add(edges);
+  // window band (darker glass)
+  const wpts = pts.filter(([, y]) => y > 0.86);
+  if (wpts.length > 2) {
+    const ws = new THREE.Shape(); ws.moveTo(wpts[0][0], wpts[0][1] + 0.02); wpts.forEach(([z, y]) => ws.lineTo(z, y - 0.04)); ws.lineTo(wpts[wpts.length - 1][0], wpts[0][1] + 0.02);
+    [1, -1].forEach((sx) => { const wm = new THREE.Mesh(new THREE.ShapeGeometry(ws), MAT.ghostWin); wm.rotation.y = -Math.PI / 2; wm.position.set(sx * (width / 2 + 0.065), 0, zf); g.add(wm); });
+  }
+  // ghost wheels everywhere a real wheel is not modelled
+  const spinners = [];
+  const real = car.real; // e.g. [['front', 1]] or [['rear', 1], ['rear', -1]]
+  [['front', zf], ['rear', zf - wb]].forEach(([ax, z]) => [1, -1].forEach((sx) => {
+    if (real.some(([a, s]) => a === ax && s === sx)) return;
+    const t = new THREE.Mesh(tyreMesh(R, car.w ?? 0.22, R * 0.66).geometry, MAT.ghostTyre);
+    orientWheel(t, V3(sx * track, R, z), sx); g.add(t); spinners.push([t, sx]);
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.6, R * 0.6, 0.02, 24), MAT.ghostWin); orientWheel(hub, V3(sx * (track + 0.09), R, z), sx); g.add(hub);
+  }));
+  g.userData.spinners = spinners;
+  g.userData.bounds = { zMin: zf - wb - 1.3, zMax: zf + 1.0, w: width };
+  return g;
+}
+
+/* Road strip with scrolling lane markings */
+function makeRoad() {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 512;
+  const x = c.getContext('2d');
+  x.fillStyle = '#3b3f45'; x.fillRect(0, 0, 256, 512);
+  for (let i = 0; i < 2600; i++) { const v = 50 + Math.random() * 40; x.fillStyle = `rgb(${v},${v + 2},${v + 5})`; x.fillRect(Math.random() * 256, Math.random() * 512, 2, 2); }
+  x.fillStyle = '#e8e8e2'; x.fillRect(8, 0, 6, 512); x.fillRect(242, 0, 6, 512);
+  x.fillStyle = '#f2c230'; x.fillRect(125, 0, 6, 220);
+  const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1, 4); tex.encoding = THREE.sRGBEncoding;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 16), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.95, metalness: 0 }));
+  m.rotation.x = -Math.PI / 2; m.position.y = 0.002; m.receiveShadow = true;
+  m.userData.tex = tex;
+  return m;
+}
+
 </script>
 <script>
 /* Suspension Lab — planar kinematic solvers (front view: x lateral, y vertical; side view for beam axles).
@@ -1781,7 +1906,7 @@ class Asm {
     this.parts.push(p); return p;
   }
   ex(p, sx = 1) { return p.explode ? V3(p.explode.x * sx, p.explode.y, p.explode.z) : V3(0, 0, 0); }
-  rigid(p, body, obj, sx = 1) { p.pieces.push({ kind: 'rigid', body, obj, ex: this.ex(p, sx) }); return obj; }
+  rigid(p, body, obj, sx = 1) { p.pieces.push({ kind: 'rigid', body, obj, sx, ex: this.ex(p, sx) }); return obj; }
   span(p, a, b, obj, sx = 1) { p.pieces.push({ kind: 'span', a, b, obj, ex: this.ex(p, sx) }); return obj; }
   dyn(p, obj, update, sx = 1) { p.pieces.push({ kind: 'dyn', obj, update, ex: this.ex(p, sx) }); return obj; }
 }
@@ -2349,7 +2474,7 @@ function buildAir() {
    ═════════════════════════════════════════════════════════ */
 const SYSTEMS = [
   {
-    id: 'macpherson', name: 'MacPherson strut', axle: 'Front · FWD', build: buildMacPherson,
+    id: 'macpherson', name: 'MacPherson strut', axle: 'Front · FWD', build: buildMacPherson, car: { kind: 'hatch', axle: 'front', wb: 2.55, R: 0.32, track: 0.76, real: [['front', 1]] },
     camera: { pos: [0.95, 1.25, 2.15], target: [0.45, 0.5, 0] },
     history: 'Earle S. MacPherson (GM, then Ford) — first in production on the 1950 Ford Consul / Zephyr (UK).',
     used: 'Most front-wheel-drive cars: VW Golf, Toyota Corolla, Hyundai i20, Maruti Swift, Tesla Model 3 (front is double wishbone), Porsche 911 (front).',
@@ -2377,7 +2502,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'wishbone', name: 'Double wishbone (SLA)', axle: 'Front · RWD', build: buildDoubleWishbone,
+    id: 'wishbone', name: 'Double wishbone (SLA)', axle: 'Front · RWD', build: buildDoubleWishbone, car: { kind: 'suv', axle: 'front', wb: 2.75, R: 0.32, track: 0.76, real: [['front', 1]] },
     camera: { pos: [0.3, 1.3, 2.2], target: [0.45, 0.46, 0] },
     history: 'Introduced on the 1934 Citroën Traction Avant and pre-war GM "Knee-Action". The standard for racing cars, light trucks and premium front axles ever since.',
     used: 'Honda Accord (to 2012), Mazda MX-5, Toyota Hilux / Fortuner front, Jaguar F-Type, most racing cars.',
@@ -2404,7 +2529,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'multilink', name: 'Multi-link (5-link)', axle: 'Rear · RWD', build: buildMultiLink,
+    id: 'multilink', name: 'Multi-link (5-link)', axle: 'Rear · RWD', build: buildMultiLink, car: { kind: 'sedan', axle: 'rear', wb: 2.85, R: 0.32, track: 0.76, real: [['rear', 1]] },
     camera: { pos: [-0.25, 1.3, -2.0], target: [0.45, 0.36, 0] },
     history: 'Mercedes-Benz W201 (190E, 1982) "Raumlenkerachse" — five independent links, each defining one constraint.',
     used: 'Mercedes C/E-class rear, BMW 3-series rear, Audi A4 (front & rear), Ford Focus "Control Blade" rear, most premium cars.',
@@ -2431,7 +2556,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'twistbeam', name: 'Twist-beam axle', axle: 'Rear · FWD', build: buildTwistBeam,
+    id: 'twistbeam', name: 'Twist-beam axle', axle: 'Rear · FWD', build: buildTwistBeam, car: { kind: 'hatch', axle: 'rear', wb: 2.5, R: 0.31, track: 0.74, w: 0.205, real: [['rear', 1], ['rear', -1]] },
     camera: { pos: [1.95, 1.2, -1.75], target: [0, 0.36, 0.08] },
     history: 'Audi 50 / VW Golf Mk1 (1974) "Verbundlenkerachse" — combined trailing-arm axle.',
     used: 'Most small and compact FWD cars: VW Polo / Golf (low power), Hyundai i10–i20, Maruti Swift / Baleno, Honda City, Renault Clio, Toyota Yaris.',
@@ -2454,7 +2579,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'leaf', name: 'Leaf-spring live axle', axle: 'Rear · 4×2 pickup', build: buildLeaf,
+    id: 'leaf', name: 'Leaf-spring live axle', axle: 'Rear · 4×2 pickup', build: buildLeaf, car: { kind: 'pickup', axle: 'rear', wb: 3.1, R: 0.38, track: 0.82, w: 0.245, real: [['rear', 1], ['rear', -1]] },
     camera: { pos: [2.45, 1.05, -1.55], target: [0.15, 0.4, -0.05] },
     history: 'Carriage springs of the 1700s. Hotchkiss drive (1900s), where the springs also take the drive torque, is still common on pickups and light commercial vehicles.',
     used: 'Toyota Hilux, Isuzu D-Max, Mahindra Bolero / Scorpio (older), Tata Ace, Ford Ranger, most trucks and buses.',
@@ -2478,7 +2603,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'air', name: 'Air suspension (adaptive)', axle: 'Front · AWD luxury', build: buildAir,
+    id: 'air', name: 'Air suspension (adaptive)', axle: 'Front · AWD luxury', build: buildAir, car: { kind: 'sedan', axle: 'front', wb: 3.0, R: 0.32, track: 0.76, real: [['front', 1]] },
     camera: { pos: [0.2, 1.35, 2.3], target: [0.35, 0.5, 0] },
     history: 'Cadillac Eldorado Brougham (1957). The modern electronic generation: Mercedes AIRMATIC (W220, 1998), Audi adaptive air (A8 D3, 2002).',
     used: 'Mercedes S/E-class, Audi A8 / Q7, Range Rover, Porsche Cayenne / Taycan, Tesla Model S / X, coaches and trucks.',
@@ -2513,11 +2638,12 @@ const SYS_BY_ID = Object.fromEntries(SYSTEMS.map((s) => [s.id, s]));
 'use strict';
 
 const Bench = (() => {
-  let renderer, scene, camera, root, ground, grid, keyLight, container, balloonLayer, tip;
+  let renderer, scene, camera, root, ground, grid, keyLight, container, balloonLayer, tip, road, car = null, spinList = [], spinA = 0;
+  const SPIN = new Set(['tyre', 'rim', 'wheelnuts', 'disc', 'drum', 'hub']);
   let sysDef = null, built = null, bodies = {}, parts = [], partById = {}, pickables = [];
   let lastT = performance.now(), clock = 0, needKin = true;
   const st = {
-    hl: new Set(),
+    hl: new Set(), showBody: true, drive: false, spin: false, allNames: false,
     s: 0, sTarget: 0, cycle: false, section: false, balloons: false, hideRemoved: false, isolate: false,
     autoRot: false, selected: null, hover: null, dark: false, frozen: false
   };
@@ -2581,6 +2707,7 @@ const Bench = (() => {
     grid.material.transparent = true; grid.material.opacity = 0.22; grid.position.y = 0.001; scene.add(grid);
 
     root = new THREE.Group(); scene.add(root);
+    road = makeRoad(); road.visible = false; scene.add(road);
 
     balloonLayer = document.createElement('div'); balloonLayer.className = 'balloons'; el.appendChild(balloonLayer);
     tip = document.createElement('div'); tip.className = 'tip3d'; tip.hidden = true; el.appendChild(tip);
@@ -2630,6 +2757,14 @@ const Bench = (() => {
       lb.addEventListener('click', () => api.onLabel && api.onLabel(p.id)); balloonLayer.appendChild(lb); p.label = lb;
       partById[p.id] = p; parts.push(p);
     });
+    car = def.car ? carBody(def.car) : null; spinList = [];
+    if (car) {
+      root.add(car); car.visible = st.showBody;
+      car.userData.spinners.forEach(([o, sx]) => spinList.push({ obj: o, q0: o.quaternion.clone(), sx }));
+      const zf = def.car.axle === 'front' ? 0 : def.car.wb; road.position.z = zf - def.car.wb / 2; road.position.x = -1.1; // keep-left: centre line on the vehicle's right
+    }
+    road.visible = !!car && st.showBody;
+    built.parts.forEach((p) => { if (SPIN.has(p.info)) p.pieces.forEach((pc) => spinList.push({ obj: pc.obj, q0: pc.obj.quaternion.clone(), sx: pc.sx || 1 })); });
     st.s = 0; st.sTarget = 0; st.cycle = false; st.selected = null; st.hover = null; st.isolate = false; st.hl = new Set();
     applySection(); applyGhost(); needKin = true;
     resetView(true);
@@ -2723,7 +2858,7 @@ const Bench = (() => {
   /* ── camera ────────────────────────────────────────────── */
   function resetView(snap) {
     const c = sysDef.camera; const pos = A3(c.pos), tg = A3(c.target);
-    const d = pos.clone().sub(tg); const r = d.length() * Math.max(1, Math.min(1.9, 1.3 / (camera.aspect || 1.3)));
+    const d = pos.clone().sub(tg); const r = d.length() * Math.max(1, Math.min(1.45, 1.15 / (camera.aspect || 1.3)));
     cam.dTarget.copy(tg); cam.dr = r; cam.dth = Math.atan2(d.x, d.z); cam.dph = Math.acos(d.y / r);
     if (snap) { cam.target.copy(tg); cam.r = r; cam.th = cam.dth; cam.ph = cam.dph; }
   }
@@ -2773,7 +2908,7 @@ const Bench = (() => {
       if (used) e.preventDefault();
     });
   }
-  const clampR = (r) => Math.min(7, Math.max(0.35, r));
+  const clampR = (r) => Math.min(11, Math.max(0.35, r));
   function pan(dx, dy) {
     const s = cam.r * 0.0011;
     const right = V3(Math.cos(cam.th), 0, -Math.sin(cam.th));
@@ -2826,11 +2961,17 @@ const Bench = (() => {
       p.holders.forEach((h) => { h.position.copy(h.userData.ex).multiplyScalar(e); h.visible = !(st.hideRemoved && p.t > 0.97); });
       const gone = st.hideRemoved && p.t > 0.97;
       p.balloon.hidden = !st.balloons || gone || p.id === st.selected || st.hl.has(p.id);
-      p.label.hidden = gone || !(p.id === st.selected || st.hl.has(p.id));
+      p.label.hidden = gone || !(p.id === st.selected || st.hl.has(p.id) || (st.allNames && p.explode));
     }
     // travel
     const locked = anyRemoved();
     if (st.cycle && !locked) st.sTarget = 0.075 * Math.sin(clock * 2 * Math.PI * 0.45);
+    if (st.drive && !locked) { const ph = clock % 4.2; st.sTarget = 0.018 * Math.sin(clock * 5.3) + 0.01 * Math.sin(clock * 13.1 + 1) + (ph < 0.5 ? 0.065 * Math.sin(ph / 0.5 * Math.PI) : 0) + (ph > 2.1 && ph < 2.6 ? -0.045 * Math.sin((ph - 2.1) / 0.5 * Math.PI) : 0); }
+    if ((st.drive || st.spin) && !locked) {
+      spinA += dt * 6; const q = new THREE.Quaternion();
+      spinList.forEach((w) => { q.setFromAxisAngle(UP, w.sx * spinA); w.obj.quaternion.copy(w.q0).multiply(q); });
+      if (road.visible) road.userData.tex.offset.y -= dt * 0.48;
+    }
     if (locked) st.sTarget = 0;
     const ds = (st.sTarget - st.s) * (1 - Math.exp(-dt * 9));
     if (Math.abs(ds) > 1e-6 || needKin || moving) { st.s += ds; kin(); needKin = false; }
@@ -2848,7 +2989,7 @@ const Bench = (() => {
     api.onFrame && api.onFrame(readouts(), locked);
   }
   function placeBalloons() {
-    const w = container.clientWidth, h = container.clientHeight;
+    const w = container.clientWidth, h = container.clientHeight; const boxes = [];
     for (const p of parts) {
       if (p.balloon.hidden && p.label.hidden) continue;
       const c = partCenter(p, tmpV); if (!c) { p.balloon.hidden = true; p.label.hidden = true; continue; }
@@ -2857,20 +2998,32 @@ const Bench = (() => {
       const x = ((c.x + 1) / 2) * w, y = ((1 - c.y) / 2) * h;
       if (!p.balloon.hidden) p.balloon.style.transform = `translate(${x}px, ${y}px)`;
       if (!p.label.hidden) {
-        const sel = p.id === st.selected; const key = api.nameOf(p) + (sel ? '|s' : '');
+        const sel = p.id === st.selected; const key = api.nameOf(p) + (sel ? '|s' : '') + (st.allNames ? '|m' : '');
         if (p.label.dataset.key !== key) {
           p.label.dataset.key = key;
           const d = sel ? api.descOf(p) : '';
           p.label.innerHTML = `<b><i>${p.n}</i>${esc3(api.nameOf(p))}</b>${d ? `<span>${esc3(d)}</span>` : ''}`;
-          p.label.classList.toggle('sel', sel);
+          p.label.classList.toggle('sel', sel); p.label.classList.toggle('mini', !sel && st.allNames && !st.hl.has(p.id));
+          p.label._w = p.label.offsetWidth; p.label._h = p.label.offsetHeight;
         }
-        const lw = p.label.offsetWidth, lh = p.label.offsetHeight;
-        const lx = Math.max(6, Math.min(w - lw - 6, x - lw / 2)), ly = Math.max(6, Math.min(h - lh - 6, y - lh - 16));
-        p.label.style.transform = `translate(${lx}px, ${ly}px)`;
+        boxes.push({ p, x, y, w: p.label._w, h: p.label._h, pri: sel ? 2 : st.hl.has(p.id) ? 1 : 0 });
       }
     }
+    // place important labels first, then push others down until they no longer overlap
+    boxes.sort((a, b) => b.pri - a.pri || a.y - b.y);
+    const placed = [];
+    for (const bx of boxes) {
+      let lx = Math.max(6, Math.min(w - bx.w - 6, bx.x - bx.w / 2)), ly = Math.max(6, Math.min(h - bx.h - 6, bx.y - bx.h - 14));
+      for (let k = 0; k < 14; k++) {
+        const hit = placed.find((o) => lx < o.x + o.w + 3 && lx + bx.w + 3 > o.x && ly < o.y + o.h + 3 && ly + bx.h + 3 > o.y);
+        if (!hit) break;
+        ly = hit.y + hit.h + 4; if (ly + bx.h > h - 6) { ly = Math.max(6, hit.y - bx.h - 4); lx = Math.min(w - bx.w - 6, hit.x + hit.w + 4); }
+      }
+      placed.push({ x: lx, y: ly, w: bx.w, h: bx.h });
+      bx.p.label.style.transform = `translate(${lx}px, ${ly}px)`;
+      bx.p.label.classList.toggle('far', Math.abs(ly + bx.h - bx.y) > 40);
+    }
   }
-
   const esc3 = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
   function highlight(ids) {
     st.hl.forEach((id) => { if (id !== st.selected && partById[id]) setEmissive(partById[id], 0, 0); });
@@ -2882,6 +3035,15 @@ const Bench = (() => {
   Object.defineProperties(api, { parts: { get: () => parts }, built: { get: () => built } });
   return Object.assign(api, {
     init, load, setTheme, select, focusPart, resetView, fit, setRemoved, readouts, snapshot, highlight, refreshLabels,
+    setBody(on) { st.showBody = on; if (car) car.visible = on; road.visible = on && !!car; },
+    setDrive(on) { st.drive = on; st.cycle = false; if (!on) st.sTarget = 0; },
+    setSpin(on) { st.spin = on; },
+    setAllNames(on) { st.allNames = on; parts.forEach((p) => { p.label.dataset.key = ''; }); },
+    viewCar() {
+      if (!car) return; const bx = new THREE.Box3().setFromObject(car); const c = bx.getCenter(V3(0, 0, 0));
+      cam.dTarget.copy(c); cam.dr = clampR(bx.getSize(V3(0, 0, 0)).length() / 2 / Math.sin((camera.fov * Math.PI / 180) / 2) * 0.75);
+      cam.dth = Math.atan2(1.6, 1.2); cam.dph = 1.15;
+    },
     setTravel(m) { st.cycle = false; st.sTarget = m; },
     setCycle(on) { st.cycle = on; if (!on) st.sTarget = 0; },
     setSection(on) { st.section = on; applySection(); },
@@ -2895,636 +3057,142 @@ const Bench = (() => {
 
 </script>
 <script>
-/* Suspension Lab — small SVG line-chart helper (one y-axis, 2px lines, crosshair tooltip) */
+/* Suspension Lab — Theory: simple explanations (English / Gujarati / Hindi) with animated diagrams */
 'use strict';
 
-const NS = 'http://www.w3.org/2000/svg';
-function svgEl(tag, attrs = {}, parent) {
-  const e = document.createElementNS(NS, tag);
-  for (const [k, v] of Object.entries(attrs)) e.setAttribute(k, v);
-  if (parent) parent.appendChild(e);
-  return e;
-}
-function niceTicks(lo, hi, n = 5) {
-  const span = hi - lo || 1; const step0 = span / n; const mag = 10 ** Math.floor(Math.log10(step0));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => span / s <= n) || mag * 10;
-  const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + step * 1e-6; v += step) t.push(+v.toFixed(10));
-  return t;
-}
+const THEORY_SVG = {
+  jobs: `<svg viewBox="0 0 320 150" class="th-svg" aria-hidden="true">
+    <path class="th-road" d="M0 128 H320"/>
+    <g class="th-carbody"><rect x="70" y="40" width="180" height="40" rx="12" class="th-body"/><rect x="110" y="18" width="95" height="30" rx="10" class="th-body"/></g>
+    <g class="th-wheel th-wheel-a"><circle cx="105" cy="104" r="22" class="th-tyre"/><circle cx="105" cy="104" r="9" class="th-hub"/></g>
+    <g class="th-wheel"><circle cx="215" cy="104" r="22" class="th-tyre"/><circle cx="215" cy="104" r="9" class="th-hub"/></g>
+    <path d="M105 80 V96 M215 80 V96" class="th-link"/>
+    <path class="th-bumpr" d="M80 128 q25 -26 50 0"/>
+  </svg>`,
+  quarter: `<svg viewBox="0 0 260 230" class="th-svg" aria-hidden="true">
+    <rect x="70" y="14" width="120" height="44" rx="8" class="th-body th-bob"/><text x="130" y="41" class="th-t th-tc">m₁</text>
+    <path class="th-spring" d="M105 58 l14 8 -28 8 28 8 -28 8 28 8 -28 8 14 8"/>
+    <rect x="150" y="70" width="18" height="34" rx="3" class="th-damp"/><path d="M159 58 V78" class="th-link"/>
+    <path d="M90 128 H170 M130 128 V146" class="th-link"/>
+    <circle cx="130" cy="168" r="28" class="th-tyre"/><circle cx="130" cy="168" r="11" class="th-hub"/><text x="130" y="172" class="th-t th-tc th-inv">m₂</text>
+    <path class="th-road" d="M20 198 H240"/>
+    <path class="th-bracket" d="M206 14 V58"/><text x="212" y="40" class="th-t">A</text>
+    <path class="th-bracket2" d="M206 128 V196"/><text x="212" y="166" class="th-t">B</text>
+  </svg>`,
+  spring: `<svg viewBox="0 0 260 200" class="th-svg" aria-hidden="true">
+    <g class="th-press"><rect x="80" y="10" width="100" height="36" rx="6" class="th-body"/><text x="130" y="33" class="th-t th-tc">F</text></g>
+    <g class="th-coil"><path class="th-spring2" d="M130 48 l26 10 -52 10 52 10 -52 10 52 10 -52 10 52 10 -52 10 52 10 -26 10"/></g>
+    <rect x="70" y="160" width="120" height="10" class="th-base"/>
+    <path class="th-dim" d="M210 48 V150"/><text x="216" y="104" class="th-t">x</text>
+  </svg>`,
+  damper: `<svg viewBox="0 0 260 220" class="th-svg" aria-hidden="true">
+    <rect x="95" y="60" width="70" height="140" rx="8" class="th-damp-body"/>
+    <rect x="102" y="66" width="56" height="128" rx="4" class="th-oil"/>
+    <g class="th-piston"><path d="M130 10 V96" class="th-rod"/><rect x="102" y="94" width="56" height="12" rx="2" class="th-pist"/>
+      <circle cx="116" cy="100" r="2.6" class="th-hole"/><circle cx="130" cy="100" r="2.6" class="th-hole"/><circle cx="144" cy="100" r="2.6" class="th-hole"/></g>
+    <g class="th-drops"><circle cx="116" cy="120" r="3" class="th-drop"/><circle cx="144" cy="130" r="3" class="th-drop"/><circle cx="130" cy="84" r="3" class="th-drop th-drop2"/></g>
+    <text x="180" y="110" class="th-t">↕</text>
+  </svg>`,
+  axles: `<svg viewBox="0 0 320 170" class="th-svg" aria-hidden="true">
+    <text x="80" y="16" class="th-t th-tc">1</text><text x="240" y="16" class="th-t th-tc">2</text>
+    <g><path class="th-road" d="M10 150 H150"/><path class="th-road" d="M10 150 H40 q18 -24 36 0" />
+      <rect x="40" y="40" width="80" height="22" rx="5" class="th-body"/>
+      <g class="th-indep"><rect x="22" y="92" width="16" height="50" rx="5" class="th-tyre"/></g><rect x="122" y="100" width="16" height="50" rx="5" class="th-tyre"/>
+      <path d="M40 62 L30 92 M120 62 L130 100" class="th-link"/></g>
+    <g><path class="th-road" d="M170 150 H310"/>
+      <rect x="200" y="40" width="80" height="22" rx="5" class="th-body"/>
+      <g class="th-rigid"><rect x="182" y="100" width="16" height="50" rx="5" class="th-tyre"/><rect x="282" y="100" width="16" height="50" rx="5" class="th-tyre"/><path d="M198 125 H282" class="th-axle"/></g>
+      <path d="M215 62 V112 M265 62 V112" class="th-link"/></g>
+  </svg>`,
+  align: `<svg viewBox="0 0 330 160" class="th-svg" aria-hidden="true">
+    <g><text x="55" y="16" class="th-t th-tc">Camber</text><path class="th-road" d="M10 140 H100"/><path d="M55 30 V140" class="th-dim"/>
+      <rect x="44" y="50" width="22" height="88" rx="6" class="th-tyre" transform="rotate(-8 55 138)"/></g>
+    <g><text x="165" y="16" class="th-t th-tc">Caster</text><path class="th-road" d="M120 140 H210"/><circle cx="165" cy="112" r="26" class="th-tyre"/>
+      <path d="M165 30 V140" class="th-dim"/><path d="M150 32 L172 140" class="th-axis"/></g>
+    <g><text x="275" y="16" class="th-t th-tc">Toe-in</text><rect x="240" y="40" width="14" height="44" rx="4" class="th-tyre" transform="rotate(-6 247 62)"/>
+      <rect x="296" y="40" width="14" height="44" rx="4" class="th-tyre" transform="rotate(6 303 62)"/><path d="M247 110 V146 M303 110 V146" class="th-dim"/><text x="275" y="132" class="th-t th-tc">↑</text></g>
+  </svg>`,
+  roll: `<svg viewBox="0 0 300 170" class="th-svg" aria-hidden="true">
+    <path class="th-road" d="M10 150 H290"/>
+    <g class="th-lean"><rect x="70" y="40" width="160" height="34" rx="8" class="th-body"/><rect x="105" y="16" width="90" height="28" rx="8" class="th-body"/></g>
+    <rect x="70" y="100" width="18" height="50" rx="5" class="th-tyre"/><rect x="212" y="100" width="18" height="50" rx="5" class="th-tyre"/>
+    <path d="M88 118 Q150 132 212 118" class="th-arb"/>
+    <text x="240" y="40" class="th-t">→</text>
+  </svg>`
+};
 
-/* opts: series [{name, color, pts:[[x,y]], dash}], xLabel, yLabel, xr:[a,b], yr:[a,b] (optional), logX, cursorX, fmtX, fmtY, markers [{x,label}] */
-function lineChart(svg, opts) {
-  const W = svg.clientWidth || 400, H = svg.clientHeight || 170;
-  svg.setAttribute('viewBox', `0 0 ${W} ${H}`); svg.innerHTML = '';
-  const m = { l: 46, r: 12, t: 18, b: 30 };
-  const iw = W - m.l - m.r, ih = H - m.t - m.b;
-  const all = opts.series.flatMap((s) => s.pts);
-  let [x0, x1] = opts.xr || [Math.min(...all.map((p) => p[0])), Math.max(...all.map((p) => p[0]))];
-  let [y0, y1] = opts.yr || [Math.min(...all.map((p) => p[1])), Math.max(...all.map((p) => p[1]))];
-  if (!opts.yr) { const pad = (y1 - y0) * 0.12 || Math.abs(y0) * 0.1 || 1; y0 -= pad; y1 += pad; }
-  const lx = (v) => (opts.logX ? Math.log10(v) : v);
-  const X = (v) => m.l + ((lx(v) - lx(x0)) / (lx(x1) - lx(x0))) * iw;
-  const Y = (v) => m.t + (1 - (v - y0) / (y1 - y0)) * ih;
-  const fx = opts.fmtX || ((v) => v), fy = opts.fmtY || ((v) => +v.toFixed(2));
-  // grid & axes
-  const yt = niceTicks(y0, y1, Math.max(3, Math.floor(ih / 32)));
-  yt.forEach((v) => { svgEl('line', { x1: m.l, x2: m.l + iw, y1: Y(v), y2: Y(v), class: Math.abs(v) < 1e-9 ? 'zero' : 'gr' }, svg); svgEl('text', { x: m.l - 6, y: Y(v) + 3.5, 'text-anchor': 'end' }, svg).textContent = fy(v); });
-  const xt = opts.logX ? [0.5, 1, 2, 5, 10, 20, 50].filter((v) => v >= x0 && v <= x1) : niceTicks(x0, x1, Math.max(3, Math.floor(iw / 70)));
-  xt.forEach((v) => { svgEl('line', { y1: m.t, y2: m.t + ih, x1: X(v), x2: X(v), class: Math.abs(v) < 1e-9 ? 'zero' : 'gr' }, svg); svgEl('text', { x: X(v), y: m.t + ih + 14, 'text-anchor': 'middle' }, svg).textContent = fx(v); });
-  svgEl('line', { x1: m.l, x2: m.l + iw, y1: m.t + ih, y2: m.t + ih, class: 'ax' }, svg);
-  if (opts.xLabel) svgEl('text', { x: m.l + iw, y: H - 2, 'text-anchor': 'end' }, svg).textContent = opts.xLabel;
-  if (opts.yLabel) svgEl('text', { x: 4, y: 10 }, svg).textContent = opts.yLabel;
-  (opts.markers || []).forEach((mk) => {
-    if (mk.x < x0 || mk.x > x1) return;
-    svgEl('line', { x1: X(mk.x), x2: X(mk.x), y1: m.t, y2: m.t + ih, class: 'cursor', 'stroke-opacity': 0.5 }, svg);
-    svgEl('text', { x: X(mk.x) + 4, y: m.t + 11 }, svg).textContent = mk.label;
-  });
-  // series
-  opts.series.forEach((s) => {
-    const d = s.pts.filter((p) => isFinite(p[1])).map((p, i) => `${i ? 'L' : 'M'}${X(p[0]).toFixed(1)},${Y(Math.max(y0, Math.min(y1, p[1]))).toFixed(1)}`).join('');
-    svgEl('path', { d, class: 'ln', stroke: s.color, 'stroke-dasharray': s.dash || '' }, svg);
-  });
-  // current-value cursor
-  if (opts.cursorX != null) {
-    svgEl('line', { x1: X(opts.cursorX), x2: X(opts.cursorX), y1: m.t, y2: m.t + ih, class: 'cursor' }, svg);
-    opts.series.forEach((s) => { const v = interp(s.pts, opts.cursorX); if (isFinite(v)) svgEl('circle', { cx: X(opts.cursorX), cy: Y(Math.max(y0, Math.min(y1, v))), r: 4.5, fill: s.color, class: 'dot' }, svg); });
-  }
-  // hover crosshair + tooltip
-  const hov = svgEl('g', { 'pointer-events': 'none' }, svg);
-  const hit = svgEl('rect', { x: m.l, y: m.t, width: iw, height: ih, class: 'hit' }, svg);
-  const inv = (px) => { const t = (px - m.l) / iw; return opts.logX ? 10 ** (lx(x0) + t * (lx(x1) - lx(x0))) : x0 + t * (x1 - x0); };
-  const show = (e) => {
-    const r = svg.getBoundingClientRect(); const px = (e.clientX - r.left) * (W / r.width);
-    const xv = inv(Math.max(m.l, Math.min(m.l + iw, px)));
-    hov.innerHTML = '';
-    svgEl('line', { x1: X(xv), x2: X(xv), y1: m.t, y2: m.t + ih, class: 'cursor' }, hov);
-    const lines = [`${opts.xName || 'x'}: ${fx(+xv.toFixed(opts.logX ? 2 : 1))}`];
-    opts.series.forEach((s) => { const v = interp(s.pts, xv); if (!isFinite(v)) return; svgEl('circle', { cx: X(xv), cy: Y(Math.max(y0, Math.min(y1, v))), r: 4, fill: s.color, class: 'dot' }, hov); lines.push(`${s.name}: ${fy(v)}`); });
-    const tw = Math.max(...lines.map((l) => l.length)) * 6.6 + 14, th = lines.length * 14 + 8;
-    let tx = X(xv) + 10; if (tx + tw > W) tx = X(xv) - tw - 10;
-    const g = svgEl('g', { class: 'tipbox' }, hov);
-    svgEl('rect', { x: tx, y: m.t + 4, width: tw, height: th, rx: 5 }, g);
-    lines.forEach((l, i) => { svgEl('text', { x: tx + 7, y: m.t + 18 + i * 14 }, g).textContent = l; });
-  };
-  hit.addEventListener('pointermove', show);
-  hit.addEventListener('pointerleave', () => { hov.innerHTML = ''; });
-  return { X, Y };
-}
-function interp(pts, x) {
-  if (!pts.length) return NaN;
-  if (x <= pts[0][0]) return pts[0][1];
-  for (let i = 1; i < pts.length; i++) if (pts[i][0] >= x) { const [a, b] = [pts[i - 1], pts[i]]; return a[1] + (b[1] - a[1]) * (x - a[0]) / (b[0] - a[0] || 1); }
-  return pts[pts.length - 1][1];
-}
-function legend(el, items) {
-  el.innerHTML = items.map((i) => `<span><i style="background:${i.color};color:${i.color}" class="${i.dash ? 'dash' : ''}"></i>${i.name}</span>`).join('');
-}
-function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
-
-</script>
-<script>
-/* Suspension Lab — kinematics view: live geometry diagram + curves vs wheel travel */
-'use strict';
-
-const KinView = (() => {
-  let def, built, curves = null;
-  const S = [];
-  for (let s = -0.08; s <= 0.0801; s += 0.004) S.push(+s.toFixed(4));
-
-  function springLen(s) {
-    const sp = built.springSpans[0]; if (!sp) return null;
-    if (sp === 'leaf') return 0.4 - s;
-    const sol = built.solve(s);
-    return sp[0][1].clone().applyMatrix4(sol.mats[sp[0][0]]).distanceTo(sp[1][1].clone().applyMatrix4(sol.mats[sp[1][0]]));
-  }
-  const mrAt = (s) => (springLen(s - 0.002) - springLen(s + 0.002)) / 0.004;
-
-  function setSystem(d, b) {
-    def = d; built = b;
-    curves = { camber: [], rc: [], track: [], mr: [], dz: [], arch: [] };
-    S.forEach((s) => {
-      const p = built.solve(s).pose;
-      curves.camber.push([s * 1000, p.camber]);
-      curves.rc.push([s * 1000, (p.rcH ?? NaN) * 1000]);
-      curves.track.push([s * 1000, (p.halfTrack - built.hp.W[0]) * 1000]);
-      curves.mr.push([s * 1000, mrAt(s)]);
-      curves.dz.push([s * 1000, (p.dz ?? 0) * 1000]);
-      if (p.arch != null) curves.arch.push([s * 1000, p.arch * 1000]);
-    });
-  }
-
-  function render(s) {
-    if (!def) return;
-    const pose = built.solve(s).pose; const pose0 = built.solve(0).pose;
-    const t = built.kinType;
-    document.getElementById('kinTitle').textContent = `${sysName(def)} — ${tr('kin_suffix')}`;
-    document.getElementById('kinLede').textContent = t === 'twist' || t === 'live' ? tr('kin_lede_side') : tr('kin_lede_corner');
-    document.getElementById('kinDiagTitle').textContent = t === 'twist' || t === 'live' ? 'Side-view geometry' : 'Front-view geometry';
-    drawDiagram(pose, pose0, s);
-    drawCharts(s);
-    kpis(pose, s);
-  }
-
-  /* ── diagram ───────────────────────────────────────────── */
-  function drawDiagram(p, p0, s) {
-    const svg = document.getElementById('kinSvg'); svg.innerHTML = '';
-    const t = built.kinType; const W = 640, H = 480; svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
-    const side = t === 'twist' || t === 'live';
-    const sc = side ? (t === 'live' ? 330 : 360) : 430;
-    const ox = side ? (t === 'live' ? 0.9 : 0.85) : 0.2, oy = side ? 0.95 : 1.06;
-    const P = (x, y) => side ? [(ox - x) * sc + 40, (oy - y) * sc] : [(x + ox) * sc, (oy - y) * sc];
-    const line = (a, b, cls, g = svg) => { const A = P(...a), B = P(...b); return svgEl('line', { x1: A[0], y1: A[1], x2: B[0], y2: B[1], class: cls }, g); };
-    const pt = (a, cls, r = 5, g = svg) => { const A = P(...a); return svgEl('circle', { cx: A[0], cy: A[1], r, class: cls }, g); };
-    const lbl = (a, txt, dx = 8, dy = -8, anchor = 'start', g = svg) => { const A = P(...a); const e = svgEl('text', { x: A[0] + dx, y: A[1] + dy, class: 'g-lbl', 'text-anchor': anchor }, g); e.textContent = txt; return e; };
-    const ext = (a, b, k) => [a[0] + (b[0] - a[0]) * k, a[1] + (b[1] - a[1]) * k];
-    const clip = svgEl('clipPath', { id: 'kclip' }, svgEl('defs', {}, svg)); svgEl('rect', { x: 0, y: 0, width: W, height: H }, clip);
-    const root = svgEl('g', { 'clip-path': 'url(#kclip)' }, svg);
-    const legend = [];
-
-    if (!side) {
-      const hp = built.hp; const gy = p.CP[1];
-      // ground
-      line([-0.4, gy], [1.3, gy], 'g-ground', root);
-      for (let x = -0.15; x < 1.2; x += 0.05) line([x, gy], [x - 0.025, gy - 0.025], 'g-hatch', root);
-      line([0, -0.1], [0, 1.15], 'g-cl', root); lbl([0, 1.0], 'vehicle centre-line', 6, 4, 'start', root);
-      const drawCorner = (q, ghost) => {
-        const g = svgEl('g', { class: ghost ? 'g-ghost' : '' }, root);
-        // tyre outline (rotated rectangle)
-        const c = Math.cos(q.phi), sn = Math.sin(q.phi); const hw = 0.11, hr = hp.Rt;
-        const corner = (u, v) => [q.W[0] + u * c - v * sn, q.W[1] + u * sn + v * c];
-        const pts = [corner(-hw, -hr), corner(hw, -hr), corner(hw, hr), corner(-hw, hr)].map((a) => P(...a).join(',')).join(' ');
-        svgEl('polygon', { points: pts, class: 'g-tyre' }, g);
-        line(corner(0, -hr), corner(0, hr), 'g-cons', g);
-        if (t === 'strut') {
-          const Sp = KM.add(q.BL, KM.rot(KM.sub(built.hp.S || q.BL, hp.BL), [0, 0], q.phi));
-          line(q.BL, KM.add(q.W, [-0.06 * c, -0.06 * sn]), 'g-upright', g);
-          line(Sp, hp.T, 'g-strut', g);
-          line(hp.AL, q.BL, 'g-arm', g);
-          pt(hp.T, 'g-fix', 6, g); pt(hp.AL, 'g-fix', 6, g); pt(q.BL, 'g-pt', 5, g);
-        } else {
-          line(q.BL, q.BU, 'g-upright', g); line([(q.BL[0] + q.BU[0]) / 2, (q.BL[1] + q.BU[1]) / 2], q.W, 'g-upright', g);
-          line(hp.AL, q.BL, 'g-arm', g); line(hp.AU, q.BU, 'g-arm2', g);
-          pt(hp.AL, 'g-fix', 6, g); pt(hp.AU, 'g-fix', 6, g); pt(q.BL, 'g-pt', 5, g); pt(q.BU, 'g-pt', 5, g);
-        }
-        pt(q.W, 'g-pt', 4, g);
-      };
-      drawCorner(p0, true); drawCorner(p, false);
-      // construction lines → IC → RC
-      if (p.IC) {
-        if (t === 'strut') { line(hp.AL, ext(hp.AL, p.IC, 1), 'g-cons', root); line(hp.T, p.IC, 'g-cons', root); }
-        else { line(p.BL, p.IC, 'g-cons', root); line(p.BU, p.IC, 'g-cons', root); }
-        line(p.CP, p.IC, 'g-rc', root);
-        const icIn = p.IC[0] > -0.2;
-        if (icIn) { pt(p.IC, 'g-ic', 5, root); lbl(p.IC, 'IC', 8, -8, 'start', root); }
-        else { lbl([-0.17, Math.max(0, Math.min(1.05, p.IC[1]))], `IC at x = ${p.IC[0].toFixed(2)} m, y = ${(p.IC[1] - p.CP[1]).toFixed(2)} m ←`, 2, -6, 'start', root); }
-      }
-      if (p.RC) { pt(p.RC, 'g-rcpt', 6, root); lbl(p.RC, `RC ${(p.rcH * 1000).toFixed(0)} mm`, 9, 4, 'start', root); }
-      pt(p.CP, 'g-pt', 4, root); lbl(p.CP, 'contact patch', 8, 16, 'start', root);
-      lbl(p.W, `camber ${p.camber.toFixed(2)}°`, 30, -6, 'start', root);
-      legend.push({ name: 'Lower arm', color: cssVar('--ink') });
-      legend.push(t === 'strut' ? { name: 'Strut', color: cssVar('--s1') } : { name: 'Upper arm', color: cssVar('--s3') });
-      legend.push({ name: 'Knuckle', color: cssVar('--accent') }, { name: 'IC rays', color: cssVar('--ink-2'), dash: 1 }, { name: 'Roll-centre ray', color: cssVar('--bad'), dash: 1 });
-    } else if (built.kinType === 'twist') {
-      const hp = built.hp; const gy = p.CP[1];
-      line([1.0, gy], [-0.6, gy], 'g-ground', root);
-      for (let z = -0.55; z < 0.95; z += 0.05) line([z, gy], [z - 0.025, gy - 0.025], 'g-hatch', root);
-      const draw = (q, ghost) => {
-        const g = svgEl('g', { class: ghost ? 'g-ghost' : '' }, root);
-        const Wz = q.Wside; const C = P(...Wz);
-        svgEl('circle', { cx: C[0], cy: C[1], r: hp.Rt * sc, class: 'g-tyre' }, g);
-        line(hp.Pside, Wz, 'g-arm', g);
-        const beamPt = KM.rot([0.18, 0.33], hp.Pside, q.alpha);
-        const B = P(...beamPt); svgEl('path', { d: `M${B[0] - 14},${B[1] + 10} L${B[0]},${B[1] - 10} L${B[0] + 14},${B[1] + 10}`, fill: 'none', stroke: cssVar('--accent'), 'stroke-width': 4 }, g);
-        const SB = KM.rot([0.04, 0.31], hp.Pside, q.alpha); spring(g, SB, [0.04, 0.57], 7);
-        const DB = KM.rot([-0.13, 0.28], hp.Pside, q.alpha); line(DB, [-0.24, 0.7], 'g-strut', g);
-        pt(Wz, 'g-pt', 4, g);
-      };
-      draw(p0, true); draw(p, false);
-      // wheel-centre arc
-      const arc = []; for (let a = -0.25; a <= 0.25; a += 0.01) arc.push(P(...KM.rot(hp.Wside, hp.Pside, a)).join(','));
-      svgEl('polyline', { points: arc.join(' '), class: 'g-cons' }, root);
-      pt(hp.Pside, 'g-fix', 7, root); lbl(hp.Pside, 'pivot bushing', 10, -10, 'start', root);
-      lbl(p.Wside, `Δx wheel centre ${(p.dz * 1000).toFixed(1)} mm`, 14, -14, 'start', root);
-      lbl([0.78, 0.9], '← front', 0, 0, 'start', root);
-      line([0.8, 0.57], [-0.45, 0.57], 'g-cl', root); lbl([-0.45, 0.6], 'body', 0, 0, 'end', root);
-      legend.push({ name: 'Trailing arm', color: cssVar('--ink') }, { name: 'Twist beam (section)', color: cssVar('--accent') }, { name: 'Damper', color: cssVar('--s1') }, { name: 'Wheel-centre path', color: cssVar('--ink-2'), dash: 1 });
-    } else {
-      const hp = built.hp; const gy = p.CP[1];
-      line([1.2, gy], [-1.0, gy], 'g-ground', root);
-      for (let z = -0.95; z < 1.2; z += 0.05) line([z, gy], [z - 0.025, gy - 0.025], 'g-hatch', root);
-      line([1.15, 0.64], [-1.0, 0.64], 'g-arm2', root); lbl([0.25, 0.68], 'frame rail', 0, 0, 'start', root);
-      const draw = (q, ghost) => {
-        const g = svgEl('g', { class: ghost ? 'g-ghost' : '' }, root);
-        const yc = 0.3205 + (q.W[1] - hp.W[1]);
-        for (let k = 0; k < 3; k++) {
-          const pts = []; const half = [0.7, 0.58, 0.46][k];
-          for (let z = -half; z <= half + 1e-6; z += 0.02) pts.push(P(z, yc - k * 0.012 + q.arch * (z / 0.7) ** 2).join(','));
-          svgEl('polyline', { points: pts.join(' '), class: 'g-leaf', 'stroke-width': 3 }, g);
-        }
-        const C = P(0, q.W[1]); svgEl('circle', { cx: C[0], cy: C[1], r: hp.Rt * sc, class: 'g-tyre' }, g);
-        svgEl('circle', { cx: C[0], cy: C[1], r: 0.045 * sc, fill: cssVar('--accent') }, g);
-      };
-      draw(built.solve(0).pose, true); draw(p, false);
-      pt([0.7, 0.445], 'g-fix', 6, root); lbl([0.7, 0.445], 'front eye (fixed)', -6, 22, 'start', root);
-      line([-0.7, 0.445], [-0.78, 0.55], 'g-arm', root); pt([-0.78, 0.55], 'g-fix', 6, root); pt([-0.7, 0.445], 'g-pt', 5, root); lbl([-0.78, 0.55], 'shackle', -10, -8, 'end', root);
-      line([0.7, 0.445], [0.75, 0.64], 'g-arm', root);
-      lbl([0, p.W[1] + 0.06], `spring arch ${(p.arch * 1000).toFixed(0)} mm`, 0, 0, 'middle', root);
-      lbl([0.95, 0.9], '← front', 0, 0, 'start', root);
-      legend.push({ name: 'Leaf pack', color: cssVar('--ink') }, { name: 'Frame', color: cssVar('--s3') }, { name: 'Axle', color: cssVar('--accent') });
-    }
-    legendEl(legend);
-
-    function spring(g, a, b, n) {
-      const A = P(...a), B = P(...b); const pts = [A];
-      for (let i = 1; i < n * 2; i++) { const t = i / (n * 2); pts.push([A[0] + (B[0] - A[0]) * t + (i % 2 ? 10 : -10), A[1] + (B[1] - A[1]) * t]); }
-      pts.push(B); svgEl('polyline', { points: pts.map((q) => q.join(',')).join(' '), fill: 'none', stroke: cssVar('--bad'), 'stroke-width': 3 }, g);
-    }
-  }
-  function legendEl(items) { legend(document.getElementById('kinLegend'), items); }
-
-  /* ── charts ────────────────────────────────────────────── */
-  function drawCharts(s) {
-    const t = built.kinType; const x = s * 1000; const xr = [-80, 80];
-    const c1 = cssVar('--s1'), c2 = cssVar('--s2'), c3 = cssVar('--s3');
-    document.getElementById('c1Title').textContent = 'Camber vs wheel travel';
-    lineChart(document.getElementById('kinC1'), { series: [{ name: 'Camber °', color: c1, pts: curves.camber }], xr, xLabel: 'wheel travel, mm (+ bump)', yLabel: 'deg', cursorX: x, xName: 'travel mm', fmtY: (v) => +v.toFixed(2), yr: t === 'twist' || t === 'live' ? [curves.camber[0][1] - 1, curves.camber[0][1] + 1] : undefined });
-    if (t === 'twist') {
-      document.getElementById('c2Title').textContent = 'Wheel-centre fore/aft shift';
-      lineChart(document.getElementById('kinC2'), { series: [{ name: 'Δx mm', color: c2, pts: curves.dz }], xr, xLabel: 'wheel travel, mm', yLabel: 'mm (+ fwd)', cursorX: x, xName: 'travel mm', fmtY: (v) => +v.toFixed(1) });
-    } else if (t === 'live') {
-      document.getElementById('c2Title').textContent = 'Leaf-spring arch';
-      lineChart(document.getElementById('kinC2'), { series: [{ name: 'Arch mm', color: c2, pts: curves.arch }], xr, xLabel: 'wheel travel, mm', yLabel: 'mm', cursorX: x, xName: 'travel mm', fmtY: (v) => +v.toFixed(0) });
-    } else {
-      document.getElementById('c2Title').textContent = 'Roll-centre height & track change';
-      lineChart(document.getElementById('kinC2'), { series: [{ name: 'RC height mm', color: c2, pts: curves.rc }, { name: 'Half-track Δ mm', color: c3, pts: curves.track, dash: '6 4' }], xr, xLabel: 'wheel travel, mm', yLabel: 'mm', cursorX: x, xName: 'travel mm', fmtY: (v) => +v.toFixed(0) });
-    }
-    document.getElementById('c3Title').textContent = 'Spring motion ratio';
-    lineChart(document.getElementById('kinC3'), { series: [{ name: 'MR', color: c1, pts: curves.mr }], xr, xLabel: 'wheel travel, mm', yLabel: 'spring / wheel', cursorX: x, xName: 'travel mm', fmtY: (v) => +v.toFixed(3) });
-  }
-
-  function kpis(p, s) {
-    const k = (s * 1000).toFixed(0);
-    const gain = (built.solve(s + 0.025).pose.camber - built.solve(s - 0.025).pose.camber);
-    const mr = mrAt(s); const ks = def.preset.ks; const kspring = ks / (mrAt(0) ** 2);
-    const items = [
-      ['Camber', `${p.camber.toFixed(2)}°`, 'top in = negative'],
-      ['Camber gain', `${gain.toFixed(2)}°`, 'per 50 mm bump'],
-      ['Roll centre', p.rcH != null ? `${(p.rcH * 1000).toFixed(0)} mm` : '—', 'above ground'],
-      ['Half-track Δ', `${((p.halfTrack - built.hp.W[0]) * 1000).toFixed(1)} mm`, 'tyre scrub'],
-      ['Motion ratio', mr.toFixed(3), 'spring / wheel'],
-      ['Wheel rate', `${(kspring * mr * mr / 1000).toFixed(1)} N/mm`, `spring ${(kspring / 1000).toFixed(0)} N/mm`]
-    ];
-    document.getElementById('kinKpis').innerHTML = items.map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join('');
-    document.getElementById('kinTravelVal').textContent = `${k > 0 ? '+' : ''}${k} mm`;
-    theory();
-  }
-
-  let theoryFor = null;
-  function theory() {
-    if (theoryFor === def.id) return; theoryFor = def.id;
-    const t = built.kinType; const el = document.getElementById('kinTheory');
-    const common = `<div><h3>Motion ratio &amp; wheel rate</h3><p>The spring sees only a fraction of the wheel movement: MR = Δ(spring length) / Δ(wheel travel). Force and displacement both scale by MR, so the rate at the wheel is</p><div class="eq">k_wheel = k_spring · MR²</div><p>In series with the tyre, the ride rate is k_ride = k_wheel·k_t / (k_wheel + k_t), and the body natural frequency is f = (1/2π)·√(k_ride / m_s).</p></div>`;
-    if (t === 'sla' || t === 'strut') {
-      el.innerHTML = `<h2>Engineering notes</h2><div class="cols">
-      <div><h3>Instant centre (IC) &amp; swing arm</h3><p>In the front view the knuckle moves, for an instant, as if it were pivoting about one point: the intersection of the ${t === 'strut' ? 'lower-arm line and the line through the top mount perpendicular to the strut axis' : 'upper- and lower-arm lines'}. The distance from the contact patch to the IC is the front-view swing-arm length (FVSA). Camber gain is approximately</p><div class="eq">dγ/dz ≈ 1 / FVSA  [rad/m]</div><p>A short FVSA gives strong camber gain but large track change (tyre scrub).</p></div>
-      <div><h3>Roll centre (RC)</h3><p>The roll centre is where the line from the contact patch through the IC crosses the vehicle centre-line. Lateral tyre forces act on the body there, so the roll moment is</p><div class="eq">M_roll = m_s · a_y · (h_CG − h_RC)</div><p>A higher RC means less roll but more "jacking" and more track change. Watch how the RC moves as the wheel travels — designers keep this migration small for consistent handling.</p></div>
-      ${common}
-      <div><h3>Why camber matters</h3><p>Tyres make most lateral force with a little negative camber relative to the road. In a corner the body rolls by φ, so the outer wheel's camber to the road is γ_road = γ_body + φ. An SLA with good camber gain cancels part of φ. A MacPherson strut recovers only ~20–40 % of it, which is why strut cars use more static negative camber and higher roll stiffness.</p></div></div>`;
-    } else if (t === 'twist') {
-      el.innerHTML = `<h2>Engineering notes</h2><div class="cols">
-      <div><h3>Heave vs roll</h3><p>In heave both trailing arms rotate together about the pivot axis, so camber and toe relative to the body stay constant. The wheel centre follows an arc of radius ≈ 0.46 m, so it moves slightly back in bump (a little anti-lift). In roll the beam twists: the roll stiffness from the beam is</p><div class="eq">K_φ ≈ (G·J / L_beam) · (t / a)²</div><p>where J ≈ Σ b·t³/3 for the open section, t = track, a = beam distance from the wheel line.</p></div>
-      <div><h3>Roll centre</h3><p>For a twist beam the roll centre lies close to the shear centre of the beam section, typically 100–180 mm above ground — higher than most independent rear axles. The beam's position along the arms sets the balance between trailing-arm and solid-axle behaviour.</p></div>
-      ${common}</div>`;
-    } else {
-      el.innerHTML = `<h2>Engineering notes</h2><div class="cols">
-      <div><h3>Leaf rate</h3><p>Treating the spring pack as a simply supported beam of span L loaded at the centre:</p><div class="eq">k ≈ 8·n·E·b·t³ / (3·L³)</div><p>with n leaves of width b and thickness t. U-bolts clamp part of the span, which makes it inactive and raises k. Inter-leaf friction adds a Coulomb force, F_f ≈ μ·N, giving a hysteresis loop on the force–deflection curve.</p></div>
-      <div><h3>Roll centre &amp; roll-steer</h3><p>The lateral reaction passes through the spring eyes and shackles, so the roll centre sits near the spring-seat height — high, around 300–350 mm. The axle moves on an arc around the front eye. Its inclination gives roll-steer: in roll one side moves forward and the other back, steering the rear axle.</p></div>
-      ${common}</div>`;
-    }
-  }
-
-  return { setSystem, render };
-})();
-
-</script>
-<script>
-/* Suspension Lab — 2-DOF quarter-car ride simulator (RK4), road inputs, scopes and frequency response */
-'use strict';
-
-const Dyn = (() => {
-  const g = 9.81, DT = 0.0005;
-  const P = { ms: 380, mu: 42, ks: 26000, c: 2300, rr: 2.5, kt: 230000, fric: 0, air: false, sky: false };
-  const R = { type: 'bump', v: 30, f: 2, amp: 10, iso: 'C', slow: false };
-  let x = [0, 0, 0, 0], t = 0, dist = 0, running = true, sysDef = null, roadTab = null, roadSeed = 1;
-  const HN = 1000; const hist = { a: new Float32Array(HN), d: new Float32Array(HN), f: new Float32Array(HN), i: 0, n: 0 };
-  let sampleAcc = 0, airborne = 0, lastNow = 0;
-  const ui = {};
-
-  /* ── road profiles (distance-based, metres) ── */
-  const ISO = { A: 16e-6, B: 64e-6, C: 256e-6, D: 1024e-6, E: 4096e-6 };
-  function buildRandomRoad() {
-    let s = roadSeed; const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
-    const N = 140, n0 = 0.1, nMin = 0.011, nMax = 3.0, Gd = ISO[R.iso];
-    const comps = [];
-    for (let i = 0; i < N; i++) {
-      const n = nMin * (nMax / nMin) ** ((i + 0.5) / N); const dn = n * (Math.log(nMax / nMin) / N);
-      comps.push([Math.sqrt(2 * Gd * (n / n0) ** -2 * dn), 2 * Math.PI * n, rnd() * 2 * Math.PI]);
-    }
-    const L = 400, res = 0.01; const tab = new Float32Array(L / res + 2);
-    for (let k = 0; k < tab.length; k++) { const xx = k * res; let z = 0; for (const [a, w, ph] of comps) z += a * Math.sin(w * xx + ph); tab[k] = z; }
-    roadTab = { tab, res, L };
-  }
-  function zr(xm, tt) {
-    switch (R.type) {
-      case 'sine': return (R.amp / 1000) * Math.sin(2 * Math.PI * R.f * tt);
-      case 'random': { if (!roadTab) buildRandomRoad(); const u = ((xm % roadTab.L) + roadTab.L) % roadTab.L / roadTab.res; const k = Math.floor(u); const fr = u - k; return roadTab.tab[k] * (1 - fr) + roadTab.tab[k + 1] * fr; }
-      case 'hump': { const p = ((xm % 40) + 40) % 40 - 20; const L = 3.7; return Math.abs(p) < L / 2 ? 0.075 * Math.cos(Math.PI * p / L) ** 2 : 0; }
-      case 'pothole': { const p = ((xm % 25) + 25) % 25 - 12.5; const L = 0.55; return Math.abs(p) < L / 2 ? -0.05 * Math.cos(Math.PI * p / L) ** 2 : 0; }
-      case 'kerb': { const p = ((xm % 30) + 30) % 30; return p > 10 && p < 20 ? 0.04 : 0; }
-      default: { const p = ((xm % 25) + 25) % 25 - 12.5; const L = 0.6; return Math.abs(p) < L / 2 ? 0.05 * Math.cos(Math.PI * p / L) ** 2 : 0; }
-    }
-  }
-
-  /* ── model ── */
-  const cC = () => 2 * P.c / (1 + P.rr), cR = () => P.rr * cC();
-  function forces(s, z) {
-    const [zs, vs, zu, vu] = s;
-    const d = zu - zs, vr = vu - vs; // + = compression
-    let Fs = P.ks * d;
-    if (P.air) Fs += P.ks * 28 * d * d * d * (d > 0 ? 1.4 : 1); // progressive (cubic) air-spring term
-    if (d > 0.07) Fs += 6 * P.ks * (d - 0.07) + 4e6 * (d - 0.07) ** 2;
-    if (d < -0.09) Fs += 25 * P.ks * (d + 0.09);
-    let c = vr > 0 ? cC() : cR();
-    if (P.sky) {
-      const cmin = 0.3 * P.c, cmax = 3 * P.c, csky = 2.6 * P.c; const rel = vs - vu;
-      c = vs * rel > 0 && Math.abs(rel) > 1e-4 ? Math.min(cmax, Math.max(cmin, csky * vs / rel)) : cmin;
-    }
-    const Ff = P.fric * Math.tanh(vr / 0.004);
-    const Fd = c * vr + Ff;
-    const Ft = Math.max(P.kt * (z - zu), -(P.ms + P.mu) * g);
-    return { Fs, Fd, Ft, d };
-  }
-  function deriv(s, z) {
-    const { Fs, Fd, Ft } = forces(s, z);
-    return [s[1], (Fs + Fd) / P.ms, s[3], (-Fs - Fd + Ft) / P.mu];
-  }
-  function step() {
-    const v = R.v / 3.6;
-    const z0 = zr(dist, t), z1 = zr(dist + v * DT / 2, t + DT / 2), z2 = zr(dist + v * DT, t + DT);
-    const k1 = deriv(x, z0);
-    const k2 = deriv(x.map((xi, i) => xi + k1[i] * DT / 2), z1);
-    const k3 = deriv(x.map((xi, i) => xi + k2[i] * DT / 2), z1);
-    const k4 = deriv(x.map((xi, i) => xi + k3[i] * DT), z2);
-    x = x.map((xi, i) => xi + (DT / 6) * (k1[i] + 2 * k2[i] + 2 * k3[i] + k4[i]));
-    t += DT; dist += v * DT;
-    const f = forces(x, z2); const acc = (f.Fs + f.Fd) / P.ms;
-    if (f.Ft <= -(P.ms + P.mu) * g + 1) airborne = 0.6;
-    sampleAcc += DT;
-    if (sampleAcc >= 0.005) {
-      sampleAcc = 0; const i = hist.i;
-      hist.a[i] = acc; hist.d[i] = f.d * 1000; hist.f[i] = (P.ms + P.mu) * g + f.Ft;
-      hist.i = (i + 1) % HN; hist.n = Math.min(HN, hist.n + 1);
-    }
-  }
-  function reset() { x = [0, 0, 0, 0]; t = 0; dist = 0; hist.i = 0; hist.n = 0; airborne = 0; }
-
-  /* ── linear analysis ── */
-  function natural() {
-    const kr = P.ks * P.kt / (P.ks + P.kt);
-    return {
-      fs: Math.sqrt(kr / P.ms) / (2 * Math.PI), fu: Math.sqrt((P.ks + P.kt) / P.mu) / (2 * Math.PI),
-      zeta: P.c / (2 * Math.sqrt(P.ks * P.ms)), zetaU: P.c / (2 * Math.sqrt((P.ks + P.kt) * P.mu)),
-      stat: (P.ms * g / kr) * 1000
-    };
-  }
-  function frf() {
-    const out = { s: [], u: [] };
-    for (let i = 0; i <= 220; i++) {
-      const f = 0.3 * (100) ** (i / 220); const w = 2 * Math.PI * f;
-      // complex arithmetic: s = jw
-      const A = [P.ks - P.ms * w * w, P.c * w], B = [P.ks, P.c * w], D = [P.ks + P.kt - P.mu * w * w, P.c * w];
-      const mul = (p, q) => [p[0] * q[0] - p[1] * q[1], p[0] * q[1] + p[1] * q[0]];
-      const AD = mul(A, D), BB = mul(B, B); const det = [AD[0] - BB[0], AD[1] - BB[1]];
-      const dm = Math.hypot(...det);
-      out.s.push([f, Math.hypot(...B) * P.kt / dm]); out.u.push([f, Math.hypot(...A) * P.kt / dm]);
-    }
-    return out;
-  }
-
-  /* ── UI ── */
-  const SL = [
-    ['ms', 'Sprung mass (¼ body)', 150, 800, 5, 'kg', (v) => v],
-    ['mu', 'Unsprung mass', 20, 150, 1, 'kg', (v) => v],
-    ['ks', 'Wheel rate k_s', 10000, 120000, 500, 'N/mm', (v) => (v / 1000).toFixed(1)],
-    ['c', 'Damping c (mean)', 300, 8000, 50, 'N·s/m', (v) => v],
-    ['rr', 'Rebound : compression', 1, 4, 0.1, ': 1', (v) => (+v).toFixed(1)],
-    ['kt', 'Tyre rate k_t', 100000, 400000, 5000, 'N/mm', (v) => (v / 1000).toFixed(0)],
-    ['fric', 'Coulomb friction', 0, 600, 10, 'N', (v) => v]
-  ];
-  function buildUI() {
-    const el = document.getElementById('dynCtl');
-    el.innerHTML = `
-      <div class="ctl"><label class="ctl-label" for="roadSel">Road input</label>
-        <select id="roadSel">
-          <option value="bump">Sharp bump — 50 mm × 0.6 m</option><option value="hump">Speed hump — 75 mm × 3.7 m</option>
-          <option value="pothole">Pothole — 50 mm deep</option><option value="kerb">Step / kerb — 40 mm</option>
-          <option value="random">Random road (ISO 8608)</option><option value="sine">Sine (frequency sweep by hand)</option>
-        </select></div>
-      <div class="ctl" data-show="random"><label class="ctl-label" for="isoSel">ISO 8608 road class</label>
-        <select id="isoSel"><option value="A">A — very good</option><option value="B">B — good</option><option value="C" selected>C — average</option><option value="D">D — poor</option><option value="E">E — very poor</option></select></div>
-      <div class="ctl" data-hide="sine"><label class="ctl-label" for="dyn-v">Speed <b id="dyn-v-val"></b></label><input type="range" id="dyn-v" min="5" max="130" step="1"></div>
-      <div class="ctl" data-show="sine"><label class="ctl-label" for="dyn-f">Frequency <b id="dyn-f-val"></b></label><input type="range" id="dyn-f" min="0.3" max="25" step="0.1"></div>
-      <div class="ctl" data-show="sine"><label class="ctl-label" for="dyn-amp">Amplitude <b id="dyn-amp-val"></b></label><input type="range" id="dyn-amp" min="1" max="30" step="1"></div>
-      <hr>
-      ${SL.map(([k, l, a, b, st]) => `<div class="ctl"><label class="ctl-label" for="dyn-${k}">${l} <b id="dyn-${k}-val"></b></label><input type="range" id="dyn-${k}" min="${a}" max="${b}" step="${st}"></div>`).join('')}
-      <hr>
-      <div class="chip-row">
-        <button class="chip" id="dyn-air" aria-pressed="false" title="Progressive air-spring rate">Air spring (progressive)</button>
-        <button class="chip" id="dyn-sky" aria-pressed="false" title="Semi-active skyhook damper control">Skyhook CDC</button>
-        <button class="chip" id="dyn-slow" aria-pressed="false">Slow motion ¼×</button>
-      </div>`;
-    const bindR = (id, key, obj, fmt) => {
-      const inp = document.getElementById(id); const out = document.getElementById(id + '-val');
-      inp.value = obj[key]; out.textContent = fmt(obj[key]);
-      inp.addEventListener('input', () => { obj[key] = +inp.value; out.textContent = fmt(obj[key]); changed(); });
-      ui[key] = { inp, out, fmt, obj };
-    };
-    bindR('dyn-v', 'v', R, (v) => `${v} km/h`); bindR('dyn-f', 'f', R, (v) => `${(+v).toFixed(1)} Hz`); bindR('dyn-amp', 'amp', R, (v) => `±${v} mm`);
-    SL.forEach(([k, , , , , u, fmt]) => bindR('dyn-' + k, k, P, (v) => `${fmt(v)} ${u}`));
-    document.getElementById('roadSel').addEventListener('change', (e) => { R.type = e.target.value; showHide(); reset(); });
-    document.getElementById('isoSel').addEventListener('change', (e) => { R.iso = e.target.value; roadTab = null; });
-    [['dyn-air', 'air', P], ['dyn-sky', 'sky', P], ['dyn-slow', 'slow', R]].forEach(([id, k, o]) => {
-      const b = document.getElementById(id); ui[k] = { b };
-      b.addEventListener('click', () => { o[k] = !o[k]; b.setAttribute('aria-pressed', o[k]); changed(); });
-    });
-    document.getElementById('dynRun').addEventListener('click', (e) => { running = !running; e.target.textContent = running ? 'Pause' : 'Run'; });
-    document.getElementById('dynReset').addEventListener('click', () => { loadPreset(sysDef); });
-    showHide();
-  }
-  function showHide() {
-    document.querySelectorAll('#dynCtl [data-show]').forEach((e) => { e.hidden = e.dataset.show !== R.type; });
-    document.querySelectorAll('#dynCtl [data-hide]').forEach((e) => { e.hidden = e.dataset.hide === R.type; });
-  }
-  function syncUI() {
-    for (const [k, u] of Object.entries(ui)) {
-      if (u.inp) { u.inp.value = u.obj[k]; u.out.textContent = u.fmt(u.obj[k]); }
-      if (u.b) u.b.setAttribute('aria-pressed', (k === 'slow' ? R : P)[k]);
-    }
-  }
-  function loadPreset(def) {
-    sysDef = def; const p = def.preset;
-    Object.assign(P, { ms: p.ms, mu: p.mu, ks: p.ks, c: p.c, kt: p.kt, rr: 2.5, fric: p.mode === 'friction' ? 280 : 0, air: p.mode === 'air', sky: p.mode === 'air' });
-    syncUI(); reset(); changed();
-  }
-  function changed() { drawFRF(); kpis(); }
-
-  function kpis() {
-    const n = natural();
-    let rmsA = 0, rmsF = 0, maxD = 0; const cnt = hist.n; const stat = (P.ms + P.mu) * g;
-    for (let i = 0; i < cnt; i++) { rmsA += hist.a[i] ** 2; rmsF += (hist.f[i] - stat) ** 2; maxD = Math.max(maxD, Math.abs(hist.d[i])); }
-    rmsA = cnt ? Math.sqrt(rmsA / cnt) : 0; rmsF = cnt ? Math.sqrt(rmsF / cnt) / stat * 100 : 0;
-    const comfort = rmsA < 0.315 ? 'not uncomfortable' : rmsA < 0.63 ? 'a little uncomfortable' : rmsA < 1 ? 'fairly uncomfortable' : rmsA < 1.6 ? 'uncomfortable' : rmsA < 2.5 ? 'very uncomfortable' : 'extremely uncomfortable';
-    const items = [
-      ['Body frequency', `${n.fs.toFixed(2)} Hz`, 'target 1.0–1.5 Hz'],
-      ['Wheel-hop freq.', `${n.fu.toFixed(1)} Hz`, 'unsprung mode'],
-      ['Damping ratio ζ', n.zeta.toFixed(2), `wheel ζ ${n.zetaU.toFixed(2)}`],
-      ['Static deflection', `${n.stat.toFixed(0)} mm`, 'ride + tyre'],
-      ['RMS body accel.', `${rmsA.toFixed(2)} m/s²`, comfort + ' (ISO 2631 scale)'],
-      ['Dyn. tyre load', `${rmsF.toFixed(1)} %`, airborne > 0 ? 'WHEEL LEFT GROUND' : 'RMS of static load'],
-      ['Max. travel', `${maxD.toFixed(0)} mm`, 'bump stop at 70 mm']
-    ];
-    document.getElementById('dynKpis').innerHTML = items.map(([a, b, c]) => `<div class="kpi"><span>${a}</span><b>${b}</b><small>${c}</small></div>`).join('');
-  }
-
-  function drawFRF() {
-    const r = frf(); const n = natural();
-    const c1 = cssVar('--s1'), c2 = cssVar('--s2');
-    lineChart(document.getElementById('frf'), {
-      series: [{ name: 'Body |z_s/z_r|', color: c1, pts: r.s }, { name: 'Wheel |z_u/z_r|', color: c2, pts: r.u }],
-      xr: [0.3, 30], logX: true, yr: [0, Math.min(6, Math.max(...r.s.map((p) => p[1]), ...r.u.map((p) => p[1])) * 1.1)],
-      xLabel: 'frequency, Hz (log)', yLabel: 'gain', xName: 'f Hz', fmtX: (v) => v, fmtY: (v) => +v.toFixed(2),
-      markers: [{ x: n.fs, label: `f_body ${n.fs.toFixed(2)}` }, { x: n.fu, label: `f_hop ${n.fu.toFixed(1)}` }].concat(R.type === 'sine' ? [{ x: R.f, label: 'input' }] : [])
-    });
-    legend(document.getElementById('frfLegend'), [{ name: 'Body / road', color: c1 }, { name: 'Wheel / road', color: c2 }]);
-  }
-
-  /* ── drawing ── */
-  function fitCanvas(c) {
-    const dpr = Math.min(2, window.devicePixelRatio || 1); const w = c.clientWidth, h = c.clientHeight;
-    if (c.width !== Math.round(w * dpr) || c.height !== Math.round(h * dpr)) { c.width = Math.round(w * dpr); c.height = Math.round(h * dpr); }
-    const ctx = c.getContext('2d'); ctx.setTransform(dpr, 0, 0, dpr, 0, 0); return [ctx, w, h];
-  }
-  function drawAnim() {
-    const [ctx, W, H] = fitCanvas(document.getElementById('dynCanvas'));
-    const ink = cssVar('--ink'), ink2 = cssVar('--ink-2'), line = cssVar('--line'), acc = cssVar('--accent'), s1 = cssVar('--s1'), bad = cssVar('--bad'), bg2 = cssVar('--bg-2');
-    ctx.clearRect(0, 0, W, H);
-    const K = 1.6; // px per mm of motion
-    const pxm = 70; const cx = W * 0.5; const base = H - 44;
-    const v = R.v / 3.6;
-    // road
-    ctx.beginPath();
-    for (let px = 0; px <= W; px += 3) {
-      const xm = R.type === 'sine' ? 0 : dist + (px - cx) / pxm;
-      const z = R.type === 'sine' ? zr(0, t) : zr(xm, t);
-      const y = base - z * 1000 * K; px === 0 ? ctx.moveTo(px, y) : ctx.lineTo(px, y);
-    }
-    ctx.lineTo(W, H); ctx.lineTo(0, H); ctx.closePath(); ctx.fillStyle = bg2; ctx.fill(); ctx.strokeStyle = ink2; ctx.lineWidth = 2; ctx.stroke();
-    // hatch marks moving with road
-    ctx.strokeStyle = line; ctx.lineWidth = 1;
-    const off = R.type === 'sine' ? 0 : ((dist * pxm) % 40);
-    for (let px = -off; px < W; px += 40) { ctx.beginPath(); ctx.moveTo(px, H - 8); ctx.lineTo(px + 10, H - 18); ctx.stroke(); }
-    const zroad = R.type === 'sine' ? zr(0, t) : zr(dist, t);
-    const rw = 42; const wy = base - rw - x[2] * 1000 * K; const by = base - rw - 175 - x[0] * 1000 * K;
-    // tyre force arrow
-    const fdyn = Math.max(P.kt * (zroad - x[2]), -(P.ms + P.mu) * g);
-    // wheel
-    ctx.save(); ctx.translate(cx, wy);
-    ctx.fillStyle = '#1d1f22'; ctx.beginPath(); ctx.arc(0, 0, rw, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#b9c1c9'; ctx.beginPath(); ctx.arc(0, 0, rw * 0.6, 0, Math.PI * 2); ctx.fill();
-    ctx.rotate(-dist / 0.32); ctx.strokeStyle = '#6b737b'; ctx.lineWidth = 4;
-    for (let i = 0; i < 5; i++) { ctx.rotate(Math.PI * 2 / 5); ctx.beginPath(); ctx.moveTo(0, 0); ctx.lineTo(rw * 0.55, 0); ctx.stroke(); }
-    ctx.restore();
-    if (airborne > 0) { ctx.fillStyle = bad; ctx.font = '600 12px "IBM Plex Mono", monospace'; ctx.textAlign = 'center'; ctx.fillText('WHEEL OFF THE GROUND', cx, base + 30); }
-    // unsprung link + spring + damper
-    const sx = cx - 26, dx = cx + 26; const top = by + 30, bot = wy - rw - 8;
-    ctx.strokeStyle = ink; ctx.lineWidth = 4; ctx.beginPath(); ctx.moveTo(sx - 12, bot); ctx.lineTo(dx + 12, bot); ctx.moveTo(cx, bot); ctx.lineTo(cx, wy); ctx.stroke();
-    ctx.strokeStyle = cssVar('--bad'); ctx.lineWidth = 3; ctx.beginPath();
-    const n = 9; ctx.moveTo(sx, bot);
-    for (let i = 1; i < n * 2; i++) { const yy = bot + (top - bot) * i / (n * 2); ctx.lineTo(sx + (i % 2 ? 11 : -11), yy); }
-    ctx.lineTo(sx, top); ctx.stroke();
-    const mid = (top + bot) / 2;
-    ctx.fillStyle = s1; ctx.fillRect(dx - 8, mid - 4, 16, bot - mid + 4);
-    ctx.strokeStyle = ink2; ctx.lineWidth = 3; ctx.beginPath(); ctx.moveTo(dx, top); ctx.lineTo(dx, mid + 6); ctx.stroke();
-    ctx.fillStyle = ink2; ctx.fillRect(dx - 6, mid + 4, 12, 4);
-    // body
-    ctx.fillStyle = acc; ctx.globalAlpha = 0.9; roundRect(ctx, cx - 90, by - 34, 180, 64, 8); ctx.fill(); ctx.globalAlpha = 1;
-    ctx.fillStyle = cssVar('--accent-ink'); ctx.font = '600 13px "IBM Plex Sans", sans-serif'; ctx.textAlign = 'center';
-    ctx.fillText(`m_s = ${P.ms} kg`, cx, by + 2);
-    ctx.font = '11px "IBM Plex Mono", monospace'; ctx.fillText(`z_s ${(x[0] * 1000).toFixed(1)} mm`, cx, by + 18);
-    // labels
-    ctx.textAlign = 'left'; ctx.fillStyle = ink2; ctx.font = '11px "IBM Plex Mono", monospace';
-    ctx.fillText(`k_s ${(P.ks / 1000).toFixed(1)} N/mm`, sx - 92, mid);
-    ctx.fillText(`c ${P.c} N·s/m${P.sky ? ' (sky)' : ''}`, dx + 16, mid);
-    ctx.fillText(`m_u ${P.mu} kg   z_u ${(x[2] * 1000).toFixed(1)} mm`, cx + rw + 10, wy + 4);
-    ctx.fillText(`F_tyre ${((P.ms + P.mu) * g + fdyn).toFixed(0)} N`, cx + rw + 10, wy + 20);
-    ctx.fillText(R.type === 'sine' ? `road z_r = ${(zroad * 1000).toFixed(1)} mm @ ${R.f} Hz` : `${R.v} km/h   z_r ${(zroad * 1000).toFixed(1)} mm`, 12, 18);
-    // static reference line for body
-    ctx.strokeStyle = line; ctx.setLineDash([4, 4]); ctx.lineWidth = 1; const by0 = base - rw - 175;
-    ctx.beginPath(); ctx.moveTo(cx - 130, by0); ctx.lineTo(cx - 92, by0); ctx.stroke(); ctx.setLineDash([]);
-    ctx.fillText('static', cx - 168, by0 + 4);
-  }
-  function roundRect(ctx, x0, y0, w, h, r) { ctx.beginPath(); ctx.moveTo(x0 + r, y0); ctx.arcTo(x0 + w, y0, x0 + w, y0 + h, r); ctx.arcTo(x0 + w, y0 + h, x0, y0 + h, r); ctx.arcTo(x0, y0 + h, x0, y0, r); ctx.arcTo(x0, y0, x0 + w, y0, r); ctx.closePath(); }
-  function drawScope(id, arr, color, fixed) {
-    const [ctx, W, H] = fitCanvas(document.getElementById(id));
-    ctx.clearRect(0, 0, W, H);
-    const n = hist.n; if (!n) return;
-    let lo = Infinity, hi = -Infinity;
-    for (let i = 0; i < n; i++) { const v = arr[i]; if (v < lo) lo = v; if (v > hi) hi = v; }
-    if (fixed) { lo = Math.min(lo, fixed[0]); hi = Math.max(hi, fixed[1]); }
-    const pad = (hi - lo) * 0.1 || 1; lo -= pad; hi += pad;
-    const Y = (v) => H - 16 - (v - lo) / (hi - lo) * (H - 24);
-    ctx.strokeStyle = cssVar('--line'); ctx.lineWidth = 1; ctx.setLineDash([2, 4]);
-    if (lo < 0 && hi > 0) { ctx.beginPath(); ctx.moveTo(34, Y(0)); ctx.lineTo(W, Y(0)); ctx.stroke(); }
-    ctx.setLineDash([]);
-    ctx.fillStyle = cssVar('--ink-2'); ctx.font = '10px "IBM Plex Mono", monospace'; ctx.textAlign = 'right';
-    ctx.fillText(fmtN(hi - pad), 32, Y(hi - pad) + 3); ctx.fillText(fmtN(lo + pad), 32, Y(lo + pad) + 3);
-    ctx.textAlign = 'left'; ctx.fillText('−5 s', 36, H - 3); ctx.textAlign = 'right'; ctx.fillText('now', W - 2, H - 3);
-    ctx.strokeStyle = color; ctx.lineWidth = 2; ctx.lineJoin = 'round'; ctx.beginPath();
-    const start = (hist.i - n + HN) % HN;
-    for (let k = 0; k < n; k++) { const v = arr[(start + k) % HN]; const px = 36 + (W - 38) * (k + HN - n) / HN; k ? ctx.lineTo(px, Y(v)) : ctx.moveTo(px, Y(v)); }
-    ctx.stroke();
-  }
-  const fmtN = (v) => (Math.abs(v) >= 1000 ? (v / 1000).toFixed(1) + 'k' : Math.abs(v) >= 10 ? v.toFixed(0) : v.toFixed(2));
-
-  let kpiT = 0;
-  function frame(now) {
-    const dtw = Math.min(0.05, (now - (lastNow || now)) / 1000); lastNow = now;
-    if (!document.getElementById('view-dyn').hidden) {
-      if (running) { const steps = Math.round(dtw * (R.slow ? 0.25 : 1) / DT); for (let i = 0; i < steps; i++) step(); airborne = Math.max(0, airborne - dtw); }
-      drawAnim();
-      drawScope('sc1', hist.a, cssVar('--s1'), [-1, 1]);
-      drawScope('sc2', hist.d, cssVar('--s2'), [-10, 10]);
-      drawScope('sc3', hist.f, cssVar('--s3'));
-      kpiT += dtw; if (kpiT > 0.25) { kpiT = 0; kpis(); }
-    }
-    requestAnimationFrame(frame);
-  }
-
-  function theory() {
-    document.getElementById('dynTheory').innerHTML = `<h2>The model</h2><div class="cols">
-      <div><h3>Equations of motion</h3><p>Displacements z_s (body), z_u (wheel) and z_r (road) are measured from static equilibrium, positive up.</p>
-      <div class="eq">m_s·z̈_s = k_s(z_u − z_s) + c(ż_u − ż_s)</div>
-      <div class="eq">m_u·z̈_u = −k_s(z_u − z_s) − c(ż_u − ż_s) + k_t(z_r − z_u)</div>
-      <p>The tyre force cannot pull: when k_t(z_r − z_u) &lt; −(m_s+m_u)g the wheel leaves the road. Bump and rebound stops act at +70 / −90 mm. Damping is asymmetric (rebound : compression) about the mean c.</p></div>
-      <div><h3>Natural frequencies</h3><div class="eq">f_body ≈ (1/2π)·√(k_ride/m_s),  k_ride = k_s·k_t/(k_s+k_t)</div><div class="eq">f_hop ≈ (1/2π)·√((k_s+k_t)/m_u)</div>
-      <p>Between the two modes (≈ 4–8 Hz) the body is well isolated. Lowering m_u raises f_hop and cuts dynamic tyre load (better grip) — this is why unsprung mass matters so much for a leaf-sprung live axle.</p></div>
-      <div><h3>The damping compromise</h3><div class="eq">ζ = c / (2·√(k_s·m_s))</div><p>Low ζ (≈ 0.2) isolates well above f_body but lets the body float at resonance. High ζ (≈ 0.6) controls the body and wheel but transmits harshness. A semi-active skyhook damper (as on CDC air suspension) applies damping only when it opposes the body's absolute velocity, so it gets most of both.</p></div>
-      <div><h3>Comfort &amp; grip metrics</h3><p><b>RMS body acceleration</b> is compared with the ISO 2631-1 comfort scale (&lt; 0.315 m/s² not uncomfortable … &gt; 2 m/s² extremely uncomfortable). The value here is unweighted; ISO applies frequency weighting W_k, which peaks at 4–8 Hz. <b>Dynamic tyre load</b> (RMS / static) is the road-holding index: lower means more consistent grip.</p></div></div>`;
-  }
-
-  function init() { buildUI(); theory(); requestAnimationFrame(frame); }
-  return { init, loadPreset, redraw: changed };
-})();
+const THEORY = {
+  en: [
+    { id: 'jobs', svg: 'jobs', h: 'What does a suspension do?',
+      p: ['The suspension connects the wheels to the car body. It has four jobs:'],
+      li: ['Comfort — it soaks up bumps so the people and load inside are not shaken.', 'Grip — it keeps every tyre pressed on the road, so steering and brakes work.', 'Carry the weight — the springs hold up the car at the right height.', 'Hold the wheel in the right position — angles (camber, toe) stay correct while the wheel moves.'] },
+    { id: 'parts', svg: 'quarter', h: 'The main parts',
+      li: ['Spring — carries the weight and stores the energy of a bump (coil, leaf, torsion bar or air).', 'Shock absorber (damper) — stops the spring bouncing again and again.', 'Arms and links — hold the wheel in place and let it move only up and down.', 'Bushes and ball joints — the flexible pivots between arms, knuckle and body.', 'Anti-roll bar — links left and right wheels to reduce body lean in corners.'],
+      p: ['In the picture, A is the sprung weight (body, engine, people — carried by the spring). B is the unsprung weight (wheel, tyre, brake, knuckle — not carried by the spring). The lighter B is, the better the tyre follows the road.'] },
+    { id: 'spring', svg: 'spring', h: 'How a spring works',
+      p: ['A spring gets shorter in proportion to the force on it. Double the force, double the compression. This is Hooke\'s law:'],
+      eq: 'F = k × x',
+      li: ['F = force (N),  k = spring rate (N/mm),  x = compression (mm).', 'Example: k = 25 N/mm and the spring is pressed 40 mm → F = 25 × 40 = 1000 N (about 100 kg).', 'A soft spring (small k) gives a comfortable ride but more body movement. A stiff spring gives better control but a harder ride.'] },
+    { id: 'damper', svg: 'damper', h: 'How a shock absorber works',
+      p: ['A spring alone keeps bouncing up and down. The shock absorber stops this.'],
+      li: ['Inside is a piston on a rod, moving in a tube full of oil.', 'When the wheel moves, the piston forces oil through very small holes and valves.', 'Pushing oil through small holes needs force — the movement energy turns into heat.', 'Compression (wheel goes up) is kept soft; rebound (wheel comes down) is made firmer, so the car settles in one bounce.', 'Test: push down one corner of the car and let go. It should rise and stop. If it bounces 2–3 times, the shock is worn.'] },
+    { id: 'types', svg: 'axles', h: 'Independent and rigid (dependent) suspension',
+      li: ['1 — Independent: each wheel moves on its own. A bump on one side does not tilt the other wheel. Better comfort and grip. Examples: MacPherson strut, double wishbone, multi-link.', '2 — Rigid axle: both wheels are joined by one solid axle. When one wheel goes up, both wheels tilt. Very strong and cheap — used for heavy loads. Examples: leaf-spring live axle in trucks and pickups.', 'In between: the twist-beam axle — the beam twists, so the wheels are partly independent.'] },
+    { id: 'align', svg: 'align', h: 'Wheel alignment angles',
+      li: ['Camber — the tilt of the wheel seen from the front. Top tilted in = negative camber. Wrong camber wears one edge of the tyre.', 'Caster — the backward tilt of the steering axis seen from the side. It makes the steering come back to straight by itself (like a shopping-trolley wheel).', 'Toe — wheels seen from above. Toe-in = fronts of the wheels point slightly inward. Wrong toe makes the tyre wear with a feathered edge.', 'KPI (kingpin inclination) — the tilt of the steering axis seen from the front. It reduces steering effort and kickback.', 'After replacing any arm, tie rod or knuckle, always do a wheel alignment.'] },
+    { id: 'roll', svg: 'roll', h: 'Body roll and the anti-roll bar',
+      li: ['In a corner, the body leans to the outside (body roll) because of centrifugal force.', 'The anti-roll bar is a steel torsion bar connecting left and right suspension. When one side goes up and the other down, the bar twists and resists the lean.', 'When both wheels go up together (a speed breaker), the bar does not twist, so the ride stays comfortable.', 'A thicker bar = less lean. A stiffer front bar makes the car understeer (go wider in a turn).'] },
+    { id: 'faults', h: 'Common faults — symptom and cause', table: [['Clunk / knock over bumps', 'Worn drop link, ball joint, bush or top mount'], ['Car keeps bouncing', 'Worn shock absorber (oil leak)'], ['One corner sits low', 'Broken or sagging spring; air spring leak'], ['Pulls to one side', 'Wrong alignment, worn bush, bent arm'], ['Tyre worn on one edge', 'Wrong camber or toe'], ['Noise when steering at parking speed', 'Top-mount bearing seized'], ['Steering wheel shakes when braking', 'Disc thickness variation, worn arm bush']] },
+    { id: 'safety', h: 'Workshop safety', li: ['Never work under a car held only by a jack — always use axle stands.', 'Never open a strut without a proper spring compressor. A compressed spring can kill.', 'Release air pressure before opening any air-suspension part.', 'Do not blow brake dust with compressed air. Wear a mask and gloves.', 'Tighten rubber-bush bolts with the car at normal ride height, and use a torque wrench for every bolt.'] }
+  ],
+  gu: [
+    { id: 'jobs', svg: 'jobs', h: 'સસ્પેન્શન શું કામ કરે છે?',
+      p: ['સસ્પેન્શન વ્હીલને ગાડીની બૉડી સાથે જોડે છે. તેના ચાર કામ છે:'],
+      li: ['આરામ — ખાડા-ટેકરાના આંચકા શોષી લે છે, જેથી અંદર બેઠેલા લોકો અને માલ હલે નહીં.', 'પકડ — દરેક ટાયરને રસ્તા પર દબાવેલું રાખે છે, જેથી સ્ટીયરિંગ અને બ્રેક બરાબર કામ કરે.', 'વજન ઉપાડવું — સ્પ્રિંગ ગાડીને સાચી ઊંચાઈ પર રાખે છે.', 'વ્હીલને સાચી પોઝિશનમાં રાખવું — વ્હીલ ઉપર-નીચે થાય ત્યારે પણ ખૂણા (કૅમ્બર, ટો) બરાબર રહે.'] },
+    { id: 'parts', svg: 'quarter', h: 'મુખ્ય ભાગ',
+      li: ['સ્પ્રિંગ — વજન ઉપાડે છે અને આંચકાની ઊર્જા ભરી રાખે છે (કોઇલ, પાટા, ટોર્શન બાર અથવા હવા).', 'શૉક એબ્ઝોર્બર — સ્પ્રિંગને વારંવાર ઉછળતી અટકાવે છે.', 'આર્મ અને લિંક — વ્હીલને જગ્યા પર પકડે છે અને ફક્ત ઉપર-નીચે જવા દે છે.', 'બુશ અને બૉલ જોઇન્ટ — આર્મ, નકલ અને બૉડી વચ્ચેના લવચીક સાંધા.', 'એન્ટી-રોલ બાર — ડાબા-જમણા વ્હીલને જોડે છે અને વળાંકમાં બૉડીનો ઝુકાવ ઘટાડે છે.'],
+      p: ['આકૃતિમાં A સ્પ્રંગ વજન છે (બૉડી, એન્જિન, લોકો — સ્પ્રિંગ ઉપાડે છે). B અનસ્પ્રંગ વજન છે (વ્હીલ, ટાયર, બ્રેક, નકલ — સ્પ્રિંગ ઉપાડતી નથી). B જેટલું હલકું, તેટલું ટાયર રસ્તાને વધુ સારી રીતે અનુસરે.'] },
+    { id: 'spring', svg: 'spring', h: 'સ્પ્રિંગ કેવી રીતે કામ કરે છે',
+      p: ['સ્પ્રિંગ પર જેટલું બળ, તેટલી તે દબાય. બળ બમણું તો દબાણ પણ બમણું. આ હૂકનો નિયમ છે:'],
+      eq: 'F = k × x',
+      li: ['F = બળ (N),  k = સ્પ્રિંગ રેટ (N/mm),  x = દબાણ (mm).', 'ઉદાહરણ: k = 25 N/mm અને સ્પ્રિંગ 40 mm દબાય → F = 25 × 40 = 1000 N (લગભગ 100 કિલો).', 'નરમ સ્પ્રિંગ (નાનો k) આરામ આપે પણ બૉડી વધુ હલે. કડક સ્પ્રિંગ કંટ્રોલ સારો આપે પણ સવારી કડક લાગે.'] },
+    { id: 'damper', svg: 'damper', h: 'શૉક એબ્ઝોર્બર કેવી રીતે કામ કરે છે',
+      p: ['એકલી સ્પ્રિંગ વારંવાર ઉપર-નીચે ઉછળ્યા કરે. શૉક એબ્ઝોર્બર તેને રોકે છે.'],
+      li: ['અંદર રૉડ પર પિસ્ટન છે, જે ઑઇલ ભરેલી ટ્યુબમાં ફરે છે.', 'વ્હીલ હલે ત્યારે પિસ્ટન ઑઇલને બહુ નાના છિદ્રો અને વાલ્વમાંથી ધકેલે છે.', 'નાના છિદ્રોમાંથી ઑઇલ ધકેલવા બળ જોઈએ — હલનચલનની ઊર્જા ગરમીમાં બદલાય છે.', 'કૉમ્પ્રેશન (વ્હીલ ઉપર) નરમ રાખવામાં આવે છે; રિબાઉન્ડ (વ્હીલ નીચે) કડક, જેથી ગાડી એક ઉછાળામાં સ્થિર થાય.', 'ટેસ્ટ: ગાડીનો એક ખૂણો દબાવીને છોડો. તે ઉપર આવીને અટકવી જોઈએ. 2-3 વાર ઉછળે તો શૉક ઘસાયેલો છે.'] },
+    { id: 'types', svg: 'axles', h: 'ઇન્ડિપેન્ડન્ટ અને રિજિડ (ડિપેન્ડન્ટ) સસ્પેન્શન',
+      li: ['1 — ઇન્ડિપેન્ડન્ટ: દરેક વ્હીલ અલગ હલે છે. એક બાજુના ટેકરાથી બીજું વ્હીલ નમતું નથી. આરામ અને પકડ વધુ. ઉદાહરણ: મૅકફર્સન, ડબલ વિશબોન, મલ્ટી-લિંક.', '2 — રિજિડ એક્સલ: બંને વ્હીલ એક જ મજબૂત એક્સલથી જોડાયેલા. એક વ્હીલ ઉપર જાય તો બંને નમે. બહુ મજબૂત અને સસ્તું — ભારે વજન માટે. ઉદાહરણ: ટ્રક અને પિકઅપનો લીફ સ્પ્રિંગ એક્સલ.', 'વચ્ચેનો પ્રકાર: ટ્વિસ્ટ બીમ — બીમ વળ ખાય છે, તેથી વ્હીલ થોડા અંશે અલગ હલી શકે.'] },
+    { id: 'align', svg: 'align', h: 'વ્હીલ એલાઇનમેન્ટના ખૂણા',
+      li: ['કૅમ્બર — આગળથી જોતાં વ્હીલનો ઝુકાવ. ઉપરનો ભાગ અંદર = નેગેટિવ કૅમ્બર. ખોટો કૅમ્બર ટાયરની એક કિનારી ઘસે છે.', 'કૅસ્ટર — બાજુથી જોતાં સ્ટીયરિંગ ધરીનો પાછળ તરફ ઝુકાવ. તેનાથી સ્ટીયરિંગ જાતે સીધું થઈ જાય છે (શોપિંગ ટ્રોલીના પૈડાં જેવું).', 'ટો — ઉપરથી જોતાં વ્હીલની દિશા. ટો-ઇન = વ્હીલનો આગળનો ભાગ થોડો અંદર. ખોટો ટો ટાયરને પીંછા જેવું ઘસે છે.', 'KPI — આગળથી જોતાં સ્ટીયરિંગ ધરીનો ઝુકાવ. તે સ્ટીયરિંગ હલકું કરે છે અને આંચકા ઘટાડે છે.', 'કોઈ પણ આર્મ, ટાઇ રૉડ કે નકલ બદલ્યા પછી હંમેશા વ્હીલ એલાઇનમેન્ટ કરો.'] },
+    { id: 'roll', svg: 'roll', h: 'બૉડી રોલ અને એન્ટી-રોલ બાર',
+      li: ['વળાંકમાં કેન્દ્રત્યાગી બળને લીધે બૉડી બહારની તરફ નમે છે (બૉડી રોલ).', 'એન્ટી-રોલ બાર ડાબા-જમણા સસ્પેન્શનને જોડતો સ્ટીલનો ટોર્શન બાર છે. એક બાજુ ઉપર અને બીજી નીચે જાય ત્યારે બાર વળ ખાય છે અને ઝુકાવ રોકે છે.', 'બંને વ્હીલ સાથે ઉપર જાય (સ્પીડ બ્રેકર) ત્યારે બાર વળતો નથી, તેથી સવારી આરામદાયક રહે.', 'જાડો બાર = ઓછો ઝુકાવ. આગળનો બાર વધુ કડક હોય તો ગાડી અન્ડરસ્ટીયર કરે (વળાંકમાં બહાર જાય).'] },
+    { id: 'faults', h: 'સામાન્ય ખરાબી — લક્ષણ અને કારણ', table: [['ખાડા પર ખટખટ અવાજ', 'ઘસાયેલી ડ્રોપ લિંક, બૉલ જોઇન્ટ, બુશ અથવા ટોપ માઉન્ટ'], ['ગાડી વારંવાર ઉછળે', 'ઘસાયેલો શૉક એબ્ઝોર્બર (ઑઇલ લીક)'], ['એક ખૂણો નીચો', 'તૂટેલી કે બેસી ગયેલી સ્પ્રિંગ; એર સ્પ્રિંગ લીક'], ['ગાડી એક બાજુ ખેંચાય', 'ખોટું એલાઇનમેન્ટ, ઘસાયેલો બુશ, વાંકો આર્મ'], ['ટાયર એક કિનારીથી ઘસાય', 'ખોટો કૅમ્બર અથવા ટો'], ['પાર્કિંગમાં સ્ટીયરિંગ ફેરવતાં અવાજ', 'ટોપ માઉન્ટ બેરિંગ જામ'], ['બ્રેક મારતાં સ્ટીયરિંગ ધ્રૂજે', 'ડિસ્ક જાડાઈમાં ફરક, ઘસાયેલો આર્મ બુશ']] },
+    { id: 'safety', h: 'વર્કશોપ સેફ્ટી', li: ['ફક્ત જૅક પર ઊભી ગાડી નીચે ક્યારેય કામ ન કરો — હંમેશા એક્સલ સ્ટેન્ડ વાપરો.', 'સાચા સ્પ્રિંગ કૉમ્પ્રેસર વગર સ્ટ્રટ ક્યારેય ન ખોલો. દબાયેલી સ્પ્રિંગ જીવલેણ બની શકે.', 'એર સસ્પેન્શનનો કોઈ ભાગ ખોલતા પહેલાં હવાનું દબાણ કાઢો.', 'બ્રેકની ધૂળ કૉમ્પ્રેસ્ડ એરથી ન ઉડાડો. માસ્ક અને હાથમોજાં પહેરો.', 'રબર બુશના બોલ્ટ ગાડી સામાન્ય ઊંચાઈ પર હોય ત્યારે ટાઇટ કરો, અને દરેક બોલ્ટ ટૉર્ક રેન્ચથી ટાઇટ કરો.'] }
+  ],
+  hi: [
+    { id: 'jobs', svg: 'jobs', h: 'सस्पेंशन क्या काम करता है?',
+      p: ['सस्पेंशन पहियों को गाड़ी की बॉडी से जोड़ता है. इसके चार काम हैं:'],
+      li: ['आराम — गड्ढों के झटके सोख लेता है, ताकि अंदर बैठे लोग और सामान न हिलें.', 'पकड़ — हर टायर को सड़क पर दबाए रखता है, ताकि स्टीयरिंग और ब्रेक ठीक काम करें.', 'वज़न उठाना — स्प्रिंग गाड़ी को सही ऊँचाई पर रखती है.', 'पहिए को सही पोज़िशन में रखना — पहिया ऊपर-नीचे हो तब भी कोण (कैम्बर, टो) सही रहें.'] },
+    { id: 'parts', svg: 'quarter', h: 'मुख्य पार्ट',
+      li: ['स्प्रिंग — वज़न उठाती है और झटके की ऊर्जा जमा करती है (कॉइल, पत्ती, टॉर्शन बार या हवा).', 'शॉक एब्ज़ॉर्बर — स्प्रिंग को बार-बार उछलने से रोकता है.', 'आर्म और लिंक — पहिए को जगह पर पकड़ते हैं और सिर्फ़ ऊपर-नीचे जाने देते हैं.', 'बुश और बॉल जॉइंट — आर्म, नकल और बॉडी के बीच के लचीले जोड़.', 'एंटी-रोल बार — बाएँ-दाएँ पहिए को जोड़ता है और मोड़ पर बॉडी का झुकाव कम करता है.'],
+      p: ['आकृति में A स्प्रंग वज़न है (बॉडी, इंजन, लोग — स्प्रिंग उठाती है). B अनस्प्रंग वज़न है (पहिया, टायर, ब्रेक, नकल — स्प्रिंग नहीं उठाती). B जितना हल्का, टायर उतना अच्छा सड़क को पकड़ता है.'] },
+    { id: 'spring', svg: 'spring', h: 'स्प्रिंग कैसे काम करती है',
+      p: ['स्प्रिंग पर जितना बल, उतनी वह दबती है. बल दोगुना तो दबाव भी दोगुना. यह हुक का नियम है:'],
+      eq: 'F = k × x',
+      li: ['F = बल (N),  k = स्प्रिंग रेट (N/mm),  x = दबाव (mm).', 'उदाहरण: k = 25 N/mm और स्प्रिंग 40 mm दबे → F = 25 × 40 = 1000 N (लगभग 100 किलो).', 'नरम स्प्रिंग (छोटा k) आराम देती है पर बॉडी ज़्यादा हिलती है. सख्त स्प्रिंग अच्छा कंट्रोल देती है पर सवारी सख्त लगती है.'] },
+    { id: 'damper', svg: 'damper', h: 'शॉक एब्ज़ॉर्बर कैसे काम करता है',
+      p: ['अकेली स्प्रिंग बार-बार ऊपर-नीचे उछलती रहती है. शॉक एब्ज़ॉर्बर इसे रोकता है.'],
+      li: ['अंदर रॉड पर पिस्टन है, जो तेल से भरी ट्यूब में चलता है.', 'पहिया हिलने पर पिस्टन तेल को बहुत छोटे छेदों और वाल्व से धकेलता है.', 'छोटे छेदों से तेल धकेलने में बल लगता है — हलचल की ऊर्जा गर्मी में बदल जाती है.', 'कंप्रेशन (पहिया ऊपर) नरम रखा जाता है; रिबाउंड (पहिया नीचे) सख्त, ताकि गाड़ी एक उछाल में स्थिर हो जाए.', 'टेस्ट: गाड़ी का एक कोना दबाकर छोड़ें. वह ऊपर आकर रुक जाए. 2-3 बार उछले तो शॉक घिसा है.'] },
+    { id: 'types', svg: 'axles', h: 'इंडिपेंडेंट और रिजिड (डिपेंडेंट) सस्पेंशन',
+      li: ['1 — इंडिपेंडेंट: हर पहिया अलग से हिलता है. एक तरफ़ के झटके से दूसरा पहिया नहीं झुकता. आराम और पकड़ ज़्यादा. उदाहरण: मैकफर्सन, डबल विशबोन, मल्टी-लिंक.', '2 — रिजिड एक्सल: दोनों पहिए एक ही मज़बूत एक्सल से जुड़े. एक पहिया ऊपर जाए तो दोनों झुकते हैं. बहुत मज़बूत और सस्ता — भारी वज़न के लिए. उदाहरण: ट्रक और पिकअप का लीफ स्प्रिंग एक्सल.', 'बीच का प्रकार: ट्विस्ट बीम — बीम मरोड़ खाता है, इसलिए पहिए कुछ हद तक अलग हिल सकते हैं.'] },
+    { id: 'align', svg: 'align', h: 'व्हील अलाइनमेंट के कोण',
+      li: ['कैम्बर — सामने से देखने पर पहिए का झुकाव. ऊपरी हिस्सा अंदर = नेगेटिव कैम्बर. गलत कैम्बर टायर का एक किनारा घिसता है.', 'कैस्टर — साइड से देखने पर स्टीयरिंग धुरी का पीछे की ओर झुकाव. इससे स्टीयरिंग खुद सीधा हो जाता है (शॉपिंग ट्रॉली के पहिए जैसा).', 'टो — ऊपर से देखने पर पहियों की दिशा. टो-इन = पहियों का आगे का हिस्सा थोड़ा अंदर. गलत टो से टायर पंख जैसा घिसता है.', 'KPI — सामने से देखने पर स्टीयरिंग धुरी का झुकाव. यह स्टीयरिंग हल्का करता है और झटके कम करता है.', 'कोई भी आर्म, टाई रॉड या नकल बदलने के बाद हमेशा व्हील अलाइनमेंट करें.'] },
+    { id: 'roll', svg: 'roll', h: 'बॉडी रोल और एंटी-रोल बार',
+      li: ['मोड़ पर अपकेंद्री बल के कारण बॉडी बाहर की ओर झुकती है (बॉडी रोल).', 'एंटी-रोल बार बाएँ-दाएँ सस्पेंशन को जोड़ने वाला स्टील टॉर्शन बार है. एक तरफ़ ऊपर और दूसरी नीचे जाए तो बार मरोड़ खाता है और झुकाव रोकता है.', 'दोनों पहिए साथ ऊपर जाएँ (स्पीड ब्रेकर) तो बार नहीं मुड़ता, इसलिए सवारी आरामदायक रहती है.', 'मोटा बार = कम झुकाव. आगे का बार ज़्यादा सख्त हो तो गाड़ी अंडरस्टीयर करती है (मोड़ पर बाहर जाती है).'] },
+    { id: 'faults', h: 'आम खराबी — लक्षण और कारण', table: [['गड्ढे पर खटखट आवाज़', 'घिसी ड्रॉप लिंक, बॉल जॉइंट, बुश या टॉप माउंट'], ['गाड़ी बार-बार उछलती है', 'घिसा शॉक एब्ज़ॉर्बर (तेल लीक)'], ['एक कोना नीचा', 'टूटी या बैठी स्प्रिंग; एयर स्प्रिंग लीक'], ['गाड़ी एक तरफ़ खिंचती है', 'गलत अलाइनमेंट, घिसा बुश, मुड़ा आर्म'], ['टायर एक किनारे से घिसता है', 'गलत कैम्बर या टो'], ['पार्किंग में स्टीयरिंग घुमाने पर आवाज़', 'टॉप माउंट बेयरिंग जाम'], ['ब्रेक लगाने पर स्टीयरिंग काँपता है', 'डिस्क की मोटाई में फ़र्क, घिसा आर्म बुश']] },
+    { id: 'safety', h: 'वर्कशॉप सेफ्टी', li: ['सिर्फ़ जैक पर खड़ी गाड़ी के नीचे कभी काम न करें — हमेशा एक्सल स्टैंड लगाएँ.', 'सही स्प्रिंग कंप्रेसर के बिना स्ट्रट कभी न खोलें. दबी स्प्रिंग जानलेवा हो सकती है.', 'एयर सस्पेंशन का कोई भी पार्ट खोलने से पहले हवा का दबाव निकालें.', 'ब्रेक की धूल कंप्रेस्ड एयर से न उड़ाएँ. मास्क और दस्ताने पहनें.', 'रबर बुश के बोल्ट गाड़ी सामान्य ऊँचाई पर हो तब टाइट करें, और हर बोल्ट टॉर्क रिंच से टाइट करें.'] }
+  ]
+};
+const THEORY_HEAD = { en: ['Symptom', 'Likely cause'], gu: ['લક્ષણ', 'સંભવિત કારણ'], hi: ['लक्षण', 'संभावित कारण'] };
 
 </script>
 <script>
@@ -3561,7 +3229,7 @@ const Dyn = (() => {
     if (!Bench.built) return;
     $('#stTitle').textContent = sysName(state.sys);
     Bench.refreshLabels();
-    renderProc(); renderBom(); renderSys(); renderCompare();
+    renderProc(); renderBom(); renderSys(); renderCompare(); renderTheory();
     if (Bench.st.selected) openDrawer(Bench.st.selected);
     if (how.on) showScene();
     refreshCharts();
@@ -3602,11 +3270,11 @@ const Dyn = (() => {
     ['#tbExplode', '#tbIsolate', '#tbSection'].forEach((s) => $(s).setAttribute('aria-pressed', false)); $('#tbIsolate').disabled = true;
     Bench.setSection(false);
     $('#cycleBtn').setAttribute('aria-pressed', false); $('#travel').value = 0; state.travel = 0;
+    Bench.setBody($('#tbBody').getAttribute('aria-pressed') === 'true');
     closeDrawer();
     renderProc(); renderBom(); renderSys();
-    KinView.setSystem(def, built); KinView.render(state.travel / 1000);
-    Dyn.loadPreset(def);
     renderCompare();
+    if (state.view === 'diagram') enterDiagram(); else setDrive(true);
   }
 
   /* ── procedure ── */
@@ -3690,8 +3358,8 @@ const Dyn = (() => {
       <h3>${tr('design_values')}</h3><table class="tbl">${Object.entries(s.char).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
       <h3>${tr('origin')}</h3><p>${esc(s.history)}</p>
       <h3>${tr('where')}</h3><p>${esc(s.used)}</p>
-      <div class="d-actions"><button class="btn accent" id="sysHow">${tr('how_btn')}</button><a class="btn ghost" href="#kin">${tr('kin_open')}</a><a class="btn ghost" href="#dyn">${tr('dyn_open')}</a></div></div>`;
-    $('#sysHow').onclick = () => { $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); howStart(); };
+      <div class="d-actions"><button class="btn accent" id="sysHow">${tr('how_btn')}</button><a class="btn ghost" href="#theory">${tr('tab_theory')} →</a><a class="btn ghost" href="#diagram">${tr('tab_diagram')} →</a></div></div>`;
+    $('#sysHow').onclick = () => { if (state.view !== 'bench') location.hash = '#bench'; $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); howStart(); };
   }
 
   /* ── part drawer ── */
@@ -3734,7 +3402,7 @@ const Dyn = (() => {
     toggleTb('#tbIsolate', true);
     const p = Bench.parts.find((q) => q.id === id);
     toggleTb('#tbSection', !!(p && p.cut && ['damper', 'cdc', 'airspring', 'bushing', 'lbj', 'hub', 'tyre', 'topmount'].includes(p.info)));
-    $('#cycleBtn').setAttribute('aria-pressed', true); Bench.setCycle(true);
+    setDrive(false); $('#cycleBtn').setAttribute('aria-pressed', true); Bench.setCycle(true);
     if (window.innerWidth <= 1080) $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -3760,6 +3428,15 @@ const Dyn = (() => {
   }
   ['#tbExplode', '#tbSection', '#tbLabels', '#tbIsolate', '#tbHide', '#tbRotate'].forEach((s) => $(s).addEventListener('click', () => toggleTb(s)));
   $('#tbReset').addEventListener('click', () => Bench.resetView(false));
+  $('#tbBody').addEventListener('click', (e) => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Bench.setBody(on); });
+  $('#tbCar').addEventListener('click', () => { if ($('#tbBody').getAttribute('aria-pressed') !== 'true') $('#tbBody').click(); Bench.viewCar(); });
+
+  /* ── continuous drive animation (wheels turn, road moves, bumps) ── */
+  function setDrive(on) {
+    $('#driveBtn').setAttribute('aria-pressed', on); Bench.setDrive(on);
+    if (on) { $('#cycleBtn').setAttribute('aria-pressed', false); }
+  }
+  $('#driveBtn').addEventListener('click', (e) => { howStop(); setDrive(e.currentTarget.getAttribute('aria-pressed') !== 'true'); });
 
   /* ── full screen (real fullscreen where allowed, otherwise fill the window) ── */
   const stageEl = $('#stage');
@@ -3788,15 +3465,16 @@ const Dyn = (() => {
 
   /* ── travel ── */
   const travel = $('#travel');
-  travel.addEventListener('input', () => { howStop(); state.travel = +travel.value; $('#cycleBtn').setAttribute('aria-pressed', false); Bench.setTravel(state.travel / 1000); });
-  $('#cycleBtn').addEventListener('click', (e) => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Bench.setCycle(on); if (!on) { travel.value = 0; state.travel = 0; } });
+  travel.addEventListener('input', () => { howStop(); setDrive(false); state.travel = +travel.value; $('#cycleBtn').setAttribute('aria-pressed', false); Bench.setTravel(state.travel / 1000); });
+  $('#cycleBtn').addEventListener('click', (e) => { setDrive(false); const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Bench.setCycle(on); if (!on) { travel.value = 0; state.travel = 0; } });
 
   let roT = 0;
   Bench.onFrame = (r, locked) => {
     const now = performance.now(); if (now - roT < 100) return; roT = now;
     $('#travelBox').classList.toggle('locked', locked); travel.disabled = locked; $('#cycleBtn').disabled = locked;
     const mm = (r.s * 1000); $('#travelVal').textContent = locked ? tr('locked') : `${mm > 0 ? '+' : ''}${mm.toFixed(0)} mm`;
-    if (Bench.st.cycle) travel.value = Math.round(mm);
+    if (Bench.st.cycle || Bench.st.drive || how.on) travel.value = Math.round(mm);
+    $('#driveBtn').disabled = locked;
     const rows = [[tr('r_travel'), `${mm.toFixed(0)} mm`], [tr('r_camber'), `${r.camber.toFixed(2)}°`]];
     if (r.rcH != null) rows.push([tr('r_rc'), `${(r.rcH * 1000).toFixed(0)} mm`]);
     rows.push([tr('r_track'), `${((r.halfTrack - Bench.built.hp.W[0]) * 1000).toFixed(1)} mm`]);
@@ -3814,7 +3492,7 @@ const Dyn = (() => {
   Bench.onLabel = () => { if (!isFull() && window.innerWidth <= 1080 && !$('#drawer').hidden) $('#drawer').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   /* ── "How it works" lesson ── */
-  const how = { on: false, i: 0, t: 0, paused: false, raf: 0, last: 0, userSection: false };
+  const how = { on: false, i: 0, t: 0, paused: false, raf: 0, last: 0, userSection: false, wasDriving: false };
   const scenes = () => HOW.common;
   function sceneText(sc) {
     const r = HOW.roles[state.sys.id];
@@ -3837,6 +3515,7 @@ const Dyn = (() => {
     if ($('#tbIsolate').getAttribute('aria-pressed') === 'true') toggleTb('#tbIsolate', false);
     Bench.setCycle(false); $('#cycleBtn').setAttribute('aria-pressed', false);
     how.userSection = $('#tbSection').getAttribute('aria-pressed') === 'true';
+    how.wasDriving = Bench.st.drive; setDrive(false); Bench.setSpin(true);
     Object.assign(how, { on: true, i: 0, t: 0, paused: false, last: performance.now() });
     $('#how').hidden = false; stageEl.classList.add('how-on');
     showScene(); how.raf = requestAnimationFrame(howTick);
@@ -3858,7 +3537,8 @@ const Dyn = (() => {
     if (!how.on) return;
     how.on = false; cancelAnimationFrame(how.raf);
     $('#how').hidden = true; stageEl.classList.remove('how-on');
-    Bench.highlight([]); Bench.setTravel(0); Bench.setSection(how.userSection);
+    Bench.highlight([]); Bench.setTravel(0); Bench.setSection(how.userSection); Bench.setSpin(false);
+    if (how.wasDriving) setDrive(true);
   }
   $('#howBtn').addEventListener('click', howStart);
   $('#howStop').addEventListener('click', howStop);
@@ -3866,8 +3546,35 @@ const Dyn = (() => {
   $('#howNext').addEventListener('click', () => howJump(1));
   $('#howPause').addEventListener('click', () => { how.paused = !how.paused; $('#howPause').textContent = how.paused ? '▶' : '❚❚'; });
 
-  /* ── kinematics slider ── */
-  $('#kinTravel').addEventListener('input', (e) => KinView.render(+e.target.value / 1000));
+  /* ── diagram (exploded view with every part named) ── */
+  function enterDiagram() {
+    howStop(); stopPlay(); setDrive(false); Bench.setCycle(false);
+    document.body.classList.add('diagram-mode'); $('#diagramHint').hidden = false;
+    state.step = 0; toggleTb('#tbExplode', true); Bench.setAllNames(true);
+    setSide('bom');
+  }
+  function leaveDiagram() {
+    if (!document.body.classList.contains('diagram-mode')) return;
+    document.body.classList.remove('diagram-mode'); $('#diagramHint').hidden = true;
+    Bench.setAllNames(false); toggleTb('#tbExplode', false); setSide('proc'); setDrive(true);
+  }
+
+  /* ── theory ── */
+  function renderTheory() {
+    const list = THEORY[LANG] || THEORY.en; const head = THEORY_HEAD[LANG] || THEORY_HEAD.en;
+    $('#thToc').innerHTML = list.map((s, i) => `<a href="#theory" data-th="${s.id}">${i + 1}. ${esc(s.h)}</a>`).join('');
+    $('#thList').innerHTML = list.map((s, i) => `<article class="panel th-card ${s.svg ? '' : 'nosvg'}" id="th-${s.id}">
+      <div><h2><span>${String(i + 1).padStart(2, '0')}</span>${esc(s.h)}</h2>
+        ${(s.p || []).slice(0, s.id === 'parts' ? 0 : 9).map((x) => `<p>${esc(x)}</p>`).join('')}
+        ${s.eq ? `<div class="th-eq">${esc(s.eq)}</div>` : ''}
+        ${s.li ? `<ul>${s.li.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+        ${s.id === 'parts' && s.p ? s.p.map((x) => `<p style="margin-top:10px">${esc(x)}</p>`).join('') : ''}
+        ${s.table ? `<div class="scroll-x"><table class="th-table"><thead><tr><th>${head[0]}</th><th>${head[1]}</th></tr></thead><tbody>${s.table.map(([x, y]) => `<tr><td>${esc(x)}</td><td>${esc(y)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      </div>
+      ${s.svg ? `<div class="th-fig">${THEORY_SVG[s.svg]}</div>` : ''}
+    </article>`).join('');
+    $('#thToc').querySelectorAll('[data-th]').forEach((el) => el.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('th-' + el.dataset.th).scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+  }
 
   /* ── compare ── */
   function renderCompare() {
@@ -3883,27 +3590,28 @@ const Dyn = (() => {
 
   /* ── routing ── */
   function route() {
-    const v = (location.hash || '#bench').slice(1); const view = ['bench', 'kin', 'dyn', 'compare'].includes(v) ? v : 'bench';
+    const v = (location.hash || '#bench').slice(1); const view = ['bench', 'diagram', 'theory', 'compare'].includes(v) ? v : 'bench';
     if (view !== 'bench') howStop();
-    state.view = view;
-    document.querySelectorAll('.view').forEach((s) => { s.hidden = s.id !== 'view-' + view; });
+    const prev = state.view; state.view = view;
+    const sec = view === 'diagram' ? 'bench' : view;
+    document.querySelectorAll('.view').forEach((s) => { s.hidden = s.id !== 'view-' + sec; });
+    if (view === 'diagram' && Bench.built) enterDiagram();
+    if (prev === 'diagram' && view !== 'diagram') leaveDiagram();
+    if (view === 'theory') window.scrollTo(0, 0);
     document.querySelectorAll('.tabs a').forEach((a) => a.classList.toggle('on', a.dataset.view === view));
     refreshCharts();
   }
-  function refreshCharts() {
-    if (state.view === 'kin') KinView.render(+$('#kinTravel').value / 1000);
-    if (state.view === 'dyn') Dyn.redraw();
-  }
+  function refreshCharts() { /* charts removed; kept as a hook for theme/resize */ }
   window.addEventListener('hashchange', route);
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(refreshCharts, 150); });
 
   /* ── boot ── */
   initMaterials();
-  Bench.init(stageEl);
+  Bench.init($('#viewport'));
   Bench.setTheme(isDark());
   buildLang();
   buildSysbar();
-  Dyn.init();
+  renderTheory();
   route();
   setSystem(store.get('sys') || SYSTEMS[0].id);
   setLang(store.get('lang') || 'en');

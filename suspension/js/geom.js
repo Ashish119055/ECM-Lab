@@ -43,8 +43,12 @@ function initMaterials() {
     grease: S({ color: 0x5c8d2e, roughness: 0.55 }),
     ball: S({ color: 0xe6ebf0, metalness: 1, roughness: 0.12 }),
     bellows: S({ color: 0x232527, roughness: 0.6 }),
-    green: S({ color: 0x2b9a5a, roughness: 0.5 })
+    green: S({ color: 0x2b9a5a, roughness: 0.5 }),
+    ghost: P({ color: 0xbfd6ec, metalness: 0.2, roughness: 0.15, transparent: true, opacity: 0.1, depthWrite: false, side: THREE.DoubleSide }),
+    ghostWin: S({ color: 0x23384d, transparent: true, opacity: 0.22, depthWrite: false, side: THREE.DoubleSide }),
+    ghostTyre: S({ color: 0x25282c, roughness: 0.9, transparent: true, opacity: 0.45, depthWrite: false })
   });
+  MAT.ghostLine = new THREE.LineBasicMaterial({ color: 0x5f8db8, transparent: true, opacity: 0.55 });
   for (const m of Object.values(MAT)) if (m.transparent) m.side = THREE.DoubleSide;
 }
 
@@ -333,4 +337,70 @@ function airSpringMesh(len = 0.3, R = 0.075, pistonR = 0.05) {
     bell.scale.y = L; capT.position.y = L - len; fitting.position.y = L + 0.045; guide.scale.y = L / len;
   };
   return g;
+}
+
+/* ── light (see-through) vehicle body + ghost wheels, so the corner can be seen in its car ── */
+const CAR_SHAPES = {
+  // side-profile points (z relative to the front axle, y), front-bottom first, going over the roof to the rear
+  hatch: (wb) => [[0.8, 0.3], [0.87, 0.47], [0.84, 0.64], [0.6, 0.77], [0.05, 0.87], [-0.4, 0.92], [-1.05, 1.45], [-wb + 0.1, 1.47], [-wb - 0.42, 1.3], [-wb - 0.6, 0.95], [-wb - 0.65, 0.5], [-wb - 0.6, 0.3]],
+  sedan: (wb) => [[0.9, 0.3], [0.97, 0.47], [0.94, 0.63], [0.68, 0.74], [0.0, 0.84], [-0.5, 0.9], [-1.25, 1.43], [-wb + 0.25, 1.45], [-wb - 0.45, 1.02], [-wb - 0.95, 0.98], [-wb - 1.02, 0.72], [-wb - 0.97, 0.3]],
+  suv: (wb) => [[0.85, 0.36], [0.92, 0.6], [0.88, 0.86], [0.55, 0.98], [-0.1, 1.04], [-0.55, 1.08], [-1.15, 1.72], [-wb - 0.55, 1.74], [-wb - 0.8, 1.55], [-wb - 0.86, 1.0], [-wb - 0.86, 0.5], [-wb - 0.8, 0.36]],
+  pickup: (wb) => [[0.85, 0.45], [0.92, 0.72], [0.88, 0.98], [0.35, 1.08], [-0.2, 1.12], [-0.85, 1.8], [-1.95, 1.8], [-2.0, 1.12], [-wb - 1.25, 1.12], [-wb - 1.27, 0.56], [-wb - 1.2, 0.45]]
+};
+function carBody(car) {
+  const g = new THREE.Group();
+  const { kind, wb, R, track } = car;
+  const zf = car.axle === 'front' ? 0 : wb; // world z of the front axle
+  const pts = CAR_SHAPES[kind](wb);
+  const ra = R + 0.07; const yb = pts[pts.length - 1][1];
+  const shape = new THREE.Shape();
+  shape.moveTo(pts[0][0], pts[0][1]);
+  pts.slice(1).forEach(([z, y]) => shape.lineTo(z, y));
+  // bottom edge from rear to front, arching over the rear then the front wheel
+  [[-wb, ra], [0, ra]].forEach(([zc, r]) => {
+    shape.lineTo(zc - r, yb);
+    for (let i = 0; i <= 16; i++) { const a = Math.PI - (i / 16) * Math.PI; shape.lineTo(zc + r * Math.cos(a), Math.max(yb, R + r * Math.sin(a) * 0.98)); }
+    shape.lineTo(zc + r, yb);
+  });
+  shape.lineTo(pts[0][0], pts[0][1]);
+  const width = kind === 'suv' || kind === 'pickup' ? 1.88 : 1.78;
+  const geo = new THREE.ExtrudeGeometry(shape, { depth: width, bevelEnabled: true, bevelSize: 0.06, bevelThickness: 0.06, bevelSegments: 3, curveSegments: 6 });
+  geo.translate(0, 0, -width / 2);
+  const shell = new THREE.Mesh(geo, MAT.ghost); shell.rotation.y = -Math.PI / 2; shell.position.z = zf; shell.renderOrder = 5;
+  g.add(shell);
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo, 28), MAT.ghostLine);
+  edges.rotation.copy(shell.rotation); edges.position.copy(shell.position); g.add(edges);
+  // window band (darker glass)
+  const wpts = pts.filter(([, y]) => y > 0.86);
+  if (wpts.length > 2) {
+    const ws = new THREE.Shape(); ws.moveTo(wpts[0][0], wpts[0][1] + 0.02); wpts.forEach(([z, y]) => ws.lineTo(z, y - 0.04)); ws.lineTo(wpts[wpts.length - 1][0], wpts[0][1] + 0.02);
+    [1, -1].forEach((sx) => { const wm = new THREE.Mesh(new THREE.ShapeGeometry(ws), MAT.ghostWin); wm.rotation.y = -Math.PI / 2; wm.position.set(sx * (width / 2 + 0.065), 0, zf); g.add(wm); });
+  }
+  // ghost wheels everywhere a real wheel is not modelled
+  const spinners = [];
+  const real = car.real; // e.g. [['front', 1]] or [['rear', 1], ['rear', -1]]
+  [['front', zf], ['rear', zf - wb]].forEach(([ax, z]) => [1, -1].forEach((sx) => {
+    if (real.some(([a, s]) => a === ax && s === sx)) return;
+    const t = new THREE.Mesh(tyreMesh(R, car.w ?? 0.22, R * 0.66).geometry, MAT.ghostTyre);
+    orientWheel(t, V3(sx * track, R, z), sx); g.add(t); spinners.push([t, sx]);
+    const hub = new THREE.Mesh(new THREE.CylinderGeometry(R * 0.6, R * 0.6, 0.02, 24), MAT.ghostWin); orientWheel(hub, V3(sx * (track + 0.09), R, z), sx); g.add(hub);
+  }));
+  g.userData.spinners = spinners;
+  g.userData.bounds = { zMin: zf - wb - 1.3, zMax: zf + 1.0, w: width };
+  return g;
+}
+
+/* Road strip with scrolling lane markings */
+function makeRoad() {
+  const c = document.createElement('canvas'); c.width = 256; c.height = 512;
+  const x = c.getContext('2d');
+  x.fillStyle = '#3b3f45'; x.fillRect(0, 0, 256, 512);
+  for (let i = 0; i < 2600; i++) { const v = 50 + Math.random() * 40; x.fillStyle = `rgb(${v},${v + 2},${v + 5})`; x.fillRect(Math.random() * 256, Math.random() * 512, 2, 2); }
+  x.fillStyle = '#e8e8e2'; x.fillRect(8, 0, 6, 512); x.fillRect(242, 0, 6, 512);
+  x.fillStyle = '#f2c230'; x.fillRect(125, 0, 6, 220);
+  const tex = new THREE.CanvasTexture(c); tex.wrapS = tex.wrapT = THREE.RepeatWrapping; tex.repeat.set(1, 4); tex.encoding = THREE.sRGBEncoding;
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(4.4, 16), new THREE.MeshStandardMaterial({ map: tex, roughness: 0.95, metalness: 0 }));
+  m.rotation.x = -Math.PI / 2; m.position.y = 0.002; m.receiveShadow = true;
+  m.userData.tex = tex;
+  return m;
 }

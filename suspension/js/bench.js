@@ -3,11 +3,12 @@
 'use strict';
 
 const Bench = (() => {
-  let renderer, scene, camera, root, ground, grid, keyLight, container, balloonLayer, tip;
+  let renderer, scene, camera, root, ground, grid, keyLight, container, balloonLayer, tip, road, car = null, spinList = [], spinA = 0;
+  const SPIN = new Set(['tyre', 'rim', 'wheelnuts', 'disc', 'drum', 'hub']);
   let sysDef = null, built = null, bodies = {}, parts = [], partById = {}, pickables = [];
   let lastT = performance.now(), clock = 0, needKin = true;
   const st = {
-    hl: new Set(),
+    hl: new Set(), showBody: true, drive: false, spin: false, allNames: false,
     s: 0, sTarget: 0, cycle: false, section: false, balloons: false, hideRemoved: false, isolate: false,
     autoRot: false, selected: null, hover: null, dark: false, frozen: false
   };
@@ -71,6 +72,7 @@ const Bench = (() => {
     grid.material.transparent = true; grid.material.opacity = 0.22; grid.position.y = 0.001; scene.add(grid);
 
     root = new THREE.Group(); scene.add(root);
+    road = makeRoad(); road.visible = false; scene.add(road);
 
     balloonLayer = document.createElement('div'); balloonLayer.className = 'balloons'; el.appendChild(balloonLayer);
     tip = document.createElement('div'); tip.className = 'tip3d'; tip.hidden = true; el.appendChild(tip);
@@ -120,6 +122,14 @@ const Bench = (() => {
       lb.addEventListener('click', () => api.onLabel && api.onLabel(p.id)); balloonLayer.appendChild(lb); p.label = lb;
       partById[p.id] = p; parts.push(p);
     });
+    car = def.car ? carBody(def.car) : null; spinList = [];
+    if (car) {
+      root.add(car); car.visible = st.showBody;
+      car.userData.spinners.forEach(([o, sx]) => spinList.push({ obj: o, q0: o.quaternion.clone(), sx }));
+      const zf = def.car.axle === 'front' ? 0 : def.car.wb; road.position.z = zf - def.car.wb / 2; road.position.x = -1.1; // keep-left: centre line on the vehicle's right
+    }
+    road.visible = !!car && st.showBody;
+    built.parts.forEach((p) => { if (SPIN.has(p.info)) p.pieces.forEach((pc) => spinList.push({ obj: pc.obj, q0: pc.obj.quaternion.clone(), sx: pc.sx || 1 })); });
     st.s = 0; st.sTarget = 0; st.cycle = false; st.selected = null; st.hover = null; st.isolate = false; st.hl = new Set();
     applySection(); applyGhost(); needKin = true;
     resetView(true);
@@ -213,7 +223,7 @@ const Bench = (() => {
   /* ── camera ────────────────────────────────────────────── */
   function resetView(snap) {
     const c = sysDef.camera; const pos = A3(c.pos), tg = A3(c.target);
-    const d = pos.clone().sub(tg); const r = d.length() * Math.max(1, Math.min(1.9, 1.3 / (camera.aspect || 1.3)));
+    const d = pos.clone().sub(tg); const r = d.length() * Math.max(1, Math.min(1.45, 1.15 / (camera.aspect || 1.3)));
     cam.dTarget.copy(tg); cam.dr = r; cam.dth = Math.atan2(d.x, d.z); cam.dph = Math.acos(d.y / r);
     if (snap) { cam.target.copy(tg); cam.r = r; cam.th = cam.dth; cam.ph = cam.dph; }
   }
@@ -263,7 +273,7 @@ const Bench = (() => {
       if (used) e.preventDefault();
     });
   }
-  const clampR = (r) => Math.min(7, Math.max(0.35, r));
+  const clampR = (r) => Math.min(11, Math.max(0.35, r));
   function pan(dx, dy) {
     const s = cam.r * 0.0011;
     const right = V3(Math.cos(cam.th), 0, -Math.sin(cam.th));
@@ -316,11 +326,17 @@ const Bench = (() => {
       p.holders.forEach((h) => { h.position.copy(h.userData.ex).multiplyScalar(e); h.visible = !(st.hideRemoved && p.t > 0.97); });
       const gone = st.hideRemoved && p.t > 0.97;
       p.balloon.hidden = !st.balloons || gone || p.id === st.selected || st.hl.has(p.id);
-      p.label.hidden = gone || !(p.id === st.selected || st.hl.has(p.id));
+      p.label.hidden = gone || !(p.id === st.selected || st.hl.has(p.id) || (st.allNames && p.explode));
     }
     // travel
     const locked = anyRemoved();
     if (st.cycle && !locked) st.sTarget = 0.075 * Math.sin(clock * 2 * Math.PI * 0.45);
+    if (st.drive && !locked) { const ph = clock % 4.2; st.sTarget = 0.018 * Math.sin(clock * 5.3) + 0.01 * Math.sin(clock * 13.1 + 1) + (ph < 0.5 ? 0.065 * Math.sin(ph / 0.5 * Math.PI) : 0) + (ph > 2.1 && ph < 2.6 ? -0.045 * Math.sin((ph - 2.1) / 0.5 * Math.PI) : 0); }
+    if ((st.drive || st.spin) && !locked) {
+      spinA += dt * 6; const q = new THREE.Quaternion();
+      spinList.forEach((w) => { q.setFromAxisAngle(UP, w.sx * spinA); w.obj.quaternion.copy(w.q0).multiply(q); });
+      if (road.visible) road.userData.tex.offset.y -= dt * 0.48;
+    }
     if (locked) st.sTarget = 0;
     const ds = (st.sTarget - st.s) * (1 - Math.exp(-dt * 9));
     if (Math.abs(ds) > 1e-6 || needKin || moving) { st.s += ds; kin(); needKin = false; }
@@ -338,7 +354,7 @@ const Bench = (() => {
     api.onFrame && api.onFrame(readouts(), locked);
   }
   function placeBalloons() {
-    const w = container.clientWidth, h = container.clientHeight;
+    const w = container.clientWidth, h = container.clientHeight; const boxes = [];
     for (const p of parts) {
       if (p.balloon.hidden && p.label.hidden) continue;
       const c = partCenter(p, tmpV); if (!c) { p.balloon.hidden = true; p.label.hidden = true; continue; }
@@ -347,20 +363,32 @@ const Bench = (() => {
       const x = ((c.x + 1) / 2) * w, y = ((1 - c.y) / 2) * h;
       if (!p.balloon.hidden) p.balloon.style.transform = `translate(${x}px, ${y}px)`;
       if (!p.label.hidden) {
-        const sel = p.id === st.selected; const key = api.nameOf(p) + (sel ? '|s' : '');
+        const sel = p.id === st.selected; const key = api.nameOf(p) + (sel ? '|s' : '') + (st.allNames ? '|m' : '');
         if (p.label.dataset.key !== key) {
           p.label.dataset.key = key;
           const d = sel ? api.descOf(p) : '';
           p.label.innerHTML = `<b><i>${p.n}</i>${esc3(api.nameOf(p))}</b>${d ? `<span>${esc3(d)}</span>` : ''}`;
-          p.label.classList.toggle('sel', sel);
+          p.label.classList.toggle('sel', sel); p.label.classList.toggle('mini', !sel && st.allNames && !st.hl.has(p.id));
+          p.label._w = p.label.offsetWidth; p.label._h = p.label.offsetHeight;
         }
-        const lw = p.label.offsetWidth, lh = p.label.offsetHeight;
-        const lx = Math.max(6, Math.min(w - lw - 6, x - lw / 2)), ly = Math.max(6, Math.min(h - lh - 6, y - lh - 16));
-        p.label.style.transform = `translate(${lx}px, ${ly}px)`;
+        boxes.push({ p, x, y, w: p.label._w, h: p.label._h, pri: sel ? 2 : st.hl.has(p.id) ? 1 : 0 });
       }
     }
+    // place important labels first, then push others down until they no longer overlap
+    boxes.sort((a, b) => b.pri - a.pri || a.y - b.y);
+    const placed = [];
+    for (const bx of boxes) {
+      let lx = Math.max(6, Math.min(w - bx.w - 6, bx.x - bx.w / 2)), ly = Math.max(6, Math.min(h - bx.h - 6, bx.y - bx.h - 14));
+      for (let k = 0; k < 14; k++) {
+        const hit = placed.find((o) => lx < o.x + o.w + 3 && lx + bx.w + 3 > o.x && ly < o.y + o.h + 3 && ly + bx.h + 3 > o.y);
+        if (!hit) break;
+        ly = hit.y + hit.h + 4; if (ly + bx.h > h - 6) { ly = Math.max(6, hit.y - bx.h - 4); lx = Math.min(w - bx.w - 6, hit.x + hit.w + 4); }
+      }
+      placed.push({ x: lx, y: ly, w: bx.w, h: bx.h });
+      bx.p.label.style.transform = `translate(${lx}px, ${ly}px)`;
+      bx.p.label.classList.toggle('far', Math.abs(ly + bx.h - bx.y) > 40);
+    }
   }
-
   const esc3 = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
   function highlight(ids) {
     st.hl.forEach((id) => { if (id !== st.selected && partById[id]) setEmissive(partById[id], 0, 0); });
@@ -372,6 +400,15 @@ const Bench = (() => {
   Object.defineProperties(api, { parts: { get: () => parts }, built: { get: () => built } });
   return Object.assign(api, {
     init, load, setTheme, select, focusPart, resetView, fit, setRemoved, readouts, snapshot, highlight, refreshLabels,
+    setBody(on) { st.showBody = on; if (car) car.visible = on; road.visible = on && !!car; },
+    setDrive(on) { st.drive = on; st.cycle = false; if (!on) st.sTarget = 0; },
+    setSpin(on) { st.spin = on; },
+    setAllNames(on) { st.allNames = on; parts.forEach((p) => { p.label.dataset.key = ''; }); },
+    viewCar() {
+      if (!car) return; const bx = new THREE.Box3().setFromObject(car); const c = bx.getCenter(V3(0, 0, 0));
+      cam.dTarget.copy(c); cam.dr = clampR(bx.getSize(V3(0, 0, 0)).length() / 2 / Math.sin((camera.fov * Math.PI / 180) / 2) * 0.75);
+      cam.dth = Math.atan2(1.6, 1.2); cam.dph = 1.15;
+    },
     setTravel(m) { st.cycle = false; st.sTarget = m; },
     setCycle(on) { st.cycle = on; if (!on) st.sTarget = 0; },
     setSection(on) { st.section = on; applySection(); },

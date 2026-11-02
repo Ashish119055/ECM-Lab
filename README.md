@@ -28,8 +28,8 @@ Six systems, each modelled part-by-part from real hard points: **MacPherson stru
 | Section | What you can do |
 |---|---|
 | **Tear-down bench** | Orbit / zoom / pan a PBR-rendered 3D assembly. Work through the workshop procedure step by step (tools, refit torques, notes, safety warnings) and watch each part come off. Toggle a full exploded view, a half-section cut (damper valves and oil, bushings, ball joints, hub-bearing balls, tyre carcass), numbered BOM balloons, isolate, parts tray and auto-rotate. Move the wheel through bump/rebound and the linkage, spring and damper move with live camber, roll centre, track change and motion ratio. Click any part for function, construction and material, engineering equations, specs, failure modes and inspection. |
-| **Kinematics** | Scaled front-view (or side-view for beam axles) geometry with instant centre and roll-centre construction lines. Curves of camber, roll-centre height, track change, wheel-centre shift, leaf arch and motion ratio vs wheel travel. Wheel-rate KPIs and design notes. |
-| **Ride dynamics** | 2-DOF quarter-car model (RK4, 2 kHz) with asymmetric damping, bump/rebound stops, tyre lift-off, Coulomb leaf friction, progressive air spring and skyhook semi-active control. Road inputs: bump, speed hump, pothole, kerb, sine, ISO 8608 random road (A–E). Live animation, scopes, natural frequencies, damping ratio, RMS comfort (ISO 2631 scale), dynamic tyre load and the frequency response. |
+| **Diagram** | Exploded view of the selected system with every part named (in the chosen language), plus the numbered parts list. |
+| **Theory** | Simple illustrated lessons with animated pictures: what a suspension does, main parts, sprung/unsprung weight, spring law F = k·x, how a shock absorber works, independent vs rigid axles, alignment angles (camber, caster, toe, KPI), body roll and the anti-roll bar, faults & symptoms, workshop safety. |
 | **Compare** | Ratings matrix and key design values for all six systems. |
 
 Torques, dimensions and specs are typical figures for training — always follow the manufacturer's workshop manual for a specific vehicle.
@@ -55,8 +55,7 @@ Suspension Lab (`suspension/`):
 - `js/i18n.js` – English / Gujarati / Hindi text: UI, simple part explanations, procedures, "how it works" lessons
 - `js/geom.js` – materials and procedural 3D builders (coil springs, dampers with internals, tyres, rims, discs, joints…)
 - `js/kinmath.js` – planar kinematic solvers (SLA, MacPherson, twist beam, live axle)
+- `js/theory.js` – theory lessons and animated diagrams (EN / GU / HI)
 - `js/systems.js` – the six systems: hard points, 3D assembly, kinematics, tear-down procedures
 - `js/bench.js` – 3D renderer, orbit camera, picking, explode / section / balloons
-- `js/kinview.js`, `js/charts.js` – kinematics view and SVG charts
-- `js/dynamics.js` – quarter-car ride simulator
 - `js/app.js` – UI, routing, procedure, BOM and part drawer

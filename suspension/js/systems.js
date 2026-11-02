@@ -11,7 +11,7 @@ class Asm {
     this.parts.push(p); return p;
   }
   ex(p, sx = 1) { return p.explode ? V3(p.explode.x * sx, p.explode.y, p.explode.z) : V3(0, 0, 0); }
-  rigid(p, body, obj, sx = 1) { p.pieces.push({ kind: 'rigid', body, obj, ex: this.ex(p, sx) }); return obj; }
+  rigid(p, body, obj, sx = 1) { p.pieces.push({ kind: 'rigid', body, obj, sx, ex: this.ex(p, sx) }); return obj; }
   span(p, a, b, obj, sx = 1) { p.pieces.push({ kind: 'span', a, b, obj, ex: this.ex(p, sx) }); return obj; }
   dyn(p, obj, update, sx = 1) { p.pieces.push({ kind: 'dyn', obj, update, ex: this.ex(p, sx) }); return obj; }
 }
@@ -579,7 +579,7 @@ function buildAir() {
    ═════════════════════════════════════════════════════════ */
 const SYSTEMS = [
   {
-    id: 'macpherson', name: 'MacPherson strut', axle: 'Front · FWD', build: buildMacPherson,
+    id: 'macpherson', name: 'MacPherson strut', axle: 'Front · FWD', build: buildMacPherson, car: { kind: 'hatch', axle: 'front', wb: 2.55, R: 0.32, track: 0.76, real: [['front', 1]] },
     camera: { pos: [0.95, 1.25, 2.15], target: [0.45, 0.5, 0] },
     history: 'Earle S. MacPherson (GM, then Ford) — first in production on the 1950 Ford Consul / Zephyr (UK).',
     used: 'Most front-wheel-drive cars: VW Golf, Toyota Corolla, Hyundai i20, Maruti Swift, Tesla Model 3 (front is double wishbone), Porsche 911 (front).',
@@ -607,7 +607,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'wishbone', name: 'Double wishbone (SLA)', axle: 'Front · RWD', build: buildDoubleWishbone,
+    id: 'wishbone', name: 'Double wishbone (SLA)', axle: 'Front · RWD', build: buildDoubleWishbone, car: { kind: 'suv', axle: 'front', wb: 2.75, R: 0.32, track: 0.76, real: [['front', 1]] },
     camera: { pos: [0.3, 1.3, 2.2], target: [0.45, 0.46, 0] },
     history: 'Introduced on the 1934 Citroën Traction Avant and pre-war GM "Knee-Action". The standard for racing cars, light trucks and premium front axles ever since.',
     used: 'Honda Accord (to 2012), Mazda MX-5, Toyota Hilux / Fortuner front, Jaguar F-Type, most racing cars.',
@@ -634,7 +634,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'multilink', name: 'Multi-link (5-link)', axle: 'Rear · RWD', build: buildMultiLink,
+    id: 'multilink', name: 'Multi-link (5-link)', axle: 'Rear · RWD', build: buildMultiLink, car: { kind: 'sedan', axle: 'rear', wb: 2.85, R: 0.32, track: 0.76, real: [['rear', 1]] },
     camera: { pos: [-0.25, 1.3, -2.0], target: [0.45, 0.36, 0] },
     history: 'Mercedes-Benz W201 (190E, 1982) "Raumlenkerachse" — five independent links, each defining one constraint.',
     used: 'Mercedes C/E-class rear, BMW 3-series rear, Audi A4 (front & rear), Ford Focus "Control Blade" rear, most premium cars.',
@@ -661,7 +661,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'twistbeam', name: 'Twist-beam axle', axle: 'Rear · FWD', build: buildTwistBeam,
+    id: 'twistbeam', name: 'Twist-beam axle', axle: 'Rear · FWD', build: buildTwistBeam, car: { kind: 'hatch', axle: 'rear', wb: 2.5, R: 0.31, track: 0.74, w: 0.205, real: [['rear', 1], ['rear', -1]] },
     camera: { pos: [1.95, 1.2, -1.75], target: [0, 0.36, 0.08] },
     history: 'Audi 50 / VW Golf Mk1 (1974) "Verbundlenkerachse" — combined trailing-arm axle.',
     used: 'Most small and compact FWD cars: VW Polo / Golf (low power), Hyundai i10–i20, Maruti Swift / Baleno, Honda City, Renault Clio, Toyota Yaris.',
@@ -684,7 +684,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'leaf', name: 'Leaf-spring live axle', axle: 'Rear · 4×2 pickup', build: buildLeaf,
+    id: 'leaf', name: 'Leaf-spring live axle', axle: 'Rear · 4×2 pickup', build: buildLeaf, car: { kind: 'pickup', axle: 'rear', wb: 3.1, R: 0.38, track: 0.82, w: 0.245, real: [['rear', 1], ['rear', -1]] },
     camera: { pos: [2.45, 1.05, -1.55], target: [0.15, 0.4, -0.05] },
     history: 'Carriage springs of the 1700s. Hotchkiss drive (1900s), where the springs also take the drive torque, is still common on pickups and light commercial vehicles.',
     used: 'Toyota Hilux, Isuzu D-Max, Mahindra Bolero / Scorpio (older), Tata Ace, Ford Ranger, most trucks and buses.',
@@ -708,7 +708,7 @@ const SYSTEMS = [
     ]
   },
   {
-    id: 'air', name: 'Air suspension (adaptive)', axle: 'Front · AWD luxury', build: buildAir,
+    id: 'air', name: 'Air suspension (adaptive)', axle: 'Front · AWD luxury', build: buildAir, car: { kind: 'sedan', axle: 'front', wb: 3.0, R: 0.32, track: 0.76, real: [['front', 1]] },
     camera: { pos: [0.2, 1.35, 2.3], target: [0.35, 0.5, 0] },
     history: 'Cadillac Eldorado Brougham (1957). The modern electronic generation: Mercedes AIRMATIC (W220, 1998), Audi adaptive air (A8 D3, 2002).',
     used: 'Mercedes S/E-class, Audi A8 / Q7, Range Rover, Porsche Cayenne / Taycan, Tesla Model S / X, coaches and trucks.',

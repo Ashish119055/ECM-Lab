@@ -6,6 +6,8 @@ const LANGS = [['en', 'EN'], ['gu', 'ગુજ'], ['hi', 'हिं']];
 
 const UI = {
   en: {
+    tab_diagram: 'Diagram', tab_theory: 'Theory', tb_body: 'Body', tb_car: 'Car view', drive: 'Drive', diagram_hint: 'Exploded diagram — every part is pulled apart and named. Tap a name to learn about the part.',
+    theory_title: 'How a suspension works', theory_lede: 'Simple explanations with moving pictures. Read them in order, then open the bench and take a real system apart.',
     tab_bench: 'Tear-down bench', tab_kin: 'Kinematics', tab_dyn: 'Ride dynamics', tab_cmp: 'Compare systems',
     tb_explode: 'Explode', tb_section: 'Section', tb_labels: 'Numbers', tb_isolate: 'Isolate', tb_tray: 'Tray', tb_rotate: 'Rotate', tb_view: 'View', tb_full: 'Full screen', tb_exitfull: 'Exit',
     travel: 'Wheel travel', bounce: 'Bounce', rebound_bump: 'rebound ← → bump', locked: 'locked — parts removed',
@@ -32,6 +34,8 @@ const UI = {
     run: 'Run', theory_note: 'Theory notes are in English.', lang: 'Language', tap_details: 'Details ↓'
   },
   gu: {
+    tab_diagram: 'આકૃતિ', tab_theory: 'થિયરી', tb_body: 'બૉડી', tb_car: 'આખી ગાડી', drive: 'ચલાવો', diagram_hint: 'છૂટા ભાગની આકૃતિ — દરેક ભાગ અલગ કરીને તેનું નામ લખ્યું છે. ભાગ વિશે જાણવા નામ પર ટચ કરો.',
+    theory_title: 'સસ્પેન્શન કેવી રીતે કામ કરે છે', theory_lede: 'હલતી આકૃતિઓ સાથે સરળ સમજૂતી. ક્રમમાં વાંચો, પછી બેન્ચ પર જઈને સાચી સિસ્ટમ ખોલીને જુઓ.',
     tab_bench: 'ખોલવાનો બેન્ચ', tab_kin: 'કાઇનેમેટિક્સ', tab_dyn: 'રાઇડ ડાયનેમિક્સ', tab_cmp: 'સરખામણી',
     tb_explode: 'છૂટા ભાગ', tb_section: 'કટ સેક્શન', tb_labels: 'નંબર', tb_isolate: 'એકલો ભાગ', tb_tray: 'ટ્રે', tb_rotate: 'ફેરવો', tb_view: 'વ્યૂ', tb_full: 'ફુલ સ્ક્રીન', tb_exitfull: 'બહાર',
     travel: 'વ્હીલ ટ્રાવેલ', bounce: 'ઉછાળો', rebound_bump: 'નીચે (રિબાઉન્ડ) ← → ઉપર (બમ્પ)', locked: 'લૉક — ભાગ ખોલેલા છે',
@@ -58,6 +62,8 @@ const UI = {
     run: 'ચલાવો', theory_note: 'થિયરી નોંધ અંગ્રેજીમાં છે.', lang: 'ભાષા', tap_details: 'વિગત ↓'
   },
   hi: {
+    tab_diagram: 'आकृति', tab_theory: 'थ्योरी', tb_body: 'बॉडी', tb_car: 'पूरी गाड़ी', drive: 'चलाएँ', diagram_hint: 'अलग पार्ट की आकृति — हर पार्ट अलग करके उसका नाम लिखा है. पार्ट के बारे में जानने के लिए नाम को टच करें.',
+    theory_title: 'सस्पेंशन कैसे काम करता है', theory_lede: 'चलती आकृतियों के साथ आसान समझ. क्रम से पढ़ें, फिर बेंच पर जाकर असली सिस्टम खोलकर देखें.',
     tab_bench: 'खोलने की बेंच', tab_kin: 'काइनेमेटिक्स', tab_dyn: 'राइड डायनेमिक्स', tab_cmp: 'तुलना',
     tb_explode: 'अलग पार्ट', tb_section: 'कट सेक्शन', tb_labels: 'नंबर', tb_isolate: 'एक पार्ट', tb_tray: 'ट्रे', tb_rotate: 'घुमाएँ', tb_view: 'व्यू', tb_full: 'फुल स्क्रीन', tb_exitfull: 'बाहर',
     travel: 'व्हील ट्रैवल', bounce: 'उछाल', rebound_bump: 'नीचे (रिबाउंड) ← → ऊपर (बम्प)', locked: 'लॉक — पार्ट खुले हैं',

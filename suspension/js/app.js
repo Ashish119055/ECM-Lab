@@ -31,7 +31,7 @@
     if (!Bench.built) return;
     $('#stTitle').textContent = sysName(state.sys);
     Bench.refreshLabels();
-    renderProc(); renderBom(); renderSys(); renderCompare();
+    renderProc(); renderBom(); renderSys(); renderCompare(); renderTheory();
     if (Bench.st.selected) openDrawer(Bench.st.selected);
     if (how.on) showScene();
     refreshCharts();
@@ -72,11 +72,11 @@
     ['#tbExplode', '#tbIsolate', '#tbSection'].forEach((s) => $(s).setAttribute('aria-pressed', false)); $('#tbIsolate').disabled = true;
     Bench.setSection(false);
     $('#cycleBtn').setAttribute('aria-pressed', false); $('#travel').value = 0; state.travel = 0;
+    Bench.setBody($('#tbBody').getAttribute('aria-pressed') === 'true');
     closeDrawer();
     renderProc(); renderBom(); renderSys();
-    KinView.setSystem(def, built); KinView.render(state.travel / 1000);
-    Dyn.loadPreset(def);
     renderCompare();
+    if (state.view === 'diagram') enterDiagram(); else setDrive(true);
   }
 
   /* ── procedure ── */
@@ -160,8 +160,8 @@
       <h3>${tr('design_values')}</h3><table class="tbl">${Object.entries(s.char).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
       <h3>${tr('origin')}</h3><p>${esc(s.history)}</p>
       <h3>${tr('where')}</h3><p>${esc(s.used)}</p>
-      <div class="d-actions"><button class="btn accent" id="sysHow">${tr('how_btn')}</button><a class="btn ghost" href="#kin">${tr('kin_open')}</a><a class="btn ghost" href="#dyn">${tr('dyn_open')}</a></div></div>`;
-    $('#sysHow').onclick = () => { $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); howStart(); };
+      <div class="d-actions"><button class="btn accent" id="sysHow">${tr('how_btn')}</button><a class="btn ghost" href="#theory">${tr('tab_theory')} →</a><a class="btn ghost" href="#diagram">${tr('tab_diagram')} →</a></div></div>`;
+    $('#sysHow').onclick = () => { if (state.view !== 'bench') location.hash = '#bench'; $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); howStart(); };
   }
 
   /* ── part drawer ── */
@@ -204,7 +204,7 @@
     toggleTb('#tbIsolate', true);
     const p = Bench.parts.find((q) => q.id === id);
     toggleTb('#tbSection', !!(p && p.cut && ['damper', 'cdc', 'airspring', 'bushing', 'lbj', 'hub', 'tyre', 'topmount'].includes(p.info)));
-    $('#cycleBtn').setAttribute('aria-pressed', true); Bench.setCycle(true);
+    setDrive(false); $('#cycleBtn').setAttribute('aria-pressed', true); Bench.setCycle(true);
     if (window.innerWidth <= 1080) $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -230,6 +230,15 @@
   }
   ['#tbExplode', '#tbSection', '#tbLabels', '#tbIsolate', '#tbHide', '#tbRotate'].forEach((s) => $(s).addEventListener('click', () => toggleTb(s)));
   $('#tbReset').addEventListener('click', () => Bench.resetView(false));
+  $('#tbBody').addEventListener('click', (e) => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Bench.setBody(on); });
+  $('#tbCar').addEventListener('click', () => { if ($('#tbBody').getAttribute('aria-pressed') !== 'true') $('#tbBody').click(); Bench.viewCar(); });
+
+  /* ── continuous drive animation (wheels turn, road moves, bumps) ── */
+  function setDrive(on) {
+    $('#driveBtn').setAttribute('aria-pressed', on); Bench.setDrive(on);
+    if (on) { $('#cycleBtn').setAttribute('aria-pressed', false); }
+  }
+  $('#driveBtn').addEventListener('click', (e) => { howStop(); setDrive(e.currentTarget.getAttribute('aria-pressed') !== 'true'); });
 
   /* ── full screen (real fullscreen where allowed, otherwise fill the window) ── */
   const stageEl = $('#stage');
@@ -258,15 +267,16 @@
 
   /* ── travel ── */
   const travel = $('#travel');
-  travel.addEventListener('input', () => { howStop(); state.travel = +travel.value; $('#cycleBtn').setAttribute('aria-pressed', false); Bench.setTravel(state.travel / 1000); });
-  $('#cycleBtn').addEventListener('click', (e) => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Bench.setCycle(on); if (!on) { travel.value = 0; state.travel = 0; } });
+  travel.addEventListener('input', () => { howStop(); setDrive(false); state.travel = +travel.value; $('#cycleBtn').setAttribute('aria-pressed', false); Bench.setTravel(state.travel / 1000); });
+  $('#cycleBtn').addEventListener('click', (e) => { setDrive(false); const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Bench.setCycle(on); if (!on) { travel.value = 0; state.travel = 0; } });
 
   let roT = 0;
   Bench.onFrame = (r, locked) => {
     const now = performance.now(); if (now - roT < 100) return; roT = now;
     $('#travelBox').classList.toggle('locked', locked); travel.disabled = locked; $('#cycleBtn').disabled = locked;
     const mm = (r.s * 1000); $('#travelVal').textContent = locked ? tr('locked') : `${mm > 0 ? '+' : ''}${mm.toFixed(0)} mm`;
-    if (Bench.st.cycle) travel.value = Math.round(mm);
+    if (Bench.st.cycle || Bench.st.drive || how.on) travel.value = Math.round(mm);
+    $('#driveBtn').disabled = locked;
     const rows = [[tr('r_travel'), `${mm.toFixed(0)} mm`], [tr('r_camber'), `${r.camber.toFixed(2)}°`]];
     if (r.rcH != null) rows.push([tr('r_rc'), `${(r.rcH * 1000).toFixed(0)} mm`]);
     rows.push([tr('r_track'), `${((r.halfTrack - Bench.built.hp.W[0]) * 1000).toFixed(1)} mm`]);
@@ -284,7 +294,7 @@
   Bench.onLabel = () => { if (!isFull() && window.innerWidth <= 1080 && !$('#drawer').hidden) $('#drawer').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 
   /* ── "How it works" lesson ── */
-  const how = { on: false, i: 0, t: 0, paused: false, raf: 0, last: 0, userSection: false };
+  const how = { on: false, i: 0, t: 0, paused: false, raf: 0, last: 0, userSection: false, wasDriving: false };
   const scenes = () => HOW.common;
   function sceneText(sc) {
     const r = HOW.roles[state.sys.id];
@@ -307,6 +317,7 @@
     if ($('#tbIsolate').getAttribute('aria-pressed') === 'true') toggleTb('#tbIsolate', false);
     Bench.setCycle(false); $('#cycleBtn').setAttribute('aria-pressed', false);
     how.userSection = $('#tbSection').getAttribute('aria-pressed') === 'true';
+    how.wasDriving = Bench.st.drive; setDrive(false); Bench.setSpin(true);
     Object.assign(how, { on: true, i: 0, t: 0, paused: false, last: performance.now() });
     $('#how').hidden = false; stageEl.classList.add('how-on');
     showScene(); how.raf = requestAnimationFrame(howTick);
@@ -328,7 +339,8 @@
     if (!how.on) return;
     how.on = false; cancelAnimationFrame(how.raf);
     $('#how').hidden = true; stageEl.classList.remove('how-on');
-    Bench.highlight([]); Bench.setTravel(0); Bench.setSection(how.userSection);
+    Bench.highlight([]); Bench.setTravel(0); Bench.setSection(how.userSection); Bench.setSpin(false);
+    if (how.wasDriving) setDrive(true);
   }
   $('#howBtn').addEventListener('click', howStart);
   $('#howStop').addEventListener('click', howStop);
@@ -336,8 +348,35 @@
   $('#howNext').addEventListener('click', () => howJump(1));
   $('#howPause').addEventListener('click', () => { how.paused = !how.paused; $('#howPause').textContent = how.paused ? '▶' : '❚❚'; });
 
-  /* ── kinematics slider ── */
-  $('#kinTravel').addEventListener('input', (e) => KinView.render(+e.target.value / 1000));
+  /* ── diagram (exploded view with every part named) ── */
+  function enterDiagram() {
+    howStop(); stopPlay(); setDrive(false); Bench.setCycle(false);
+    document.body.classList.add('diagram-mode'); $('#diagramHint').hidden = false;
+    state.step = 0; toggleTb('#tbExplode', true); Bench.setAllNames(true);
+    setSide('bom');
+  }
+  function leaveDiagram() {
+    if (!document.body.classList.contains('diagram-mode')) return;
+    document.body.classList.remove('diagram-mode'); $('#diagramHint').hidden = true;
+    Bench.setAllNames(false); toggleTb('#tbExplode', false); setSide('proc'); setDrive(true);
+  }
+
+  /* ── theory ── */
+  function renderTheory() {
+    const list = THEORY[LANG] || THEORY.en; const head = THEORY_HEAD[LANG] || THEORY_HEAD.en;
+    $('#thToc').innerHTML = list.map((s, i) => `<a href="#theory" data-th="${s.id}">${i + 1}. ${esc(s.h)}</a>`).join('');
+    $('#thList').innerHTML = list.map((s, i) => `<article class="panel th-card ${s.svg ? '' : 'nosvg'}" id="th-${s.id}">
+      <div><h2><span>${String(i + 1).padStart(2, '0')}</span>${esc(s.h)}</h2>
+        ${(s.p || []).slice(0, s.id === 'parts' ? 0 : 9).map((x) => `<p>${esc(x)}</p>`).join('')}
+        ${s.eq ? `<div class="th-eq">${esc(s.eq)}</div>` : ''}
+        ${s.li ? `<ul>${s.li.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
+        ${s.id === 'parts' && s.p ? s.p.map((x) => `<p style="margin-top:10px">${esc(x)}</p>`).join('') : ''}
+        ${s.table ? `<div class="scroll-x"><table class="th-table"><thead><tr><th>${head[0]}</th><th>${head[1]}</th></tr></thead><tbody>${s.table.map(([x, y]) => `<tr><td>${esc(x)}</td><td>${esc(y)}</td></tr>`).join('')}</tbody></table></div>` : ''}
+      </div>
+      ${s.svg ? `<div class="th-fig">${THEORY_SVG[s.svg]}</div>` : ''}
+    </article>`).join('');
+    $('#thToc').querySelectorAll('[data-th]').forEach((el) => el.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('th-' + el.dataset.th).scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
+  }
 
   /* ── compare ── */
   function renderCompare() {
@@ -353,27 +392,28 @@
 
   /* ── routing ── */
   function route() {
-    const v = (location.hash || '#bench').slice(1); const view = ['bench', 'kin', 'dyn', 'compare'].includes(v) ? v : 'bench';
+    const v = (location.hash || '#bench').slice(1); const view = ['bench', 'diagram', 'theory', 'compare'].includes(v) ? v : 'bench';
     if (view !== 'bench') howStop();
-    state.view = view;
-    document.querySelectorAll('.view').forEach((s) => { s.hidden = s.id !== 'view-' + view; });
+    const prev = state.view; state.view = view;
+    const sec = view === 'diagram' ? 'bench' : view;
+    document.querySelectorAll('.view').forEach((s) => { s.hidden = s.id !== 'view-' + sec; });
+    if (view === 'diagram' && Bench.built) enterDiagram();
+    if (prev === 'diagram' && view !== 'diagram') leaveDiagram();
+    if (view === 'theory') window.scrollTo(0, 0);
     document.querySelectorAll('.tabs a').forEach((a) => a.classList.toggle('on', a.dataset.view === view));
     refreshCharts();
   }
-  function refreshCharts() {
-    if (state.view === 'kin') KinView.render(+$('#kinTravel').value / 1000);
-    if (state.view === 'dyn') Dyn.redraw();
-  }
+  function refreshCharts() { /* charts removed; kept as a hook for theme/resize */ }
   window.addEventListener('hashchange', route);
   let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(refreshCharts, 150); });
 
   /* ── boot ── */
   initMaterials();
-  Bench.init(stageEl);
+  Bench.init($('#viewport'));
   Bench.setTheme(isDark());
   buildLang();
   buildSysbar();
-  Dyn.init();
+  renderTheory();
   route();
   setSystem(store.get('sys') || SYSTEMS[0].id);
   setLang(store.get('lang') || 'en');
