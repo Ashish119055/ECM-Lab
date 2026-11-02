@@ -21,6 +21,8 @@ Wire colours and values are typical examples for training. Always use the manufa
 
 Interactive **3D suspension tear-down simulator** (in `suspension/`). Open `suspension/index.html`, or use the "Suspension Lab" button in the ECM Lab header.
 
+Available in **English, ગુજરાતી and हिन्दी** (switch in the header) with simple ITI-level explanations of every part, a **▶ How it works** animated lesson for each system (captions, highlighted parts, cut-open damper), touch-to-name part labels and a full-screen mode.
+
 Six systems, each modelled part-by-part from real hard points: **MacPherson strut** (front FWD), **double wishbone / SLA** (front RWD), **5-link multi-link** (rear RWD), **twist-beam axle** (rear FWD), **leaf-spring Hotchkiss live axle** (pickup rear) and **adaptive air suspension** (air strut + CDC damper, compressor, reservoir, valve block, height sensor, ECU).
 
 | Section | What you can do |
@@ -50,6 +52,7 @@ Suspension Lab (`suspension/`):
 - `index.html`, `css/susp.css` – page and styles (light & dark themes)
 - `js/vendor/three.min.js` – Three.js r149 (MIT), vendored so the app works offline
 - `js/parts-data.js` – component library: function, construction, engineering, specs, failures, inspection
+- `js/i18n.js` – English / Gujarati / Hindi text: UI, simple part explanations, procedures, "how it works" lessons
 - `js/geom.js` – materials and procedural 3D builders (coil springs, dampers with internals, tyres, rims, discs, joints…)
 - `js/kinmath.js` – planar kinematic solvers (SLA, MacPherson, twist beam, live axle)
 - `js/systems.js` – the six systems: hard points, 3D assembly, kinematics, tear-down procedures

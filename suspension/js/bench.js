@@ -7,12 +7,13 @@ const Bench = (() => {
   let sysDef = null, built = null, bodies = {}, parts = [], partById = {}, pickables = [];
   let lastT = performance.now(), clock = 0, needKin = true;
   const st = {
+    hl: new Set(),
     s: 0, sTarget: 0, cycle: false, section: false, balloons: false, hideRemoved: false, isolate: false,
     autoRot: false, selected: null, hover: null, dark: false, frozen: false
   };
   const cam = { target: V3(0.5, 0.45, 0), r: 2.8, th: 0.8, ph: 1.15, dTarget: V3(0.5, 0.45, 0), dr: 2.8, dth: 0.8, dph: 1.15 };
   const tmpBox = new THREE.Box3(), tmpV = new THREE.Vector3();
-  const api = { onSelect: null, onFrame: null, st };
+  const api = { onSelect: null, onFrame: null, onLabel: null, st, nameOf: (p) => p.name, descOf: () => '' };
 
   /* ── environment ────────────────────────────────────────── */
   function makeEnv() {
@@ -115,9 +116,11 @@ const Bench = (() => {
       });
       const b = document.createElement('button'); b.className = 'balloon'; b.textContent = p.n; b.title = p.name; b.tabIndex = -1;
       b.addEventListener('click', () => select(p.id, true)); balloonLayer.appendChild(b); p.balloon = b;
+      const lb = document.createElement('button'); lb.className = 'plabel'; lb.hidden = true; lb.tabIndex = -1;
+      lb.addEventListener('click', () => api.onLabel && api.onLabel(p.id)); balloonLayer.appendChild(lb); p.label = lb;
       partById[p.id] = p; parts.push(p);
     });
-    st.s = 0; st.sTarget = 0; st.cycle = false; st.selected = null; st.hover = null; st.isolate = false;
+    st.s = 0; st.sTarget = 0; st.cycle = false; st.selected = null; st.hover = null; st.isolate = false; st.hl = new Set();
     applySection(); applyGhost(); needKin = true;
     resetView(true);
     return built;
@@ -294,7 +297,7 @@ const Bench = (() => {
   function doHover() {
     const e = hoverPending; hoverPending = null; if (!e) return;
     const p = hitAt(e); setHover(p);
-    if (p) { const r = container.getBoundingClientRect(); tip.hidden = false; tip.textContent = `${p.n}. ${p.name}`; tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 12) + 'px'; }
+    if (p) { const r = container.getBoundingClientRect(); tip.hidden = false; tip.textContent = `${p.n}. ${api.nameOf(p)}`; tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 12) + 'px'; }
     else tip.hidden = true;
   }
   function pickAt(e) { const p = hitAt(e); select(p ? p.id : null, false); }
@@ -303,7 +306,7 @@ const Bench = (() => {
   function loop(now) {
     requestAnimationFrame(loop);
     const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; clock += dt;
-    if (!built || !container.offsetParent) return;
+    if (!built || !container.getClientRects().length) return;
     doHover();
     // teardown animation
     let moving = false;
@@ -311,8 +314,9 @@ const Bench = (() => {
       if (Math.abs(p.tt - p.t) > 0.0005) { p.t += (p.tt - p.t) * (1 - Math.exp(-dt * 5)); moving = true; } else p.t = p.tt;
       const e = p.t * p.t * (3 - 2 * p.t);
       p.holders.forEach((h) => { h.position.copy(h.userData.ex).multiplyScalar(e); h.visible = !(st.hideRemoved && p.t > 0.97); });
-      const showB = st.balloons || p.id === st.selected;
-      p.balloon.hidden = !showB || (st.hideRemoved && p.t > 0.97);
+      const gone = st.hideRemoved && p.t > 0.97;
+      p.balloon.hidden = !st.balloons || gone || p.id === st.selected || st.hl.has(p.id);
+      p.label.hidden = gone || !(p.id === st.selected || st.hl.has(p.id));
     }
     // travel
     const locked = anyRemoved();
@@ -321,7 +325,8 @@ const Bench = (() => {
     const ds = (st.sTarget - st.s) * (1 - Math.exp(-dt * 9));
     if (Math.abs(ds) > 1e-6 || needKin || moving) { st.s += ds; kin(); needKin = false; }
     // selection pulse
-    if (st.selected) setEmissive(partById[st.selected], 0xff8a1a, 0.16 + 0.1 * Math.sin(clock * 4));
+    if (st.selected) setEmissive(partById[st.selected], 0xff8a1a, 0.22 + 0.14 * Math.sin(clock * 4));
+    st.hl.forEach((id) => { if (id !== st.selected && partById[id]) setEmissive(partById[id], 0x14b8ff, 0.3 + 0.2 * Math.sin(clock * 5)); });
     updateCamera(dt);
     // section planes face away from the camera
     if (st.section) {
@@ -329,25 +334,44 @@ const Bench = (() => {
       parts.forEach((p) => { if (!p.cut) return; const c = partCenter(p, tmpV); if (!c) return; p.plane.normal.set(0, 0, -toward); p.plane.constant = toward * c.z; });
     }
     renderer.render(scene, camera);
-    if (st.balloons || st.selected) placeBalloons();
+    placeBalloons();
     api.onFrame && api.onFrame(readouts(), locked);
   }
   function placeBalloons() {
     const w = container.clientWidth, h = container.clientHeight;
     for (const p of parts) {
-      if (p.balloon.hidden) continue;
-      const c = partCenter(p, tmpV); if (!c) { p.balloon.hidden = true; continue; }
+      if (p.balloon.hidden && p.label.hidden) continue;
+      const c = partCenter(p, tmpV); if (!c) { p.balloon.hidden = true; p.label.hidden = true; continue; }
       c.project(camera);
-      if (c.z > 1) { p.balloon.hidden = true; continue; }
-      p.balloon.style.transform = `translate(${((c.x + 1) / 2) * w}px, ${((1 - c.y) / 2) * h}px)`;
+      if (c.z > 1) { p.balloon.hidden = true; p.label.hidden = true; continue; }
+      const x = ((c.x + 1) / 2) * w, y = ((1 - c.y) / 2) * h;
+      if (!p.balloon.hidden) p.balloon.style.transform = `translate(${x}px, ${y}px)`;
+      if (!p.label.hidden) {
+        const sel = p.id === st.selected; const key = api.nameOf(p) + (sel ? '|s' : '');
+        if (p.label.dataset.key !== key) {
+          p.label.dataset.key = key;
+          const d = sel ? api.descOf(p) : '';
+          p.label.innerHTML = `<b><i>${p.n}</i>${esc3(api.nameOf(p))}</b>${d ? `<span>${esc3(d)}</span>` : ''}`;
+          p.label.classList.toggle('sel', sel);
+        }
+        const lw = p.label.offsetWidth, lh = p.label.offsetHeight;
+        const lx = Math.max(6, Math.min(w - lw - 6, x - lw / 2)), ly = Math.max(6, Math.min(h - lh - 6, y - lh - 16));
+        p.label.style.transform = `translate(${lx}px, ${ly}px)`;
+      }
     }
   }
 
+  const esc3 = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  function highlight(ids) {
+    st.hl.forEach((id) => { if (id !== st.selected && partById[id]) setEmissive(partById[id], 0, 0); });
+    st.hl = new Set((ids || []).filter((id) => partById[id]));
+  }
+  function refreshLabels() { parts.forEach((p) => { p.label.dataset.key = ''; p.balloon.title = api.nameOf(p); }); }
   function snapshot() { renderer.render(scene, camera); return renderer.domElement.toDataURL('image/png'); }
 
   Object.defineProperties(api, { parts: { get: () => parts }, built: { get: () => built } });
   return Object.assign(api, {
-    init, load, setTheme, select, focusPart, resetView, fit, setRemoved, readouts, snapshot,
+    init, load, setTheme, select, focusPart, resetView, fit, setRemoved, readouts, snapshot, highlight, refreshLabels,
     setTravel(m) { st.cycle = false; st.sTarget = m; },
     setCycle(on) { st.cycle = on; if (!on) st.sTarget = 0; },
     setSection(on) { st.section = on; applySection(); },

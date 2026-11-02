@@ -7,7 +7,7 @@
 <meta name="description" content="Interactive 3D tear-down simulator for car suspension systems: MacPherson strut, double wishbone, multi-link, twist beam, leaf-spring live axle and air suspension, with kinematics and ride-dynamics labs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="css/susp.css">
 </head>
 <body>
@@ -26,6 +26,7 @@
     </div>
   </div>
   <div class="top-actions">
+    <div class="seg lang-seg" role="radiogroup" aria-label="Language / ભાષા / भाषा" id="langSeg"></div>
     <a class="link-btn" href="../index.html" title="Open ECM Lab">ECM Lab ↗</a>
     <button class="icon-btn" id="themeBtn" aria-label="Toggle light or dark theme" title="Light / dark">
       <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
@@ -34,10 +35,10 @@
 </header>
 
 <nav class="tabs" aria-label="Sections">
-  <a href="#bench" data-view="bench">Tear-down bench</a>
-  <a href="#kin" data-view="kin">Kinematics</a>
-  <a href="#dyn" data-view="dyn">Ride dynamics</a>
-  <a href="#compare" data-view="compare">Compare systems</a>
+  <a href="#bench" data-view="bench" data-i18n="tab_bench">Tear-down bench</a>
+  <a href="#kin" data-view="kin" data-i18n="tab_kin">Kinematics</a>
+  <a href="#dyn" data-view="dyn" data-i18n="tab_dyn">Ride dynamics</a>
+  <a href="#compare" data-view="compare" data-i18n="tab_cmp">Compare systems</a>
 </nav>
 
 <div class="sysbar" role="radiogroup" aria-label="Suspension system" id="sysbar"></div>
@@ -48,24 +49,31 @@
     <div class="bench">
       <div class="stage-wrap">
         <div class="stage" id="stage">
-          <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span></div>
-          <div class="toolbar" role="toolbar" aria-label="View tools">
-            <button class="tb" id="tbExplode" aria-pressed="false" title="Exploded view (all parts)"><svg viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Explode</span></button>
-            <button class="tb" id="tbSection" aria-pressed="false" title="Half-section cut through dampers, bushings, bearings, tyre"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Section</span></button>
-            <button class="tb" id="tbLabels" aria-pressed="false" title="BOM balloons"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.5 13.5L20 20" stroke="currentColor" stroke-width="2"/><text x="9" y="12" font-size="8" text-anchor="middle" fill="currentColor" font-family="monospace">1</text></svg><span>Balloons</span></button>
-            <button class="tb" id="tbIsolate" aria-pressed="false" title="Ghost everything except the selected part"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/><rect x="8" y="8" width="8" height="8" rx="1.5" fill="currentColor"/></svg><span>Isolate</span></button>
-            <button class="tb" id="tbHide" aria-pressed="false" title="Put removed parts in the tray (hide)"><svg viewBox="0 0 24 24"><path d="M3 15h18l-2 5H5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 4h6v7H9z" fill="currentColor"/></svg><span>Tray</span></button>
-            <button class="tb" id="tbRotate" aria-pressed="false" title="Auto-rotate"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 2v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Rotate</span></button>
-            <button class="tb" id="tbReset" title="Reset camera"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>View</span></button>
+          <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span><button class="btn accent how-btn" id="howBtn" data-i18n="how_btn">▶ How it works</button></div>
+          <div class="how" id="how" hidden aria-live="polite">
+            <div class="how-top"><span class="pill" id="howCount"></span>
+              <div class="how-ctl"><button class="btn ghost" id="howPrev" aria-label="Previous">‹</button><button class="btn ghost" id="howPause" aria-label="Pause">❚❚</button><button class="btn ghost" id="howNext" aria-label="Next">›</button><button class="btn" id="howStop" data-i18n="how_stop">■ Stop</button></div></div>
+            <p id="howText"></p>
+            <div class="how-bar"><i id="howProg"></i></div>
           </div>
-          <div class="stage-hint" id="stageHint">Drag to orbit · scroll / pinch to zoom · right-drag to pan · click a part</div>
+          <div class="toolbar" role="toolbar" aria-label="View tools">
+            <button class="tb" id="tbExplode" aria-pressed="false" title="Exploded view (all parts)"><svg viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span data-i18n="tb_explode">Explode</span></button>
+            <button class="tb" id="tbSection" aria-pressed="false" title="Half-section cut through dampers, bushings, bearings, tyre"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span data-i18n="tb_section">Section</span></button>
+            <button class="tb" id="tbLabels" aria-pressed="false" title="BOM balloons"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.5 13.5L20 20" stroke="currentColor" stroke-width="2"/><text x="9" y="12" font-size="8" text-anchor="middle" fill="currentColor" font-family="monospace">1</text></svg><span data-i18n="tb_labels">Balloons</span></button>
+            <button class="tb" id="tbIsolate" aria-pressed="false" title="Ghost everything except the selected part"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/><rect x="8" y="8" width="8" height="8" rx="1.5" fill="currentColor"/></svg><span data-i18n="tb_isolate">Isolate</span></button>
+            <button class="tb" id="tbHide" aria-pressed="false" title="Put removed parts in the tray (hide)"><svg viewBox="0 0 24 24"><path d="M3 15h18l-2 5H5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 4h6v7H9z" fill="currentColor"/></svg><span data-i18n="tb_tray">Tray</span></button>
+            <button class="tb" id="tbRotate" aria-pressed="false" title="Auto-rotate"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 2v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_rotate">Rotate</span></button>
+            <button class="tb" id="tbReset" title="Reset camera"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_view">View</span></button>
+            <button class="tb" id="tbFull" aria-pressed="false" title="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_full">Full screen</span></button>
+          </div>
+          <div class="stage-hint" id="stageHint" data-i18n="hint">Tap any part to see its name · drag to turn · pinch to zoom</div>
           <div class="travel" id="travelBox">
             <div class="travel-row">
-              <label for="travel" class="ctl-label">Wheel travel <b id="travelVal">0 mm</b></label>
-              <button class="chip" id="cycleBtn" aria-pressed="false">Bounce</button>
+              <label for="travel" class="ctl-label"><span data-i18n="travel">Wheel travel</span> <b id="travelVal">0 mm</b></label>
+              <button class="chip" id="cycleBtn" aria-pressed="false" data-i18n="bounce">Bounce</button>
             </div>
             <input type="range" id="travel" min="-80" max="80" value="0" step="1" aria-describedby="travelNote">
-            <div class="travel-note" id="travelNote">rebound ← → bump</div>
+            <div class="travel-note" id="travelNote" data-i18n="rebound_bump">rebound ← → bump</div>
           </div>
           <div class="readout" id="readout" aria-live="off"></div>
         </div>
@@ -73,9 +81,9 @@
 
       <aside class="side" aria-label="Procedure and parts">
         <div class="seg side-tabs" role="tablist">
-          <button role="tab" data-side="proc" aria-selected="true">Procedure</button>
-          <button role="tab" data-side="bom" aria-selected="false">Parts (BOM)</button>
-          <button role="tab" data-side="sys" aria-selected="false">System</button>
+          <button role="tab" data-side="proc" aria-selected="true" data-i18n="side_proc">Procedure</button>
+          <button role="tab" data-side="bom" aria-selected="false" data-i18n="side_bom">Parts list</button>
+          <button role="tab" data-side="sys" aria-selected="false" data-i18n="side_sys">System</button>
         </div>
         <div class="side-body">
           <div data-pane="proc" id="paneProc"></div>
@@ -84,7 +92,7 @@
         </div>
         <div class="drawer" id="drawer" hidden>
           <div class="drawer-head">
-            <button class="btn ghost" id="drawerBack" aria-label="Close part details">← Back</button>
+            <button class="btn ghost" id="drawerBack" aria-label="Close part details" data-i18n="close">← Back</button>
             <span class="pill" id="drawerCat"></span>
           </div>
           <div class="drawer-body" id="drawerBody"></div>
@@ -101,7 +109,7 @@
         <p class="lede" id="kinLede"></p>
       </div>
       <div class="ctl kin-travel">
-        <label for="kinTravel" class="ctl-label">Wheel travel <b id="kinTravelVal">0 mm</b></label>
+        <label for="kinTravel" class="ctl-label"><span data-i18n="travel">Wheel travel</span> <b id="kinTravelVal">0 mm</b></label>
         <input type="range" id="kinTravel" min="-80" max="80" value="0">
       </div>
     </div>
@@ -124,8 +132,8 @@
   <section class="view" id="view-dyn" hidden>
     <div class="view-head">
       <div>
-        <h1>Quarter-car ride lab</h1>
-        <p class="lede">A 2-degree-of-freedom quarter-car model (sprung mass on spring and damper, unsprung mass on the tyre), solved live with RK4 at 2 kHz. Parameters load from the selected system; change them and drive over a road input.</p>
+        <h1 data-i18n="dyn_title">Quarter-car ride lab</h1>
+        <p class="lede" data-i18n="dyn_lede">A 2-degree-of-freedom quarter-car model.</p>
       </div>
       <div class="chip-row">
         <button class="btn accent" id="dynRun">Pause</button>
@@ -152,11 +160,12 @@
   <section class="view" id="view-compare" hidden>
     <div class="view-head">
       <div>
-        <h1>Compare suspension systems</h1>
-        <p class="lede">Relative ratings (1 = weakest, 5 = best of the six) and typical design values. "Cost" and "simplicity" are scored so that 5 means cheapest or simplest.</p>
+        <h1 data-i18n="cmp_title">Compare suspension systems</h1>
+        <p class="lede" data-i18n="cmp_lede">Relative ratings.</p>
       </div>
     </div>
-    <div class="panel scroll-x"><table class="cmp" id="cmpRatings"></table></div>
+    <div class="cmp-cards" id="cmpCards"></div>
+    <div class="panel scroll-x cmp-wide"><table class="cmp" id="cmpRatings"></table></div>
     <div class="panel scroll-x" style="margin-top:14px"><table class="cmp" id="cmpTable"></table></div>
   </section>
 </main>
@@ -166,6 +175,7 @@
 
 <script src="js/vendor/three.min.js"></script>
 <script src="js/parts-data.js"></script>
+<script src="js/i18n.js"></script>
 <script src="js/geom.js"></script>
 <script src="js/kinmath.js"></script>
 <script src="js/systems.js"></script>

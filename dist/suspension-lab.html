@@ -7,7 +7,7 @@
 <meta name="description" content="Interactive 3D tear-down simulator for car suspension systems: MacPherson strut, double wishbone, multi-link, twist beam, leaf-spring live axle and air suspension, with kinematics and ride-dynamics labs.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Sans+Gujarati:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap">
 <style>
 /* Suspension Lab — workshop bench layout: 3D stage left, procedure / BOM / part drawer right */
 :root {
@@ -16,9 +16,9 @@
   --s1: #0a7db4; --s2: #d97400; --s3: #7a4fd6;
   --stage-a: #f7f9fb; --stage-b: #d9e0e7;
   --shadow: 0 1px 2px rgba(19, 32, 44, .08), 0 8px 24px rgba(19, 32, 44, .06);
-  --f-display: "Barlow Condensed", "Arial Narrow", "Roboto Condensed", sans-serif;
-  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
-  --f-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --f-display: "Barlow Condensed", "Noto Sans Gujarati", "Noto Sans Devanagari", "Arial Narrow", sans-serif;
+  --f-body: "IBM Plex Sans", "Noto Sans Gujarati", "Noto Sans Devanagari", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", "Noto Sans Gujarati", "Noto Sans Devanagari", ui-monospace, "SFMono-Regular", Menlo, monospace;
   --r: 10px;
   --gutter-l: max(16px, env(safe-area-inset-left, 0px));
   --gutter-r: max(16px, env(safe-area-inset-right, 0px));
@@ -128,7 +128,7 @@ input[type="range"] { width: 100%; accent-color: var(--accent); }
 .travel-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
 .travel-note { display: flex; justify-content: center; font-family: var(--f-mono); font-size: 10px; color: var(--ink-2); }
 .travel.locked { opacity: .55; }
-.readout { position: absolute; left: 14px; top: 64px; font-family: var(--f-mono); font-size: 11.5px; background: color-mix(in srgb, var(--panel) 82%, transparent); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; display: grid; grid-template-columns: auto auto; gap: 1px 12px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.readout { position: absolute; left: 14px; top: 112px; font-family: var(--f-mono); font-size: 11.5px; background: color-mix(in srgb, var(--panel) 82%, transparent); backdrop-filter: blur(6px); border: 1px solid var(--line); border-radius: 8px; padding: 6px 9px; display: grid; grid-template-columns: auto auto; gap: 1px 12px; font-variant-numeric: tabular-nums; pointer-events: none; }
 .readout span { color: var(--ink-2); }
 .readout b { text-align: right; font-weight: 600; }
 .balloons { position: absolute; inset: 0; pointer-events: none; }
@@ -301,12 +301,69 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
   .tb span { font-size: 9px; }
   .stage-hint { display: none; }
   .travel { width: calc(100% - 16px); bottom: 8px; }
-  .readout { top: 58px; font-size: 10.5px; }
+  .readout { top: 100px; font-size: 10px; }
   .dyn-scopes { grid-template-columns: 1fr; }
   .pc { grid-template-columns: 1fr; }
   .brand-sub { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .drawer { animation: none; } .prog i { transition: none; } }
+
+/* ── languages ── */
+html:not([lang="en"]) .ctl-label, html:not([lang="en"]) .tb span, html:not([lang="en"]) .bom-group h3, html:not([lang="en"]) .drawer-body h3,
+html:not([lang="en"]) .prep b, html:not([lang="en"]) .kv > span:first-child, html:not([lang="en"]) .cmp th { letter-spacing: 0; text-transform: none; }
+.lang-seg button { padding: 6px 10px; min-width: 40px; }
+
+/* ── part name label in 3D ── */
+.plabel { position: absolute; left: 0; top: 0; max-width: min(280px, 70%); text-align: left; border: 0; border-radius: 10px; padding: 6px 10px 7px; background: var(--ink); color: var(--panel);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .3); pointer-events: auto; display: flex; flex-direction: column; gap: 2px; font-size: 13px; line-height: 1.35; z-index: 3; }
+.plabel b { font-weight: 700; font-size: 14px; display: flex; gap: 7px; align-items: center; }
+.plabel b i { font-style: normal; font-family: var(--f-mono); font-size: 11px; background: var(--panel); color: var(--ink); border-radius: 50%; min-width: 20px; height: 20px; display: grid; place-items: center; }
+.plabel span { opacity: .85; font-size: 12.5px; }
+.plabel.sel { background: var(--accent); color: var(--accent-ink); }
+.plabel.sel b i { background: var(--accent-ink); color: var(--accent); }
+.plabel::after { content: ""; position: absolute; left: 50%; bottom: -6px; width: 12px; height: 12px; background: inherit; transform: translateX(-50%) rotate(45deg); border-radius: 2px; z-index: -1; }
+
+/* ── how it works ── */
+.stage-title .how-btn { pointer-events: auto; margin-top: 8px; align-self: flex-start; font-size: 14px; padding: 8px 14px; box-shadow: 0 4px 14px rgba(0, 0, 0, .2); }
+.how { position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%); width: min(620px, calc(100% - 20px)); background: color-mix(in srgb, var(--panel) 92%, transparent); backdrop-filter: blur(8px);
+  border: 2px solid var(--accent); border-radius: 12px; padding: 10px 14px 12px; z-index: 6; box-shadow: var(--shadow); }
+.how-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.how-ctl { display: flex; gap: 4px; }
+.how-ctl .btn { padding: 5px 11px; }
+.how p { margin: 8px 0 8px; font-size: 16.5px; line-height: 1.5; font-weight: 500; min-height: 3em; }
+.how-bar { height: 4px; border-radius: 2px; background: var(--bg-2); overflow: hidden; }
+.how-bar i { display: block; height: 100%; width: 0; background: var(--accent); }
+.stage.how-on .travel, .stage.how-on .stage-hint { display: none; }
+.stage.how-on .how-btn { display: none; }
+
+/* ── full screen ── */
+.stage:fullscreen { height: 100%; border-radius: 0; border: 0; }
+.stage:-webkit-full-screen { height: 100%; width: 100%; border-radius: 0; }
+.stage.max { position: fixed; inset: 0; z-index: 100; height: 100%; min-height: 0; border-radius: 0; border: 0;
+  padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
+
+/* ── compare cards (phones) ── */
+.cmp-cards { display: none; }
+.cmp-card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 14px; box-shadow: var(--shadow); }
+.cmp-card.cur { border-color: var(--accent); }
+.cmp-card h3 { font-size: 19px; }
+.cmp-card small { font-family: var(--f-mono); font-size: 11px; color: var(--ink-2); }
+.cmp-card dl { display: grid; grid-template-columns: 1fr auto; gap: 6px 10px; margin: 10px 0 0; align-items: center; }
+.cmp-card dt { font-size: 13px; color: var(--ink-2); }
+.cmp-card dd { margin: 0; }
+@media (max-width: 700px) {
+  .cmp-cards { display: grid; gap: 10px; margin-bottom: 14px; }
+  .cmp-wide { display: none; }
+  .how p { font-size: 15px; }
+  .stage.how-on .toolbar { bottom: auto; top: 96px; left: auto; right: 8px; flex-direction: column; flex-wrap: nowrap; }
+  .stage.how-on .tb { flex: none; width: 46px; }
+  .stage.how-on .tb span { display: none; }
+  .stage-title .how-btn { font-size: 13px; padding: 7px 12px; }
+}
+.st-en { display: block; font-size: 11.5px; font-weight: 400; color: var(--ink-2); line-height: 1.3; margin-top: 1px; }
+.simple { background: color-mix(in srgb, var(--accent) 9%, var(--panel)); border: 1px solid color-mix(in srgb, var(--accent) 35%, var(--line)); border-radius: 10px; padding: 4px 12px 10px; margin: 10px 0; }
+.simple p { font-size: 15px; line-height: 1.55; }
+.simple h3 { color: var(--accent); }
 
 </style>
 </head>
@@ -326,6 +383,7 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
     </div>
   </div>
   <div class="top-actions">
+    <div class="seg lang-seg" role="radiogroup" aria-label="Language / ભાષા / भाषा" id="langSeg"></div>
     <a class="link-btn" href="ecm-lab.html" title="Open ECM Lab">ECM Lab ↗</a>
     <button class="icon-btn" id="themeBtn" aria-label="Toggle light or dark theme" title="Light / dark">
       <svg viewBox="0 0 24 24" width="18" height="18"><path d="M12 3a9 9 0 1 0 9 9 7 7 0 0 1-9-9z" fill="currentColor"/></svg>
@@ -334,10 +392,10 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
 </header>
 
 <nav class="tabs" aria-label="Sections">
-  <a href="#bench" data-view="bench">Tear-down bench</a>
-  <a href="#kin" data-view="kin">Kinematics</a>
-  <a href="#dyn" data-view="dyn">Ride dynamics</a>
-  <a href="#compare" data-view="compare">Compare systems</a>
+  <a href="#bench" data-view="bench" data-i18n="tab_bench">Tear-down bench</a>
+  <a href="#kin" data-view="kin" data-i18n="tab_kin">Kinematics</a>
+  <a href="#dyn" data-view="dyn" data-i18n="tab_dyn">Ride dynamics</a>
+  <a href="#compare" data-view="compare" data-i18n="tab_cmp">Compare systems</a>
 </nav>
 
 <div class="sysbar" role="radiogroup" aria-label="Suspension system" id="sysbar"></div>
@@ -348,24 +406,31 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
     <div class="bench">
       <div class="stage-wrap">
         <div class="stage" id="stage">
-          <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span></div>
-          <div class="toolbar" role="toolbar" aria-label="View tools">
-            <button class="tb" id="tbExplode" aria-pressed="false" title="Exploded view (all parts)"><svg viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span>Explode</span></button>
-            <button class="tb" id="tbSection" aria-pressed="false" title="Half-section cut through dampers, bushings, bearings, tyre"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span>Section</span></button>
-            <button class="tb" id="tbLabels" aria-pressed="false" title="BOM balloons"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.5 13.5L20 20" stroke="currentColor" stroke-width="2"/><text x="9" y="12" font-size="8" text-anchor="middle" fill="currentColor" font-family="monospace">1</text></svg><span>Balloons</span></button>
-            <button class="tb" id="tbIsolate" aria-pressed="false" title="Ghost everything except the selected part"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/><rect x="8" y="8" width="8" height="8" rx="1.5" fill="currentColor"/></svg><span>Isolate</span></button>
-            <button class="tb" id="tbHide" aria-pressed="false" title="Put removed parts in the tray (hide)"><svg viewBox="0 0 24 24"><path d="M3 15h18l-2 5H5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 4h6v7H9z" fill="currentColor"/></svg><span>Tray</span></button>
-            <button class="tb" id="tbRotate" aria-pressed="false" title="Auto-rotate"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 2v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>Rotate</span></button>
-            <button class="tb" id="tbReset" title="Reset camera"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span>View</span></button>
+          <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span><button class="btn accent how-btn" id="howBtn" data-i18n="how_btn">▶ How it works</button></div>
+          <div class="how" id="how" hidden aria-live="polite">
+            <div class="how-top"><span class="pill" id="howCount"></span>
+              <div class="how-ctl"><button class="btn ghost" id="howPrev" aria-label="Previous">‹</button><button class="btn ghost" id="howPause" aria-label="Pause">❚❚</button><button class="btn ghost" id="howNext" aria-label="Next">›</button><button class="btn" id="howStop" data-i18n="how_stop">■ Stop</button></div></div>
+            <p id="howText"></p>
+            <div class="how-bar"><i id="howProg"></i></div>
           </div>
-          <div class="stage-hint" id="stageHint">Drag to orbit · scroll / pinch to zoom · right-drag to pan · click a part</div>
+          <div class="toolbar" role="toolbar" aria-label="View tools">
+            <button class="tb" id="tbExplode" aria-pressed="false" title="Exploded view (all parts)"><svg viewBox="0 0 24 24"><path d="M12 2v6M12 16v6M2 12h6M16 12h6M5 5l4 4M15 15l4 4M19 5l-4 4M9 15l-4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg><span data-i18n="tb_explode">Explode</span></button>
+            <button class="tb" id="tbSection" aria-pressed="false" title="Half-section cut through dampers, bushings, bearings, tyre"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 4a8 8 0 0 1 0 16z" fill="currentColor"/></svg><span data-i18n="tb_section">Section</span></button>
+            <button class="tb" id="tbLabels" aria-pressed="false" title="BOM balloons"><svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M13.5 13.5L20 20" stroke="currentColor" stroke-width="2"/><text x="9" y="12" font-size="8" text-anchor="middle" fill="currentColor" font-family="monospace">1</text></svg><span data-i18n="tb_labels">Balloons</span></button>
+            <button class="tb" id="tbIsolate" aria-pressed="false" title="Ghost everything except the selected part"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3 3"/><rect x="8" y="8" width="8" height="8" rx="1.5" fill="currentColor"/></svg><span data-i18n="tb_isolate">Isolate</span></button>
+            <button class="tb" id="tbHide" aria-pressed="false" title="Put removed parts in the tray (hide)"><svg viewBox="0 0 24 24"><path d="M3 15h18l-2 5H5z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M9 4h6v7H9z" fill="currentColor"/></svg><span data-i18n="tb_tray">Tray</span></button>
+            <button class="tb" id="tbRotate" aria-pressed="false" title="Auto-rotate"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-3-6.2" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M17 2v4h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_rotate">Rotate</span></button>
+            <button class="tb" id="tbReset" title="Reset camera"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M20 15v5h-5M4 4l6 6M20 20l-6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_view">View</span></button>
+            <button class="tb" id="tbFull" aria-pressed="false" title="Full screen"><svg viewBox="0 0 24 24"><path d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg><span data-i18n="tb_full">Full screen</span></button>
+          </div>
+          <div class="stage-hint" id="stageHint" data-i18n="hint">Tap any part to see its name · drag to turn · pinch to zoom</div>
           <div class="travel" id="travelBox">
             <div class="travel-row">
-              <label for="travel" class="ctl-label">Wheel travel <b id="travelVal">0 mm</b></label>
-              <button class="chip" id="cycleBtn" aria-pressed="false">Bounce</button>
+              <label for="travel" class="ctl-label"><span data-i18n="travel">Wheel travel</span> <b id="travelVal">0 mm</b></label>
+              <button class="chip" id="cycleBtn" aria-pressed="false" data-i18n="bounce">Bounce</button>
             </div>
             <input type="range" id="travel" min="-80" max="80" value="0" step="1" aria-describedby="travelNote">
-            <div class="travel-note" id="travelNote">rebound ← → bump</div>
+            <div class="travel-note" id="travelNote" data-i18n="rebound_bump">rebound ← → bump</div>
           </div>
           <div class="readout" id="readout" aria-live="off"></div>
         </div>
@@ -373,9 +438,9 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
 
       <aside class="side" aria-label="Procedure and parts">
         <div class="seg side-tabs" role="tablist">
-          <button role="tab" data-side="proc" aria-selected="true">Procedure</button>
-          <button role="tab" data-side="bom" aria-selected="false">Parts (BOM)</button>
-          <button role="tab" data-side="sys" aria-selected="false">System</button>
+          <button role="tab" data-side="proc" aria-selected="true" data-i18n="side_proc">Procedure</button>
+          <button role="tab" data-side="bom" aria-selected="false" data-i18n="side_bom">Parts list</button>
+          <button role="tab" data-side="sys" aria-selected="false" data-i18n="side_sys">System</button>
         </div>
         <div class="side-body">
           <div data-pane="proc" id="paneProc"></div>
@@ -384,7 +449,7 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
         </div>
         <div class="drawer" id="drawer" hidden>
           <div class="drawer-head">
-            <button class="btn ghost" id="drawerBack" aria-label="Close part details">← Back</button>
+            <button class="btn ghost" id="drawerBack" aria-label="Close part details" data-i18n="close">← Back</button>
             <span class="pill" id="drawerCat"></span>
           </div>
           <div class="drawer-body" id="drawerBody"></div>
@@ -401,7 +466,7 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
         <p class="lede" id="kinLede"></p>
       </div>
       <div class="ctl kin-travel">
-        <label for="kinTravel" class="ctl-label">Wheel travel <b id="kinTravelVal">0 mm</b></label>
+        <label for="kinTravel" class="ctl-label"><span data-i18n="travel">Wheel travel</span> <b id="kinTravelVal">0 mm</b></label>
         <input type="range" id="kinTravel" min="-80" max="80" value="0">
       </div>
     </div>
@@ -424,8 +489,8 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
   <section class="view" id="view-dyn" hidden>
     <div class="view-head">
       <div>
-        <h1>Quarter-car ride lab</h1>
-        <p class="lede">A 2-degree-of-freedom quarter-car model (sprung mass on spring and damper, unsprung mass on the tyre), solved live with RK4 at 2 kHz. Parameters load from the selected system; change them and drive over a road input.</p>
+        <h1 data-i18n="dyn_title">Quarter-car ride lab</h1>
+        <p class="lede" data-i18n="dyn_lede">A 2-degree-of-freedom quarter-car model.</p>
       </div>
       <div class="chip-row">
         <button class="btn accent" id="dynRun">Pause</button>
@@ -452,11 +517,12 @@ select { border: 1px solid var(--line); background: var(--panel); border-radius:
   <section class="view" id="view-compare" hidden>
     <div class="view-head">
       <div>
-        <h1>Compare suspension systems</h1>
-        <p class="lede">Relative ratings (1 = weakest, 5 = best of the six) and typical design values. "Cost" and "simplicity" are scored so that 5 means cheapest or simplest.</p>
+        <h1 data-i18n="cmp_title">Compare suspension systems</h1>
+        <p class="lede" data-i18n="cmp_lede">Relative ratings.</p>
       </div>
     </div>
-    <div class="panel scroll-x"><table class="cmp" id="cmpRatings"></table></div>
+    <div class="cmp-cards" id="cmpCards"></div>
+    <div class="panel scroll-x cmp-wide"><table class="cmp" id="cmpRatings"></table></div>
     <div class="panel scroll-x" style="margin-top:14px"><table class="cmp" id="cmpTable"></table></div>
   </section>
 </main>
@@ -889,6 +955,380 @@ const PARTS = {
     specs: { 'Tube': 'Ø6 × 1 mm PA12', 'Burst': '> 50 bar' }, fail: ['Chafed line → leak', 'Fitting O-ring leak'], test: ['Soap test at every fitting']
   }
 };
+
+</script>
+<script>
+/* Suspension Lab — languages: English, Gujarati, Hindi.
+   UI strings, simple (ITI-level) part and system explanations, tear-down step titles, "how it works" captions. */
+'use strict';
+
+const LANGS = [['en', 'EN'], ['gu', 'ગુજ'], ['hi', 'हिं']];
+
+const UI = {
+  en: {
+    tab_bench: 'Tear-down bench', tab_kin: 'Kinematics', tab_dyn: 'Ride dynamics', tab_cmp: 'Compare systems',
+    tb_explode: 'Explode', tb_section: 'Section', tb_labels: 'Numbers', tb_isolate: 'Isolate', tb_tray: 'Tray', tb_rotate: 'Rotate', tb_view: 'View', tb_full: 'Full screen', tb_exitfull: 'Exit',
+    travel: 'Wheel travel', bounce: 'Bounce', rebound_bump: 'rebound ← → bump', locked: 'locked — parts removed',
+    hint: 'Tap any part to see its name · drag to turn · pinch to zoom',
+    side_proc: 'Procedure', side_bom: 'Parts list', side_sys: 'System',
+    proc_title: 'Tear-down procedure', done_of: 'done', exploded_view: 'exploded view',
+    reassemble: '⟲ Reassemble', back: '← Back', start: 'Start →', next: 'Next step →', auto: '▶ Auto', pause: '❚❚ Pause',
+    prep_title: 'Before you start — safety & preparation', parts: 'Parts', tools: 'Tools', torque: 'Torque', notes: 'Notes', warning: 'Warning',
+    complete_title: 'Tear-down complete.', complete_text: 'Reassembly is the reverse order. Tighten every rubber-bushed pivot at ride height, torque all fasteners to spec, then do a 4-wheel alignment and a road test.',
+    bom_intro: 'Every part in the assembly. The number matches the number in the 3D view. Tap a row to see the part.',
+    fixed: 'fixed', removed: 'removed', fitted: 'fitted', item: 'Item', removed_in_step: 'removed in step', fixed_struct: 'fixed structure',
+    simple: 'In simple words', tech_en: 'Technical details', construction: 'Construction & material', engineering: 'Engineering', specs: 'Typical specification', failures: 'Failure modes → symptoms', inspection: 'Inspection & service',
+    go_step: 'Go to step', show_section: 'Cut open (section)', isolate_btn: 'Show only this part', see_working: '▶ See it working', close: '← Back',
+    how_btn: '▶ How it works', how_stop: '■ Stop', how_prev: '‹', how_next: '›',
+    desc: 'What it is', how_works: 'How it works', advantages: 'Advantages', limitations: 'Limitations', design_values: 'Typical design values', origin: 'Origin', where: "Where you'll find it",
+    kin_open: 'Open kinematics →', dyn_open: 'Ride dynamics →',
+    r_travel: 'Travel', r_camber: 'Camber', r_rc: 'Roll ctr', r_track: 'Track Δ', r_strut: 'Strut L', r_mr: 'Motion r.',
+    cmp_title: 'Compare suspension systems', cmp_lede: 'Relative ratings (1 = weakest, 5 = best of the six) and typical design values. "Cost" and "simplicity" are scored so that 5 means cheapest or simplest.',
+    c_comfort: 'Ride comfort', c_handling: 'Handling / camber control', c_load: 'Load capacity', c_packaging: 'Packaging', c_cost: 'Cost (5 = cheapest)', c_simplicity: 'Simplicity',
+    c_system: 'System', c_values: 'Key design values', c_freq: 'Body freq. (preset)', c_used: 'Typical vehicles',
+    kin_suffix: 'kinematics', kin_lede_corner: 'Front view of the left-hand corner, drawn to scale. Move the wheel: the instant centre (IC), roll centre (RC), camber and track all update live. The faint copy is the normal (ride-height) position.',
+    kin_lede_side: 'Side view of the axle. Move the wheel through its travel and watch how the axle moves. For a beam axle the camber does not change when both wheels go up together.',
+    dyn_title: 'Quarter-car ride lab', dyn_lede: 'One corner of the car: body mass on a spring and damper, wheel mass on the tyre. Choose a road, change the spring, damper or masses, and watch how the body and wheel move.',
+    run: 'Run', theory_note: 'Theory notes are in English.', lang: 'Language', tap_details: 'Details ↓'
+  },
+  gu: {
+    tab_bench: 'ખોલવાનો બેન્ચ', tab_kin: 'કાઇનેમેટિક્સ', tab_dyn: 'રાઇડ ડાયનેમિક્સ', tab_cmp: 'સરખામણી',
+    tb_explode: 'છૂટા ભાગ', tb_section: 'કટ સેક્શન', tb_labels: 'નંબર', tb_isolate: 'એકલો ભાગ', tb_tray: 'ટ્રે', tb_rotate: 'ફેરવો', tb_view: 'વ્યૂ', tb_full: 'ફુલ સ્ક્રીન', tb_exitfull: 'બહાર',
+    travel: 'વ્હીલ ટ્રાવેલ', bounce: 'ઉછાળો', rebound_bump: 'નીચે (રિબાઉન્ડ) ← → ઉપર (બમ્પ)', locked: 'લૉક — ભાગ ખોલેલા છે',
+    hint: 'કોઈ પણ ભાગ પર ટચ કરો — તેનું નામ દેખાશે · ખેંચીને ફેરવો · બે આંગળીથી ઝૂમ',
+    side_proc: 'પ્રોસીજર', side_bom: 'પાર્ટ્સ લિસ્ટ', side_sys: 'સિસ્ટમ',
+    proc_title: 'ખોલવાની (ટીયર-ડાઉન) પ્રોસીજર', done_of: 'પૂર્ણ', exploded_view: 'છૂટા ભાગનો વ્યૂ',
+    reassemble: '⟲ ફરી ફિટ કરો', back: '← પાછળ', start: 'શરૂ કરો →', next: 'આગળનું સ્ટેપ →', auto: '▶ ઑટો', pause: '❚❚ રોકો',
+    prep_title: 'શરૂ કરતા પહેલાં — સેફ્ટી અને તૈયારી', parts: 'ભાગ', tools: 'ટૂલ્સ', torque: 'ટૉર્ક', notes: 'નોંધ', warning: 'ચેતવણી',
+    complete_title: 'બધા ભાગ ખૂલી ગયા.', complete_text: 'ફિટિંગ ઊંધા ક્રમમાં કરો. રબર બુશવાળા બોલ્ટ ગાડી જમીન પર હોય (રાઇડ હાઇટ) ત્યારે ટાઇટ કરો, બધા બોલ્ટ ટૉર્ક રેન્ચથી ટાઇટ કરો, પછી વ્હીલ એલાઇનમેન્ટ અને રોડ ટેસ્ટ કરો.',
+    bom_intro: 'આ એસેમ્બલીના બધા ભાગ. નંબર 3D વ્યૂના નંબર જેવા જ છે. ભાગ જોવા માટે લાઇન પર ટચ કરો.',
+    fixed: 'ફિક્સ', removed: 'ખોલેલો', fitted: 'ફિટ', item: 'નંબર', removed_in_step: 'સ્ટેપમાં ખૂલે છે', fixed_struct: 'ફિક્સ સ્ટ્રક્ચર',
+    simple: 'સરળ ભાષામાં', tech_en: 'ટેક્નિકલ માહિતી (અંગ્રેજીમાં)', construction: 'બનાવટ અને મટીરિયલ', engineering: 'એન્જિનિયરિંગ', specs: 'સ્પેસિફિકેશન', failures: 'ખરાબી → લક્ષણ', inspection: 'ચેકિંગ અને સર્વિસ',
+    go_step: 'સ્ટેપ પર જાઓ', show_section: 'અંદરથી કાપીને જુઓ', isolate_btn: 'ફક્ત આ ભાગ બતાવો', see_working: '▶ કામ કરતો જુઓ', close: '← પાછળ',
+    how_btn: '▶ કેવી રીતે કામ કરે છે', how_stop: '■ બંધ', how_prev: '‹', how_next: '›',
+    desc: 'આ શું છે', how_works: 'કેવી રીતે કામ કરે છે', advantages: 'ફાયદા', limitations: 'મર્યાદા', design_values: 'સામાન્ય ડિઝાઇન વેલ્યુ', origin: 'શરૂઆત', where: 'કઈ ગાડીઓમાં મળે',
+    kin_open: 'કાઇનેમેટિક્સ ખોલો →', dyn_open: 'રાઇડ ડાયનેમિક્સ →',
+    r_travel: 'ટ્રાવેલ', r_camber: 'કૅમ્બર', r_rc: 'રોલ સેન્ટર', r_track: 'ટ્રેક Δ', r_strut: 'સ્ટ્રટ લંબાઈ', r_mr: 'મોશન રેશિયો',
+    cmp_title: 'સસ્પેન્શન સિસ્ટમની સરખામણી', cmp_lede: 'રેટિંગ: 1 = સૌથી નબળું, 5 = છમાંથી શ્રેષ્ઠ. "ખર્ચ" અને "સરળતા"માં 5 એટલે સૌથી સસ્તું અથવા સૌથી સરળ.',
+    c_comfort: 'આરામ (કમ્ફર્ટ)', c_handling: 'હેન્ડલિંગ / કૅમ્બર કંટ્રોલ', c_load: 'વજન ક્ષમતા', c_packaging: 'જગ્યા (પેકેજિંગ)', c_cost: 'ખર્ચ (5 = સસ્તું)', c_simplicity: 'સરળતા',
+    c_system: 'સિસ્ટમ', c_values: 'મુખ્ય ડિઝાઇન વેલ્યુ', c_freq: 'બૉડી ફ્રિક્વન્સી', c_used: 'કઈ ગાડીઓમાં',
+    kin_suffix: 'કાઇનેમેટિક્સ', kin_lede_corner: 'ડાબી બાજુના વ્હીલનો આગળથી દેખાવ, સ્કેલ મુજબ. વ્હીલ ઉપર-નીચે કરો: ઇન્સ્ટન્ટ સેન્ટર (IC), રોલ સેન્ટર (RC), કૅમ્બર અને ટ્રેક તરત બદલાય છે. આછી આકૃતિ સામાન્ય (રાઇડ હાઇટ) પોઝિશન છે.',
+    kin_lede_side: 'એક્સલનો બાજુથી દેખાવ. વ્હીલ ઉપર-નીચે કરો અને એક્સલ કેવી રીતે ફરે છે તે જુઓ. બંને વ્હીલ સાથે ઉપર જાય ત્યારે બીમ એક્સલનો કૅમ્બર બદલાતો નથી.',
+    dyn_title: 'ક્વાર્ટર-કાર રાઇડ લેબ', dyn_lede: 'ગાડીનો એક ખૂણો: સ્પ્રિંગ અને શૉક એબ્ઝોર્બર પર બૉડીનું વજન, ટાયર પર વ્હીલનું વજન. રસ્તો પસંદ કરો, સ્પ્રિંગ-ડેમ્પર બદલો અને બૉડી અને વ્હીલ કેવી રીતે હલે છે તે જુઓ.',
+    run: 'ચલાવો', theory_note: 'થિયરી નોંધ અંગ્રેજીમાં છે.', lang: 'ભાષા', tap_details: 'વિગત ↓'
+  },
+  hi: {
+    tab_bench: 'खोलने की बेंच', tab_kin: 'काइनेमेटिक्स', tab_dyn: 'राइड डायनेमिक्स', tab_cmp: 'तुलना',
+    tb_explode: 'अलग पार्ट', tb_section: 'कट सेक्शन', tb_labels: 'नंबर', tb_isolate: 'एक पार्ट', tb_tray: 'ट्रे', tb_rotate: 'घुमाएँ', tb_view: 'व्यू', tb_full: 'फुल स्क्रीन', tb_exitfull: 'बाहर',
+    travel: 'व्हील ट्रैवल', bounce: 'उछाल', rebound_bump: 'नीचे (रिबाउंड) ← → ऊपर (बम्प)', locked: 'लॉक — पार्ट खुले हैं',
+    hint: 'किसी भी पार्ट को टच करें — उसका नाम दिखेगा · खींचकर घुमाएँ · दो उँगलियों से ज़ूम',
+    side_proc: 'प्रोसीजर', side_bom: 'पार्ट्स लिस्ट', side_sys: 'सिस्टम',
+    proc_title: 'खोलने (टियर-डाउन) की प्रोसीजर', done_of: 'पूरे', exploded_view: 'अलग पार्ट का व्यू',
+    reassemble: '⟲ फिर से फिट करें', back: '← पीछे', start: 'शुरू करें →', next: 'अगला स्टेप →', auto: '▶ ऑटो', pause: '❚❚ रोकें',
+    prep_title: 'शुरू करने से पहले — सेफ्टी और तैयारी', parts: 'पार्ट', tools: 'टूल्स', torque: 'टॉर्क', notes: 'नोट', warning: 'चेतावनी',
+    complete_title: 'सभी पार्ट खुल गए.', complete_text: 'फिटिंग उल्टे क्रम में करें. रबर बुश वाले बोल्ट गाड़ी ज़मीन पर हो (राइड हाइट) तब टाइट करें, सभी बोल्ट टॉर्क रिंच से टाइट करें, फिर व्हील अलाइनमेंट और रोड टेस्ट करें.',
+    bom_intro: 'इस असेंबली के सभी पार्ट. नंबर 3D व्यू के नंबर जैसे ही हैं. पार्ट देखने के लिए लाइन को टच करें.',
+    fixed: 'फिक्स', removed: 'खुला', fitted: 'फिट', item: 'नंबर', removed_in_step: 'स्टेप में खुलता है', fixed_struct: 'फिक्स स्ट्रक्चर',
+    simple: 'आसान भाषा में', tech_en: 'टेक्निकल जानकारी (अंग्रेज़ी में)', construction: 'बनावट और मटीरियल', engineering: 'इंजीनियरिंग', specs: 'स्पेसिफिकेशन', failures: 'खराबी → लक्षण', inspection: 'जाँच और सर्विस',
+    go_step: 'स्टेप पर जाएँ', show_section: 'अंदर से काटकर देखें', isolate_btn: 'सिर्फ़ यह पार्ट दिखाएँ', see_working: '▶ काम करते देखें', close: '← पीछे',
+    how_btn: '▶ कैसे काम करता है', how_stop: '■ बंद', how_prev: '‹', how_next: '›',
+    desc: 'यह क्या है', how_works: 'कैसे काम करता है', advantages: 'फ़ायदे', limitations: 'कमियाँ', design_values: 'सामान्य डिज़ाइन वैल्यू', origin: 'शुरुआत', where: 'किन गाड़ियों में मिलता है',
+    kin_open: 'काइनेमेटिक्स खोलें →', dyn_open: 'राइड डायनेमिक्स →',
+    r_travel: 'ट्रैवल', r_camber: 'कैम्बर', r_rc: 'रोल सेंटर', r_track: 'ट्रैक Δ', r_strut: 'स्ट्रट लंबाई', r_mr: 'मोशन रेशियो',
+    cmp_title: 'सस्पेंशन सिस्टम की तुलना', cmp_lede: 'रेटिंग: 1 = सबसे कमज़ोर, 5 = छह में सबसे अच्छा. "खर्च" और "सरलता" में 5 का मतलब सबसे सस्ता या सबसे सरल.',
+    c_comfort: 'आराम (कम्फर्ट)', c_handling: 'हैंडलिंग / कैम्बर कंट्रोल', c_load: 'वज़न क्षमता', c_packaging: 'जगह (पैकेजिंग)', c_cost: 'खर्च (5 = सस्ता)', c_simplicity: 'सरलता',
+    c_system: 'सिस्टम', c_values: 'मुख्य डिज़ाइन वैल्यू', c_freq: 'बॉडी फ्रीक्वेंसी', c_used: 'किन गाड़ियों में',
+    kin_suffix: 'काइनेमेटिक्स', kin_lede_corner: 'बाएँ पहिए का सामने से दृश्य, स्केल के अनुसार. पहिया ऊपर-नीचे करें: इंस्टेंट सेंटर (IC), रोल सेंटर (RC), कैम्बर और ट्रैक तुरंत बदलते हैं. हल्की आकृति सामान्य (राइड हाइट) पोज़िशन है.',
+    kin_lede_side: 'एक्सल का साइड से दृश्य. पहिया ऊपर-नीचे करें और देखें एक्सल कैसे चलता है. दोनों पहिए साथ ऊपर जाएँ तो बीम एक्सल का कैम्बर नहीं बदलता.',
+    dyn_title: 'क्वार्टर-कार राइड लैब', dyn_lede: 'गाड़ी का एक कोना: स्प्रिंग और शॉक एब्ज़ॉर्बर पर बॉडी का वज़न, टायर पर पहिए का वज़न. सड़क चुनें, स्प्रिंग-डैम्पर बदलें और देखें बॉडी और पहिया कैसे हिलते हैं.',
+    run: 'चलाएँ', theory_note: 'थ्योरी नोट अंग्रेज़ी में हैं.', lang: 'भाषा', tap_details: 'विवरण ↓'
+  }
+};
+
+const CAT_TX = {
+  gu: { struct: 'સ્ટ્રક્ચર / પકડ', elastic: 'સ્પ્રિંગ (ઇલાસ્ટિક)', damp: 'ડેમ્પિંગ', link: 'લિંક અને જોઇન્ટ', wheel: 'વ્હીલ સાઇડ', steer: 'સ્ટીયરિંગ અને ડ્રાઇવ', ctrl: 'કંટ્રોલ અને એર સપ્લાય' },
+  hi: { struct: 'स्ट्रक्चर / पकड़', elastic: 'स्प्रिंग (इलास्टिक)', damp: 'डैम्पिंग', link: 'लिंक और जॉइंट', wheel: 'व्हील साइड', steer: 'स्टीयरिंग और ड्राइव', ctrl: 'कंट्रोल और एयर सप्लाई' }
+};
+
+/* Part names + one simple ITI-level explanation in each language */
+const PART_TX = {
+  wheelnuts: { en: 'Hold the wheel tight on the hub. They must be tightened in a star (criss-cross) pattern with a torque wrench.',
+    gu: ['વ્હીલ નટ', 'વ્હીલને હબ પર મજબૂત પકડી રાખે છે. ટૉર્ક રેન્ચથી સ્ટાર (ચોકડી) પેટર્નમાં ટાઇટ કરવા.'],
+    hi: ['व्हील नट', 'पहिए को हब पर मज़बूती से पकड़ते हैं. टॉर्क रिंच से स्टार (क्रॉस) पैटर्न में टाइट करें.'] },
+  rim: { en: 'The metal wheel that holds the tyre and bolts onto the hub.',
+    gu: ['રિમ (એલોય વ્હીલ)', 'ધાતુનું વ્હીલ જે ટાયરને પકડે છે અને હબ પર બોલ્ટથી ફિટ થાય છે.'],
+    hi: ['रिम (अलॉय व्हील)', 'धातु का पहिया जो टायर को पकड़ता है और हब पर बोल्ट से फिट होता है.'] },
+  tyre: { en: 'The only part that touches the road. Its air works like a first small spring.',
+    gu: ['ટાયર', 'રસ્તાને અડકતો એકમાત્ર ભાગ. તેની અંદરની હવા પહેલી નાની સ્પ્રિંગ જેવું કામ કરે છે.'],
+    hi: ['टायर', 'सड़क को छूने वाला अकेला पार्ट. इसकी हवा पहली छोटी स्प्रिंग जैसा काम करती है.'] },
+  caliper: { en: 'Squeezes the brake pads on the disc using brake-oil pressure.',
+    gu: ['બ્રેક કેલિપર', 'બ્રેક ઑઇલના દબાણથી બ્રેક પેડને ડિસ્ક પર દબાવે છે.'],
+    hi: ['ब्रेक कैलिपर', 'ब्रेक ऑयल के दबाव से ब्रेक पैड को डिस्क पर दबाता है.'] },
+  disc: { en: 'Turns with the wheel. The pads rub on it and turn speed into heat to stop the car.',
+    gu: ['બ્રેક ડિસ્ક', 'વ્હીલ સાથે ફરે છે. પેડ તેના પર ઘસાય છે અને સ્પીડને ગરમીમાં ફેરવી ગાડી રોકે છે.'],
+    hi: ['ब्रेक डिस्क', 'पहिए के साथ घूमती है. पैड इस पर रगड़कर रफ़्तार को गर्मी में बदलते हैं और गाड़ी रुकती है.'] },
+  hub: { en: 'The bearing lets the wheel spin freely while carrying the weight of the car.',
+    gu: ['હબ અને બેરિંગ', 'બેરિંગ વ્હીલને સરળતાથી ફરવા દે છે અને ગાડીનું વજન ઉપાડે છે.'],
+    hi: ['हब और बेयरिंग', 'बेयरिंग पहिए को आसानी से घूमने देती है और गाड़ी का वज़न उठाती है.'] },
+  knuckle: { en: 'The strong casting that holds the hub, brake and all the arms. It turns when you steer.',
+    gu: ['સ્ટીયરિંગ નકલ', 'મજબૂત કાસ્ટિંગ જે હબ, બ્રેક અને બધા આર્મને પકડે છે. સ્ટીયરિંગ ફેરવો ત્યારે તે ફરે છે.'],
+    hi: ['स्टीयरिंग नकल', 'मज़बूत कास्टिंग जो हब, ब्रेक और सभी आर्म को पकड़ती है. स्टीयरिंग घुमाने पर यह घूमती है.'] },
+  drum: { en: 'Rear brake: shoes push outward inside the turning drum to stop it.',
+    gu: ['બ્રેક ડ્રમ અને શૂ', 'પાછળની બ્રેક: ફરતા ડ્રમની અંદર શૂ બહારની તરફ દબાઈને તેને રોકે છે.'],
+    hi: ['ब्रेक ड्रम और शू', 'पीछे का ब्रेक: घूमते ड्रम के अंदर शू बाहर की ओर दबकर उसे रोकते हैं.'] },
+  stubaxle: { en: 'A short fixed shaft on which the rear wheel bearing sits.',
+    gu: ['સ્ટબ એક્સલ', 'નાની ફિક્સ શાફ્ટ, જેના પર પાછળના વ્હીલનું બેરિંગ બેસે છે.'],
+    hi: ['स्टब एक्सल', 'छोटी फिक्स शाफ्ट, जिस पर पीछे के पहिए की बेयरिंग बैठती है.'] },
+  spring: { en: 'Carries the weight of the car. On a bump it squeezes and stores energy, then pushes back.',
+    gu: ['કોઇલ સ્પ્રિંગ', 'ગાડીનું વજન ઉપાડે છે. ખાડા-ટેકરા પર દબાઈને ઊર્જા ભરે છે અને પછી પાછી ધકેલે છે.'],
+    hi: ['कॉइल स्प्रिंग', 'गाड़ी का वज़न उठाती है. झटके पर दबकर ऊर्जा जमा करती है और फिर वापस धकेलती है.'] },
+  leaf: { en: 'Steel leaves stacked together. It works as the spring and also holds the axle in place.',
+    gu: ['લીફ સ્પ્રિંગ (પાટા)', 'સ્ટીલના પાટા એકબીજા પર ગોઠવેલા. તે સ્પ્રિંગ તરીકે કામ કરે છે અને એક્સલને જગ્યા પર પણ પકડી રાખે છે.'],
+    hi: ['लीफ स्प्रिंग (पत्ती कमानी)', 'स्टील की पत्तियाँ एक के ऊपर एक. यह स्प्रिंग का काम करती है और एक्सल को जगह पर भी रखती है.'] },
+  airspring: { en: 'A rubber bag filled with compressed air. More air lifts the car; letting air out lowers it.',
+    gu: ['એર સ્પ્રિંગ (બેલો)', 'દબાણવાળી હવાથી ભરેલી રબરની થેલી. વધુ હવા ભરવાથી ગાડી ઊંચી થાય, હવા કાઢવાથી નીચી થાય.'],
+    hi: ['एयर स्प्रिंग (बेलो)', 'दबाव वाली हवा से भरी रबर की थैली. ज़्यादा हवा से गाड़ी ऊँची, हवा निकालने से नीची होती है.'] },
+  arb: { en: 'A twisted steel bar that links the left and right wheels. It stops the body leaning too much on turns.',
+    gu: ['એન્ટી-રોલ બાર (સ્ટેબિલાઇઝર)', 'ડાબા અને જમણા વ્હીલને જોડતો સ્ટીલનો બાર. વળાંકમાં બૉડીને વધુ નમતી અટકાવે છે.'],
+    hi: ['एंटी-रोल बार (स्टेबलाइज़र)', 'बाएँ और दाएँ पहिए को जोड़ने वाला स्टील बार. मोड़ पर बॉडी को ज़्यादा झुकने से रोकता है.'] },
+  droplink: { en: 'A short rod with ball joints joining the anti-roll bar to the strut or arm.',
+    gu: ['ડ્રોપ લિંક', 'બૉલ જોઇન્ટવાળો નાનો સળિયો, જે એન્ટી-રોલ બારને સ્ટ્રટ અથવા આર્મ સાથે જોડે છે.'],
+    hi: ['ड्रॉप लिंक', 'बॉल जॉइंट वाली छोटी रॉड, जो एंटी-रोल बार को स्ट्रट या आर्म से जोड़ती है.'] },
+  damper: { en: 'Oil is pushed through small holes in the piston. This slows the spring so the car does not keep bouncing.',
+    gu: ['શૉક એબ્ઝોર્બર (ડેમ્પર)', 'પિસ્ટનના નાના છિદ્રોમાંથી ઑઇલ પસાર થાય છે. તે સ્પ્રિંગને ધીમી કરે છે, જેથી ગાડી વારંવાર ઉછળતી નથી.'],
+    hi: ['शॉक एब्ज़ॉर्बर (डैम्पर)', 'पिस्टन के छोटे छेदों से तेल गुज़रता है. यह स्प्रिंग को धीमा करता है ताकि गाड़ी बार-बार न उछले.'] },
+  cdc: { en: 'A shock absorber whose valve is changed by the ECU in milliseconds: soft for comfort, firm for control.',
+    gu: ['એડેપ્ટિવ શૉક એબ્ઝોર્બર (CDC)', 'ECU મિલિસેકન્ડમાં તેનો વાલ્વ બદલે છે: આરામ માટે નરમ, કંટ્રોલ માટે કડક.'],
+    hi: ['एडैप्टिव शॉक एब्ज़ॉर्बर (CDC)', 'ECU मिलीसेकंड में इसका वाल्व बदलता है: आराम के लिए नरम, कंट्रोल के लिए सख्त.'] },
+  bumpstop: { en: 'A soft rubber/PU stopper at the end of travel, and a boot that keeps dust off the shiny rod.',
+    gu: ['બમ્પ સ્ટોપ અને ડસ્ટ બૂટ', 'છેલ્લે આંચકો રોકતું નરમ રબર/PU, અને ચળકતા રૉડ પર ધૂળ ન જાય તે માટેનું બૂટ.'],
+    hi: ['बम्प स्टॉप और डस्ट बूट', 'आख़िर में झटका रोकने वाला नरम रबर/PU, और चमकदार रॉड पर धूल न जाए इसके लिए बूट.'] },
+  topmount: { en: 'Bolts the strut to the body. Its rubber cuts noise and its bearing lets the strut turn with steering.',
+    gu: ['સ્ટ્રટ ટોપ માઉન્ટ', 'સ્ટ્રટને બૉડી સાથે બોલ્ટ કરે છે. તેનું રબર અવાજ ઘટાડે અને બેરિંગ સ્ટીયરિંગ સાથે સ્ટ્રટને ફરવા દે.'],
+    hi: ['स्ट्रट टॉप माउंट', 'स्ट्रट को बॉडी से बोल्ट करता है. इसका रबर आवाज़ कम करता है और बेयरिंग स्टीयरिंग के साथ स्ट्रट को घूमने देती है.'] },
+  lca: { en: 'The lower arm holds the bottom of the wheel in place and swings up and down on rubber bushes.',
+    gu: ['લોઅર કંટ્રોલ આર્મ', 'નીચેનો આર્મ વ્હીલના નીચેના ભાગને જગ્યા પર રાખે છે અને રબર બુશ પર ઉપર-નીચે ઝૂલે છે.'],
+    hi: ['लोअर कंट्रोल आर्म', 'नीचे का आर्म पहिए के निचले हिस्से को जगह पर रखता है और रबर बुश पर ऊपर-नीचे झूलता है.'] },
+  uca: { en: 'The shorter upper arm. It tilts the top of the wheel inward on bumps so the tyre stays flat on the road.',
+    gu: ['અપર કંટ્રોલ આર્મ', 'નાનો ઉપરનો આર્મ. ખાડા-ટેકરા પર વ્હીલના ઉપરના ભાગને અંદર નમાવે છે, જેથી ટાયર રસ્તા પર સપાટ રહે.'],
+    hi: ['अपर कंट्रोल आर्म', 'छोटा ऊपरी आर्म. झटके पर पहिए का ऊपरी हिस्सा अंदर झुकाता है ताकि टायर सड़क पर सपाट रहे.'] },
+  lbj: { en: 'A ball in a socket, like your shoulder. It lets the knuckle move up, down and turn.',
+    gu: ['બૉલ જોઇન્ટ', 'ખભાના સાંધા જેવો સૉકેટમાં બૉલ. તે નકલને ઉપર-નીચે અને ડાબે-જમણે ફરવા દે છે.'],
+    hi: ['बॉल जॉइंट', 'कंधे के जोड़ जैसा सॉकेट में बॉल. यह नकल को ऊपर-नीचे और दाएँ-बाएँ घूमने देता है.'] },
+  bushing: { en: 'Rubber between steel sleeves. It lets the arm pivot without grease and stops noise reaching the body.',
+    gu: ['રબર બુશ', 'સ્ટીલ સ્લીવ વચ્ચે રબર. ગ્રીસ વગર આર્મને ફરવા દે છે અને અવાજ બૉડી સુધી પહોંચવા દેતું નથી.'],
+    hi: ['रबर बुश', 'स्टील स्लीव के बीच रबर. ग्रीस के बिना आर्म को घूमने देता है और आवाज़ बॉडी तक नहीं पहुँचने देता.'] },
+  tierod: { en: 'Pushes and pulls the knuckle to steer the wheel. Turning its thread sets the toe (wheel alignment).',
+    gu: ['ટાઇ રૉડ એન્ડ', 'નકલને ધક્કો-ખેંચાણ આપી વ્હીલ ફેરવે છે. તેની થ્રેડ ફેરવીને ટો (એલાઇનમેન્ટ) સેટ થાય છે.'],
+    hi: ['टाई रॉड एंड', 'नकल को धकेल-खींचकर पहिया घुमाती है. इसकी थ्रेड घुमाकर टो (अलाइनमेंट) सेट होता है.'] },
+  rack: { en: 'Turns steering-wheel rotation into left-right movement. An electric motor helps you steer.',
+    gu: ['સ્ટીયરિંગ રેક (EPS)', 'સ્ટીયરિંગ વ્હીલના ફરવાને ડાબે-જમણે હલનચલનમાં બદલે છે. ઇલેક્ટ્રિક મોટર મદદ કરે છે.'],
+    hi: ['स्टीयरिंग रैक (EPS)', 'स्टीयरिंग व्हील के घूमने को दाएँ-बाएँ चाल में बदलता है. इलेक्ट्रिक मोटर मदद करती है.'] },
+  driveshaft: { en: 'Carries engine power to the wheel. CV joints let it work while the wheel steers and moves.',
+    gu: ['ડ્રાઇવ શાફ્ટ (CV જોઇન્ટ)', 'એન્જિનની તાકાત વ્હીલ સુધી પહોંચાડે છે. CV જોઇન્ટને લીધે વ્હીલ ફરે અને ઉપર-નીચે થાય તો પણ કામ ચાલુ રહે.'],
+    hi: ['ड्राइव शाफ्ट (CV जॉइंट)', 'इंजन की ताक़त पहिए तक पहुँचाती है. CV जॉइंट से पहिया मुड़े या ऊपर-नीचे हो तब भी काम चलता है.'] },
+  subframe: { en: 'A strong frame bolted under the body. The arms, rack and anti-roll bar are fixed to it.',
+    gu: ['સબફ્રેમ', 'બૉડી નીચે બોલ્ટ કરેલી મજબૂત ફ્રેમ. આર્મ, રેક અને એન્ટી-રોલ બાર તેના પર ફિટ હોય છે.'],
+    hi: ['सबफ्रेम', 'बॉडी के नीचे बोल्ट किया मज़बूत फ्रेम. आर्म, रैक और एंटी-रोल बार इस पर लगे होते हैं.'] },
+  body: { en: 'The car body (shown see-through). The strut tower takes the spring load.',
+    gu: ['બૉડી / સ્ટ્રટ ટાવર', 'ગાડીની બૉડી (પારદર્શક બતાવી છે). સ્ટ્રટ ટાવર સ્પ્રિંગનો ભાર ઝીલે છે.'],
+    hi: ['बॉडी / स्ट्रट टावर', 'गाड़ी की बॉडी (पारदर्शी दिखाई है). स्ट्रट टावर स्प्रिंग का भार सहता है.'] },
+  link_uf: { en: 'Upper front rod. With the upper rear rod it works like an upper arm.',
+    gu: ['અપર ફ્રન્ટ લિંક', 'ઉપરનો આગળનો સળિયો. ઉપરના પાછળના સળિયા સાથે તે અપર આર્મ જેવું કામ કરે છે.'],
+    hi: ['अपर फ्रंट लिंक', 'ऊपर की आगे वाली रॉड. ऊपर की पीछे वाली रॉड के साथ यह अपर आर्म जैसा काम करती है.'] },
+  link_ur: { en: 'Upper rear rod. Holds the top of the wheel carrier.',
+    gu: ['અપર રિયર લિંક', 'ઉપરનો પાછળનો સળિયો. વ્હીલ કેરિયરના ઉપરના ભાગને પકડે છે.'],
+    hi: ['अपर रियर लिंक', 'ऊपर की पीछे वाली रॉड. व्हील कैरियर के ऊपरी हिस्से को पकड़ती है.'] },
+  link_camber: { en: 'Lower side rod. It sets the camber (wheel tilt) and often has an adjusting cam bolt.',
+    gu: ['કૅમ્બર લિંક', 'નીચેનો બાજુનો સળિયો. કૅમ્બર (વ્હીલનો ઝુકાવ) સેટ કરે છે; ઘણીવાર તેમાં ઍડજસ્ટ કરવા કૅમ બોલ્ટ હોય છે.'],
+    hi: ['कैम्बर लिंक', 'नीचे की साइड रॉड. कैम्बर (पहिए का झुकाव) सेट करती है; अक्सर इसमें एडजस्ट करने वाला कैम बोल्ट होता है.'] },
+  link_toe: { en: 'Small rod that stops the rear wheel from steering by itself. It sets rear toe.',
+    gu: ['ટો લિંક', 'નાનો સળિયો જે પાછળના વ્હીલને જાતે ફરતા અટકાવે છે. પાછળનો ટો સેટ કરે છે.'],
+    hi: ['टो लिंक', 'छोटी रॉड जो पिछले पहिए को खुद मुड़ने से रोकती है. पीछे का टो सेट करती है.'] },
+  springlink: { en: 'The big lower arm that the coil spring sits on.',
+    gu: ['સ્પ્રિંગ લિંક (લોઅર આર્મ)', 'મોટો નીચેનો આર્મ, જેના પર કોઇલ સ્પ્રિંગ બેસે છે.'],
+    hi: ['स्प्रिंग लिंक (लोअर आर्म)', 'बड़ा निचला आर्म, जिस पर कॉइल स्प्रिंग बैठती है.'] },
+  twistbeam: { en: 'Two arms joined by a beam. The beam twists when one wheel goes up, so it also acts as an anti-roll bar.',
+    gu: ['ટ્વિસ્ટ બીમ એક્સલ', 'બીમથી જોડાયેલા બે આર્મ. એક વ્હીલ ઉપર જાય ત્યારે બીમ વળ ખાય છે, તેથી તે એન્ટી-રોલ બારનું કામ પણ કરે છે.'],
+    hi: ['ट्विस्ट बीम एक्सल', 'बीम से जुड़े दो आर्म. एक पहिया ऊपर जाए तो बीम मरोड़ खाता है, इसलिए यह एंटी-रोल बार का काम भी करता है.'] },
+  pivotbush: { en: 'The two big rubber bushes on which the whole beam axle swings.',
+    gu: ['પિવોટ બુશ', 'બે મોટા રબર બુશ, જેના પર આખો બીમ એક્સલ ઝૂલે છે.'],
+    hi: ['पिवट बुश', 'दो बड़े रबर बुश, जिन पर पूरा बीम एक्सल झूलता है.'] },
+  axlehousing: { en: 'A rigid steel tube joining both rear wheels. It holds the differential and axle shafts.',
+    gu: ['એક્સલ હાઉસિંગ (બેન્જો)', 'બંને પાછળના વ્હીલને જોડતી મજબૂત સ્ટીલ ટ્યુબ. તેમાં ડિફરન્શિયલ અને એક્સલ શાફ્ટ હોય છે.'],
+    hi: ['एक्सल हाउसिंग (बैंजो)', 'दोनों पिछले पहियों को जोड़ने वाली मज़बूत स्टील ट्यूब. इसमें डिफरेंशियल और एक्सल शाफ्ट होते हैं.'] },
+  diff: { en: 'Gears that turn the drive 90° and let the outer wheel turn faster on a corner.',
+    gu: ['ડિફરન્શિયલ', 'ગિયર જે ડ્રાઇવને 90° ફેરવે છે અને વળાંકમાં બહારના વ્હીલને વધુ ઝડપથી ફરવા દે છે.'],
+    hi: ['डिफरेंशियल', 'गियर जो ड्राइव को 90° घुमाते हैं और मोड़ पर बाहरी पहिए को तेज़ घूमने देते हैं.'] },
+  halfshaft: { en: 'The shaft inside the axle tube that turns the wheel.',
+    gu: ['હાફ શાફ્ટ (એક્સલ શાફ્ટ)', 'એક્સલ ટ્યુબની અંદરની શાફ્ટ, જે વ્હીલને ફેરવે છે.'],
+    hi: ['हाफ शाफ्ट (एक्सल शाफ्ट)', 'एक्सल ट्यूब के अंदर की शाफ्ट, जो पहिए को घुमाती है.'] },
+  ubolt: { en: 'U-shaped bolts that clamp the axle to the middle of the leaf spring.',
+    gu: ['U-બોલ્ટ અને સ્પ્રિંગ પ્લેટ', 'U આકારના બોલ્ટ, જે એક્સલને લીફ સ્પ્રિંગની વચ્ચે કસીને પકડે છે.'],
+    hi: ['U-बोल्ट और स्प्रिंग प्लेट', 'U आकार के बोल्ट, जो एक्सल को लीफ स्प्रिंग के बीच में कसकर पकड़ते हैं.'] },
+  shackle: { en: 'A swinging link at the rear eye. It lets the spring get longer when it flattens.',
+    gu: ['શૅકલ', 'પાછળની આંખ પર ઝૂલતી લિંક. સ્પ્રિંગ સીધી થાય ત્યારે તેની લંબાઈ વધવા દે છે.'],
+    hi: ['शैकल', 'पीछे की आँख पर झूलने वाली लिंक. स्प्रिंग सीधी होने पर उसकी लंबाई बढ़ने देती है.'] },
+  hanger: { en: 'The chassis frame and the fixed bracket that holds the front eye of the spring.',
+    gu: ['ચેસીસ ફ્રેમ અને હેંગર', 'ચેસીસ ફ્રેમ અને સ્પ્રિંગની આગળની આંખને પકડતો ફિક્સ બ્રેકેટ.'],
+    hi: ['चेसिस फ्रेम और हैंगर', 'चेसिस फ्रेम और स्प्रिंग की आगे की आँख को पकड़ने वाला फिक्स ब्रैकेट.'] },
+  compressor: { en: 'An electric pump that makes compressed air. The dryer removes water from the air.',
+    gu: ['કૉમ્પ્રેસર અને એર ડ્રાયર', 'દબાણવાળી હવા બનાવતો ઇલેક્ટ્રિક પંપ. ડ્રાયર હવામાંથી પાણી કાઢે છે.'],
+    hi: ['कंप्रेसर और एयर ड्रायर', 'दबाव वाली हवा बनाने वाला इलेक्ट्रिक पंप. ड्रायर हवा से पानी निकालता है.'] },
+  reservoir: { en: 'A tank that stores compressed air so the car can rise quickly.',
+    gu: ['એર ટાંકી', 'દબાણવાળી હવા ભરી રાખતી ટાંકી, જેથી ગાડી ઝડપથી ઊંચી થઈ શકે.'],
+    hi: ['एयर टैंक', 'दबाव वाली हवा जमा रखने वाला टैंक, ताकि गाड़ी जल्दी ऊँची हो सके.'] },
+  valveblock: { en: 'Electric valves that open to fill or empty each air spring.',
+    gu: ['સોલેનોઇડ વાલ્વ બ્લૉક', 'ઇલેક્ટ્રિક વાલ્વ, જે દરેક એર સ્પ્રિંગને ભરવા કે ખાલી કરવા ખૂલે છે.'],
+    hi: ['सोलेनॉइड वाल्व ब्लॉक', 'इलेक्ट्रिक वाल्व, जो हर एयर स्प्रिंग को भरने या खाली करने के लिए खुलते हैं.'] },
+  heightsensor: { en: 'Measures how high the car body is at each wheel and tells the ECU.',
+    gu: ['હાઇટ સેન્સર', 'દરેક વ્હીલ પાસે બૉડી કેટલી ઊંચી છે તે માપીને ECUને જણાવે છે.'],
+    hi: ['हाइट सेंसर', 'हर पहिए के पास बॉडी कितनी ऊँची है यह मापकर ECU को बताता है.'] },
+  ecu: { en: 'The computer that controls air height and damper firmness.',
+    gu: ['સસ્પેન્શન ECU', 'હવાની ઊંચાઈ અને શૉકની કડકાઈ કંટ્રોલ કરતું કમ્પ્યુટર.'],
+    hi: ['सस्पेंशन ECU', 'हवा की ऊँचाई और शॉक की सख्ती कंट्रोल करने वाला कंप्यूटर.'] },
+  airlines: { en: 'Plastic air pipes joining compressor, tank, valves and air springs (shown blue).',
+    gu: ['એર પાઇપ', 'કૉમ્પ્રેસર, ટાંકી, વાલ્વ અને એર સ્પ્રિંગને જોડતી પ્લાસ્ટિકની પાઇપ (વાદળી બતાવી છે).'],
+    hi: ['एयर पाइप', 'कंप्रेसर, टैंक, वाल्व और एयर स्प्रिंग को जोड़ने वाले प्लास्टिक पाइप (नीले दिखाए हैं).'] }
+};
+
+/* Systems: name, simple description, simple how-it-works, safety prep, step titles, warnings */
+const SYS_TX = {
+  macpherson: {
+    gu: { name: 'મૅકફર્સન સ્ટ્રટ', simple: 'શૉક એબ્ઝોર્બર જ મજબૂત થાંભલો (સ્ટ્રટ) છે, જે નકલ સાથે બોલ્ટ થાય છે. નીચે એક જ લોઅર આર્મ છે. ઓછા ભાગ, સસ્તું અને હલકું — મોટાભાગની નાની ગાડીઓમાં આગળ હોય છે.',
+      how: 'ખાડા-ટેકરા પર લોઅર આર્મ ઉપર ઝૂલે છે અને સ્ટ્રટ ટૂંકો થાય છે. સ્પ્રિંગ દબાય છે, શૉક ઑઇલથી આંચકો ધીમો કરે છે. સ્ટીયરિંગ ફેરવો ત્યારે આખો સ્ટ્રટ ટોપ માઉન્ટના બેરિંગ પર ફરે છે.',
+      prep: 'ગાડી સપાટ જગ્યા પર રાખો, હેન્ડ બ્રેક લગાવો, બીજા વ્હીલને ચોક લગાવો. વ્હીલ જમીન પર હોય ત્યારે નટ ઢીલા કરો. જૅક પોઇન્ટ પરથી ઉપાડી એક્સલ સ્ટેન્ડ મૂકો — ફક્ત જૅક પર ઉભી ગાડી નીચે ક્યારેય કામ ન કરો.',
+      steps: ['વ્હીલ નટ ખોલો', 'વ્હીલ ઉતારો', 'સ્ટ્રટ પરથી ડ્રોપ લિંક ખોલો', 'બ્રેક કેલિપર ખોલીને લટકાવો', 'બ્રેક ડિસ્ક ઉતારો', 'ટાઇ રૉડ એન્ડ છૂટો કરો', 'લોઅર બૉલ જોઇન્ટ છૂટો કરો', 'હબમાંથી ડ્રાઇવ શાફ્ટ બહાર કાઢો', 'નકલ અને હબ બેરિંગ ઉતારો', 'સ્ટ્રટ ઉતારો અને ખોલો', 'એન્ટી-રોલ બાર ઉતારો', 'લોઅર આર્મ ઉતારો'],
+      warn: { 3: 'બ્રેકની ધૂળ કૉમ્પ્રેસ્ડ એરથી ઉડાડશો નહીં.', 7: 'હબ નટ ઢીલો હોય ત્યારે બેરિંગ પર વજન ન આપો.', 9: 'દબાયેલી સ્પ્રિંગમાં બહુ શક્તિ હોય છે — સર્ટિફાઇડ સ્પ્રિંગ કૉમ્પ્રેસર જ વાપરો.' } },
+    hi: { name: 'मैकफर्सन स्ट्रट', simple: 'शॉक एब्ज़ॉर्बर ही मज़बूत खंभा (स्ट्रट) है, जो नकल से बोल्ट होता है. नीचे सिर्फ़ एक लोअर आर्म है. कम पार्ट, सस्ता और हल्का — ज़्यादातर छोटी गाड़ियों में आगे लगता है.',
+      how: 'झटके पर लोअर आर्म ऊपर झूलता है और स्ट्रट छोटा होता है. स्प्रिंग दबती है, शॉक तेल से झटका धीमा करता है. स्टीयरिंग घुमाने पर पूरा स्ट्रट टॉप माउंट की बेयरिंग पर घूमता है.',
+      prep: 'गाड़ी समतल जगह पर रखें, हैंड ब्रेक लगाएँ, दूसरे पहिए पर चॉक लगाएँ. पहिया ज़मीन पर हो तब नट ढीले करें. जैक पॉइंट से उठाकर एक्सल स्टैंड लगाएँ — सिर्फ़ जैक पर खड़ी गाड़ी के नीचे कभी काम न करें.',
+      steps: ['व्हील नट खोलें', 'पहिया उतारें', 'स्ट्रट से ड्रॉप लिंक खोलें', 'ब्रेक कैलिपर खोलकर लटकाएँ', 'ब्रेक डिस्क उतारें', 'टाई रॉड एंड अलग करें', 'लोअर बॉल जॉइंट अलग करें', 'हब से ड्राइव शाफ्ट बाहर निकालें', 'नकल और हब बेयरिंग उतारें', 'स्ट्रट उतारें और खोलें', 'एंटी-रोल बार उतारें', 'लोअर आर्म उतारें'],
+      warn: { 3: 'ब्रेक की धूल कंप्रेस्ड एयर से न उड़ाएँ.', 7: 'हब नट ढीला हो तो बेयरिंग पर वज़न न डालें.', 9: 'दबी हुई स्प्रिंग में बहुत ताक़त होती है — सर्टिफ़ाइड स्प्रिंग कंप्रेसर ही इस्तेमाल करें.' } }
+  },
+  wishbone: {
+    gu: { name: 'ડબલ વિશબોન', simple: 'ઉપર અને નીચે બે A-આકારના આર્મ વ્હીલને પકડે છે. ઉપરનો આર્મ નાનો હોવાથી વળાંકમાં ટાયર રસ્તા પર સપાટ રહે છે — સારું હેન્ડલિંગ. રેસ કાર, પિકઅપ અને SUVના આગળના ભાગમાં.',
+      how: 'બંને આર્મ રબર બુશ પર ઉપર-નીચે ઝૂલે છે. નાનો ઉપરનો આર્મ વ્હીલનો ઉપરનો ભાગ અંદર ખેંચે છે (નેગેટિવ કૅમ્બર), જેથી બૉડી નમે ત્યારે પણ ટાયરની પકડ સારી રહે. કોઇલ-ઓવર શૉક ફક્ત ઝટકા રોકવાનું કામ કરે છે.',
+      prep: 'ગાડી ચેસીસ લિફ્ટ પોઇન્ટ પર સ્ટેન્ડ પર રાખો. સ્પ્રિંગનું વજન લોઅર આર્મ પર છે: શૉક કે બૉલ જોઇન્ટ ખોલતા પહેલાં લોઅર આર્મ નીચે જૅક રાખો.',
+      steps: ['વ્હીલ નટ ખોલો', 'વ્હીલ ઉતારો', 'કેલિપર અને ડિસ્ક ઉતારો', 'હબ બેરિંગ યુનિટ ઉતારો', 'ટાઇ રૉડ એન્ડ છૂટો કરો', 'ડ્રોપ લિંક ખોલો', 'કોઇલ-ઓવર શૉક ઉતારો', 'બૉલ જોઇન્ટ છૂટા કરી અપર આર્મ ઉતારો', 'નકલ ઉતારો', 'એન્ટી-રોલ બાર ઉતારો', 'લોઅર આર્મ અને બુશ ઉતારો'],
+      warn: { 6: 'સ્પ્રિંગમાં શક્તિ ભરેલી છે — રૉડ નટ ખોલતા પહેલાં સ્પ્રિંગ દબાવો.' } },
+    hi: { name: 'डबल विशबोन', simple: 'ऊपर और नीचे दो A-आकार के आर्म पहिए को पकड़ते हैं. ऊपर का आर्म छोटा होने से मोड़ पर टायर सड़क पर सपाट रहता है — अच्छी हैंडलिंग. रेस कार, पिकअप और SUV के आगे.',
+      how: 'दोनों आर्म रबर बुश पर ऊपर-नीचे झूलते हैं. छोटा ऊपरी आर्म पहिए का ऊपरी हिस्सा अंदर खींचता है (नेगेटिव कैम्बर), जिससे बॉडी झुकने पर भी टायर की पकड़ अच्छी रहती है. कॉइल-ओवर शॉक सिर्फ़ झटके रोकने का काम करता है.',
+      prep: 'गाड़ी चेसिस लिफ्ट पॉइंट पर स्टैंड पर रखें. स्प्रिंग का वज़न लोअर आर्म पर है: शॉक या बॉल जॉइंट खोलने से पहले लोअर आर्म के नीचे जैक रखें.',
+      steps: ['व्हील नट खोलें', 'पहिया उतारें', 'कैलिपर और डिस्क उतारें', 'हब बेयरिंग यूनिट उतारें', 'टाई रॉड एंड अलग करें', 'ड्रॉप लिंक खोलें', 'कॉइल-ओवर शॉक उतारें', 'बॉल जॉइंट अलग करके अपर आर्म उतारें', 'नकल उतारें', 'एंटी-रोल बार उतारें', 'लोअर आर्म और बुश उतारें'],
+      warn: { 6: 'स्प्रिंग में ताक़त भरी है — रॉड नट खोलने से पहले स्प्रिंग दबाएँ.' } }
+  },
+  multilink: {
+    gu: { name: 'મલ્ટી-લિંક (5 લિંક)', simple: 'પાંચ અલગ સળિયા (લિંક) વ્હીલ કેરિયરને પકડે છે. દરેક લિંક એક દિશા કંટ્રોલ કરે છે. આરામ અને હેન્ડલિંગ બંને ઉત્તમ, પણ મોંઘું. મર્સિડીઝ, BMW, ઓડી જેવી ગાડીઓમાં પાછળ.',
+      how: 'પાંચ લિંક મળીને વ્હીલને ફક્ત ઉપર-નીચે જવા દે છે. ટો લિંક વ્હીલને જાતે ફરતા અટકાવે છે, કૅમ્બર લિંક ઝુકાવ સેટ કરે છે. સ્પ્રિંગ મોટા સ્પ્રિંગ લિંક પર બેસે છે.',
+      prep: 'ગાડી સ્ટેન્ડ પર રાખો. સ્પ્રિંગ દબાયેલી છે: સ્પ્રિંગ નીકળે નહીં ત્યાં સુધી સ્પ્રિંગ લિંક નીચે જૅક રાખો. દરેક કૅમ બોલ્ટ ખોલતા પહેલાં નિશાન કરો.',
+      steps: ['વ્હીલ નટ અને વ્હીલ ઉતારો', 'કેલિપર અને ડિસ્ક ઉતારો', 'હબ ઉતારી ડ્રાઇવ શાફ્ટ કાઢો', 'શૉક એબ્ઝોર્બર ઉતારો', 'સ્ટેબિલાઇઝર લિંક ખોલો', 'સ્પ્રિંગ લિંક નીચે કરી સ્પ્રિંગ કાઢો', 'ટો લિંક ખોલો', 'અપર લિંક ઉતારો', 'કૅમ્બર લિંક અને વ્હીલ કેરિયર ઉતારો', 'સ્પ્રિંગ લિંક અને બુશ ઉતારો', 'પાછળનો એન્ટી-રોલ બાર ઉતારો'],
+      warn: { 1: 'ઇલેક્ટ્રિક પાર્કિંગ બ્રેકનો પિસ્ટન જબરદસ્તી પાછો ન દબાવો — સ્કેન ટૂલથી સર્વિસ મોડ કરો.', 5: 'ધીમે ધીમે નીચે કરો — દબાયેલી સ્પ્રિંગ જૅક ઉછાળી શકે.' } },
+    hi: { name: 'मल्टी-लिंक (5 लिंक)', simple: 'पाँच अलग रॉड (लिंक) व्हील कैरियर को पकड़ती हैं. हर लिंक एक दिशा कंट्रोल करती है. आराम और हैंडलिंग दोनों बेहतरीन, पर महँगा. मर्सिडीज़, BMW, ऑडी जैसी गाड़ियों में पीछे.',
+      how: 'पाँचों लिंक मिलकर पहिए को सिर्फ़ ऊपर-नीचे जाने देती हैं. टो लिंक पहिए को खुद मुड़ने से रोकती है, कैम्बर लिंक झुकाव सेट करती है. स्प्रिंग बड़े स्प्रिंग लिंक पर बैठती है.',
+      prep: 'गाड़ी स्टैंड पर रखें. स्प्रिंग दबी हुई है: स्प्रिंग निकलने तक स्प्रिंग लिंक के नीचे जैक रखें. हर कैम बोल्ट खोलने से पहले निशान लगाएँ.',
+      steps: ['व्हील नट और पहिया उतारें', 'कैलिपर और डिस्क उतारें', 'हब उतारकर ड्राइव शाफ्ट निकालें', 'शॉक एब्ज़ॉर्बर उतारें', 'स्टेबलाइज़र लिंक खोलें', 'स्प्रिंग लिंक नीचे करके स्प्रिंग निकालें', 'टो लिंक खोलें', 'अपर लिंक उतारें', 'कैम्बर लिंक और व्हील कैरियर उतारें', 'स्प्रिंग लिंक और बुश उतारें', 'पीछे का एंटी-रोल बार उतारें'],
+      warn: { 1: 'इलेक्ट्रिक पार्किंग ब्रेक का पिस्टन ज़बरदस्ती पीछे न दबाएँ — स्कैन टूल से सर्विस मोड करें.', 5: 'धीरे-धीरे नीचे करें — दबी स्प्रिंग जैक को उछाल सकती है.' } }
+  },
+  twistbeam: {
+    gu: { name: 'ટ્વિસ્ટ બીમ એક્સલ', simple: 'બે ટ્રેલિંગ આર્મ એક બીમથી વેલ્ડ થયેલા છે. સસ્તું, મજબૂત અને ઓછી જગ્યા લે છે. મોટાભાગની નાની ગાડીઓ (સ્વિફ્ટ, i20, સિટી)માં પાછળ.',
+      how: 'આખો એક્સલ આગળના બે રબર બુશ પર ઉપર-નીચે ઝૂલે છે. વળાંકમાં એક વ્હીલ ઉપર અને બીજું નીચે જાય ત્યારે બીમ વળ ખાય છે અને એન્ટી-રોલ બારની જેમ બૉડીને નમતી અટકાવે છે.',
+      prep: 'ગાડી લિફ્ટ કે સ્ટેન્ડ પર રાખો. બ્રેક પાઇપ, ABS વાયર અને હેન્ડ બ્રેક કેબલ પહેલાં છૂટા કરો. બીમ 15–25 કિલોનો છે — તેને ટેકો આપવા જૅક રાખો.',
+      steps: ['વ્હીલ નટ અને બંને વ્હીલ ઉતારો', 'કેલિપર અને ડિસ્ક ઉતારો', 'હબ બેરિંગ ઉતારો', 'સ્ટબ એક્સલ ઉતારો', 'બીમને ટેકો આપી શૉક ઉતારો', 'કોઇલ સ્પ્રિંગ અને બમ્પ સ્ટોપ કાઢો', 'પિવોટ બ્રેકેટ ખોલી બીમ ઉતારો, બુશ કાઢો'],
+      warn: { 4: 'બીમ નીચે જૅક રાખો — તે ફક્ત શૉક પર ટકેલો છે.' } },
+    hi: { name: 'ट्विस्ट बीम एक्सल', simple: 'दो ट्रेलिंग आर्म एक बीम से वेल्ड हैं. सस्ता, मज़बूत और कम जगह लेता है. ज़्यादातर छोटी गाड़ियों (स्विफ्ट, i20, सिटी) में पीछे.',
+      how: 'पूरा एक्सल आगे के दो रबर बुश पर ऊपर-नीचे झूलता है. मोड़ पर एक पहिया ऊपर और दूसरा नीचे जाए तो बीम मरोड़ खाता है और एंटी-रोल बार की तरह बॉडी को झुकने से रोकता है.',
+      prep: 'गाड़ी लिफ्ट या स्टैंड पर रखें. ब्रेक पाइप, ABS तार और हैंड ब्रेक केबल पहले अलग करें. बीम 15–25 किलो का है — उसे सहारा देने के लिए जैक रखें.',
+      steps: ['व्हील नट और दोनों पहिए उतारें', 'कैलिपर और डिस्क उतारें', 'हब बेयरिंग उतारें', 'स्टब एक्सल उतारें', 'बीम को सहारा देकर शॉक उतारें', 'कॉइल स्प्रिंग और बम्प स्टॉप निकालें', 'पिवट ब्रैकेट खोलकर बीम उतारें, बुश निकालें'],
+      warn: { 4: 'बीम के नीचे जैक रखें — यह सिर्फ़ शॉक पर टिका है.' } }
+  },
+  leaf: {
+    gu: { name: 'લીફ સ્પ્રિંગ લાઇવ એક્સલ', simple: 'મજબૂત એક્સલ હાઉસિંગ U-બોલ્ટથી બે લીફ સ્પ્રિંગ (પાટા) પર કસેલું છે. પાટા જ સ્પ્રિંગ અને પકડ બંને છે. ભારે વજન માટે — પિકઅપ, ટ્રક, બસ.',
+      how: 'ભાર આવે ત્યારે પાટા સીધા થાય છે. આગળની આંખ ફ્રેમ સાથે ફિક્સ છે અને પાછળનું શૅકલ ઝૂલે છે, જેથી સ્પ્રિંગ લાંબી થઈ શકે. પાટા વચ્ચેનું ઘર્ષણ થોડું ડેમ્પિંગ આપે છે.',
+      prep: 'આગળના વ્હીલને ચોક લગાવો, ફ્રેમને સ્ટેન્ડ પર રાખો. એક્સલને અલગ જૅકથી ટેકો આપો. બ્રેક પાઇપ, ABS વાયર અને પ્રોપેલર શાફ્ટ (નિશાન કરીને) છૂટા કરો.',
+      steps: ['વ્હીલ નટ અને બંને વ્હીલ ઉતારો', 'બ્રેક ડ્રમ ઉતારો', 'હાફ શાફ્ટ બહાર કાઢો', 'શૉક એબ્ઝોર્બર ઉતારો', 'એક્સલને ટેકો આપી U-બોલ્ટ ખોલો', 'એક્સલ અને ડિફરન્શિયલ નીચે ઉતારો', 'લીફ સ્પ્રિંગ ઉતારો', 'શૅકલ અને બમ્પ સ્ટોપ ઉતારો'],
+      warn: { 4: 'એક્સલ જૅક પરથી ગબડી શકે — ક્રેડલ અને મદદનીશ રાખો.' } },
+    hi: { name: 'लीफ स्प्रिंग लाइव एक्सल', simple: 'मज़बूत एक्सल हाउसिंग U-बोल्ट से दो लीफ स्प्रिंग (पत्ती कमानी) पर कसा है. कमानी ही स्प्रिंग और पकड़ दोनों है. भारी वज़न के लिए — पिकअप, ट्रक, बस.',
+      how: 'भार आने पर कमानी सीधी होती है. आगे की आँख फ्रेम से फिक्स है और पीछे का शैकल झूलता है, जिससे स्प्रिंग लंबी हो सके. पत्तियों के बीच का घर्षण थोड़ी डैम्पिंग देता है.',
+      prep: 'आगे के पहियों पर चॉक लगाएँ, फ्रेम को स्टैंड पर रखें. एक्सल को अलग जैक से सहारा दें. ब्रेक पाइप, ABS तार और प्रोपेलर शाफ्ट (निशान लगाकर) अलग करें.',
+      steps: ['व्हील नट और दोनों पहिए उतारें', 'ब्रेक ड्रम उतारें', 'हाफ शाफ्ट बाहर निकालें', 'शॉक एब्ज़ॉर्बर उतारें', 'एक्सल को सहारा देकर U-बोल्ट खोलें', 'एक्सल और डिफरेंशियल नीचे उतारें', 'लीफ स्प्रिंग उतारें', 'शैकल और बम्प स्टॉप उतारें'],
+      warn: { 4: 'एक्सल जैक से लुढ़क सकता है — क्रेडल और सहायक रखें.' } }
+  },
+  air: {
+    gu: { name: 'એર સસ્પેન્શન (એડેપ્ટિવ)', simple: 'સ્ટીલ સ્પ્રિંગની જગ્યાએ હવાની સ્પ્રિંગ. કૉમ્પ્રેસર, ટાંકી, વાલ્વ, હાઇટ સેન્સર અને ECU ગાડીની ઊંચાઈ દરેક ભાર પર સરખી રાખે છે. લક્ઝરી ગાડીઓ અને બસમાં.',
+      how: 'હાઇટ સેન્સર ઊંચાઈ માપે છે. ગાડી નીચી થાય તો ECU વાલ્વ ખોલી હવા ભરે છે, ઊંચી થાય તો હવા કાઢે છે. એડેપ્ટિવ શૉકનો વાલ્વ ECU સતત બદલે છે — ખાડામાં નરમ, વળાંકમાં કડક.',
+      prep: 'ઉપાડતા પહેલાં ડાયગ્નોસ્ટિક ટૂલથી "જૅક / વર્કશોપ મોડ" ચાલુ કરો, જેથી સિસ્ટમ જાતે હવા ન ભરે. પછી જે વ્હીલ પર કામ કરવું હોય તેની એર સ્પ્રિંગ ખાલી કરો.',
+      steps: ['વર્કશોપ મોડ ચાલુ કરી હવા ખાલી કરો', 'વ્હીલ નટ અને વ્હીલ ઉતારો', 'કેલિપર અને ડિસ્ક ઉતારો', 'હબ બેરિંગ ઉતારો', 'હાઇટ સેન્સર લિંક અને ડ્રોપ લિંક ખોલો', 'એર પાઇપ, CDC કનેક્ટર અને ટાઇ રૉડ ખોલો', 'એર સ્ટ્રટ ઉતારો', 'અપર આર્મ અને નકલ ઉતારો', 'લોઅર આર્મ, ARB અને બુશ ઉતારો', 'વાલ્વ બ્લૉક, કૉમ્પ્રેસર, ટાંકી, ECU ઉતારો'],
+      warn: { 0: 'દબાણ હોય ત્યારે એર પાઇપ કે સ્ટ્રટ ક્યારેય ન ખોલો — પાઇપ જોરથી ઉછળી શકે.', 6: 'બેલોને ખુલ્લામાં હવા ન ભરો — તે ફાટી શકે.' } },
+    hi: { name: 'एयर सस्पेंशन (एडैप्टिव)', simple: 'स्टील स्प्रिंग की जगह हवा की स्प्रिंग. कंप्रेसर, टैंक, वाल्व, हाइट सेंसर और ECU गाड़ी की ऊँचाई हर भार पर बराबर रखते हैं. लग्ज़री गाड़ियों और बसों में.',
+      how: 'हाइट सेंसर ऊँचाई मापता है. गाड़ी नीची हो तो ECU वाल्व खोलकर हवा भरता है, ऊँची हो तो हवा निकालता है. एडैप्टिव शॉक का वाल्व ECU लगातार बदलता है — गड्ढे में नरम, मोड़ पर सख्त.',
+      prep: 'उठाने से पहले डायग्नोस्टिक टूल से "जैक / वर्कशॉप मोड" चालू करें, ताकि सिस्टम खुद हवा न भरे. फिर जिस पहिए पर काम करना है उसकी एयर स्प्रिंग खाली करें.',
+      steps: ['वर्कशॉप मोड चालू करके हवा खाली करें', 'व्हील नट और पहिया उतारें', 'कैलिपर और डिस्क उतारें', 'हब बेयरिंग उतारें', 'हाइट सेंसर लिंक और ड्रॉप लिंक खोलें', 'एयर पाइप, CDC कनेक्टर और टाई रॉड खोलें', 'एयर स्ट्रट उतारें', 'अपर आर्म और नकल उतारें', 'लोअर आर्म, ARB और बुश उतारें', 'वाल्व ब्लॉक, कंप्रेसर, टैंक, ECU उतारें'],
+      warn: { 0: 'दबाव होने पर एयर पाइप या स्ट्रट कभी न खोलें — पाइप ज़ोर से उछल सकता है.', 6: 'बेलो को खुले में हवा न भरें — वह फट सकता है.' } }
+  }
+};
+
+/* "How it works" animated lesson. Each scene: travel profile, parts to light up, caption per language.
+   {arm} scenes and the last scene are system-specific. */
+const HOW = {
+  common: [
+    { k: 'rest', s: () => 0, dur: 4.5, roles: ['spring'],
+      en: 'The car is standing on a flat road. The spring carries the weight of the car body.',
+      gu: 'ગાડી સપાટ રસ્તા પર ઊભી છે. સ્પ્રિંગ ગાડીની બૉડીનું વજન ઉપાડે છે.',
+      hi: 'गाड़ी समतल सड़क पर खड़ी है. स्प्रिंग गाड़ी की बॉडी का वज़न उठाती है.' },
+    { k: 'bump', s: (t) => 0.07 * Math.sin(Math.min(1, t / 1.2) * Math.PI / 2), dur: 4.5, roles: ['tyre'],
+      en: 'The wheel hits a bump and is pushed UP (this is called "bump" or "jounce").',
+      gu: 'વ્હીલ ટેકરા સાથે અથડાય છે અને ઉપર ધકેલાય છે (તેને "બમ્પ" કહે છે).',
+      hi: 'पहिया उभार से टकराता है और ऊपर धकेला जाता है (इसे "बम्प" कहते हैं).' },
+    { k: 'arm', s: () => 0.07, dur: 5, roles: ['arm'] },
+    { k: 'spring', s: () => 0.07, dur: 5, roles: ['spring'],
+      en: 'The spring is squeezed. It stores the energy of the bump, so the body feels only a small push.',
+      gu: 'સ્પ્રિંગ દબાય છે. ટેકરાની ઊર્જા તેમાં ભરાય છે, તેથી બૉડીને ફક્ત હળવો ધક્કો લાગે છે.',
+      hi: 'स्प्रिंग दबती है. उभार की ऊर्जा इसमें जमा होती है, इसलिए बॉडी को सिर्फ़ हल्का धक्का लगता है.' },
+    { k: 'damper', s: (t) => 0.07 * Math.cos(t * 1.4), dur: 6, roles: ['damper'], section: true,
+      en: 'Inside the shock absorber, oil is forced through tiny holes in the piston. This turns the movement into heat and slows the spring.',
+      gu: 'શૉક એબ્ઝોર્બરની અંદર ઑઇલ પિસ્ટનના નાના છિદ્રોમાંથી દબાઈને જાય છે. તે હલનચલનને ગરમીમાં બદલે છે અને સ્પ્રિંગને ધીમી કરે છે.',
+      hi: 'शॉक एब्ज़ॉर्बर के अंदर तेल पिस्टन के छोटे छेदों से दबकर जाता है. यह हलचल को गर्मी में बदलता है और स्प्रिंग को धीमा करता है.' },
+    { k: 'rebound', s: (t) => -0.05 * Math.sin(Math.min(1, t / 1.2) * Math.PI / 2), dur: 4.5, roles: ['tyre', 'spring'],
+      en: 'Now the wheel drops into a pothole (rebound). The spring pushes the wheel DOWN to keep the tyre on the road.',
+      gu: 'હવે વ્હીલ ખાડામાં નીચે જાય છે (રિબાઉન્ડ). સ્પ્રિંગ વ્હીલને નીચે ધકેલે છે, જેથી ટાયર રસ્તા પર રહે.',
+      hi: 'अब पहिया गड्ढे में नीचे जाता है (रिबाउंड). स्प्रिंग पहिए को नीचे धकेलती है ताकि टायर सड़क पर रहे.' },
+    { k: 'settle', s: (t) => -0.05 * Math.exp(-t * 0.9) * Math.cos(t * 3.2), dur: 5, roles: ['damper'],
+      en: 'The shock absorber stops the bouncing in about one cycle. A worn shock lets the car keep bouncing.',
+      gu: 'શૉક એબ્ઝોર્બર લગભગ એક ઝટકામાં ઉછાળો બંધ કરે છે. ઘસાયેલો શૉક હોય તો ગાડી વારંવાર ઉછળે છે.',
+      hi: 'शॉक एब्ज़ॉर्बर लगभग एक झटके में उछाल रोक देता है. घिसा शॉक हो तो गाड़ी बार-बार उछलती है.' },
+    { k: 'extra', s: () => 0, dur: 6, roles: ['extra'] }
+  ],
+  roles: {
+    macpherson: { spring: ['spring'], damper: ['damper'], tyre: ['tyre'], arm: ['lca', 'lbj'], extra: ['topmount', 'tierod'],
+      arm_en: 'The lower arm swings up on its rubber bushes. The strut gets shorter.', arm_gu: 'લોઅર આર્મ રબર બુશ પર ઉપર ઝૂલે છે. સ્ટ્રટ ટૂંકો થાય છે.', arm_hi: 'लोअर आर्म रबर बुश पर ऊपर झूलता है. स्ट्रट छोटा होता है.',
+      extra_en: 'When you steer, the tie rod turns the knuckle and the whole strut rotates on the top-mount bearing.', extra_gu: 'સ્ટીયરિંગ ફેરવો ત્યારે ટાઇ રૉડ નકલને ફેરવે છે અને આખો સ્ટ્રટ ટોપ માઉન્ટના બેરિંગ પર ફરે છે.', extra_hi: 'स्टीयरिंग घुमाने पर टाई रॉड नकल को घुमाती है और पूरा स्ट्रट टॉप माउंट की बेयरिंग पर घूमता है.' },
+    wishbone: { spring: ['spring'], damper: ['damper'], tyre: ['tyre'], arm: ['lca', 'uca'], extra: ['uca', 'lbj'],
+      arm_en: 'Both wishbones swing up. The short upper arm pulls the top of the wheel inward.', arm_gu: 'બંને વિશબોન ઉપર ઝૂલે છે. નાનો ઉપરનો આર્મ વ્હીલના ઉપરના ભાગને અંદર ખેંચે છે.', arm_hi: 'दोनों विशबोन ऊपर झूलते हैं. छोटा ऊपरी आर्म पहिए का ऊपरी हिस्सा अंदर खींचता है.',
+      extra_en: 'This inward tilt (negative camber) keeps the tyre flat on the road when the body leans in a corner — better grip.', extra_gu: 'આ અંદરનો ઝુકાવ (નેગેટિવ કૅમ્બર) વળાંકમાં બૉડી નમે ત્યારે ટાયરને રસ્તા પર સપાટ રાખે છે — વધુ પકડ.', extra_hi: 'यह अंदर का झुकाव (नेगेटिव कैम्बर) मोड़ पर बॉडी झुकने पर टायर को सड़क पर सपाट रखता है — बेहतर पकड़.' },
+    multilink: { spring: ['spring'], damper: ['damper'], tyre: ['tyre'], arm: ['springlink', 'link_uf', 'link_ur', 'link_camber', 'link_toe'], extra: ['link_toe'],
+      arm_en: 'All five links swing together. Together they let the wheel move only up and down.', arm_gu: 'પાંચેય લિંક સાથે ઝૂલે છે. તેઓ વ્હીલને ફક્ત ઉપર-નીચે જવા દે છે.', arm_hi: 'पाँचों लिंक साथ झूलती हैं. ये पहिए को सिर्फ़ ऊपर-नीचे जाने देती हैं.',
+      extra_en: 'The toe link stops the rear wheel steering by itself under braking and in corners — the car stays stable.', extra_gu: 'ટો લિંક બ્રેક અને વળાંકમાં પાછળના વ્હીલને જાતે ફરતા અટકાવે છે — ગાડી સ્થિર રહે છે.', extra_hi: 'टो लिंक ब्रेक और मोड़ पर पिछले पहिए को खुद मुड़ने से रोकती है — गाड़ी स्थिर रहती है.' },
+    twistbeam: { spring: ['spring'], damper: ['damper'], tyre: ['tyre'], arm: ['twistbeam', 'pivotbush'], extra: ['twistbeam'],
+      arm_en: 'The whole beam axle swings up around the two front pivot bushes.', arm_gu: 'આખો બીમ એક્સલ આગળના બે પિવોટ બુશ પર ઉપર ઝૂલે છે.', arm_hi: 'पूरा बीम एक्सल आगे के दो पिवट बुश पर ऊपर झूलता है.',
+      extra_en: 'In a corner one wheel goes up and the other down. The beam twists like an anti-roll bar and reduces body lean.', extra_gu: 'વળાંકમાં એક વ્હીલ ઉપર અને બીજું નીચે જાય છે. બીમ એન્ટી-રોલ બારની જેમ વળ ખાય છે અને બૉડીનો ઝુકાવ ઘટાડે છે.', extra_hi: 'मोड़ पर एक पहिया ऊपर और दूसरा नीचे जाता है. बीम एंटी-रोल बार की तरह मरोड़ खाता है और बॉडी का झुकाव कम करता है.' },
+    leaf: { spring: ['leaf'], damper: ['damper'], tyre: ['tyre'], arm: ['axlehousing', 'ubolt'], extra: ['shackle', 'leaf'],
+      arm_en: 'The whole rigid axle moves up. The U-bolts hold it on the centre of the leaf spring.', arm_gu: 'આખો મજબૂત એક્સલ ઉપર જાય છે. U-બોલ્ટ તેને લીફ સ્પ્રિંગની વચ્ચે પકડી રાખે છે.', arm_hi: 'पूरा मज़बूत एक्सल ऊपर जाता है. U-बोल्ट इसे लीफ स्प्रिंग के बीच में पकड़ते हैं.',
+      extra_en: 'As the leaf spring flattens it gets longer — the rear shackle swings to allow this.', extra_gu: 'લીફ સ્પ્રિંગ સીધી થાય ત્યારે લાંબી થાય છે — પાછળનું શૅકલ ઝૂલીને તે થવા દે છે.', extra_hi: 'लीफ स्प्रिंग सीधी होने पर लंबी होती है — पीछे का शैकल झूलकर ऐसा होने देता है.' },
+    air: { spring: ['airspring'], damper: ['cdc'], tyre: ['tyre'], arm: ['lca', 'uca', 'heightsensor'], extra: ['compressor', 'valveblock', 'heightsensor', 'ecu', 'reservoir'],
+      arm_en: 'The arms swing up. The height sensor on the lower arm measures the movement.', arm_gu: 'આર્મ ઉપર ઝૂલે છે. લોઅર આર્મ પરનો હાઇટ સેન્સર હલનચલન માપે છે.', arm_hi: 'आर्म ऊपर झूलते हैं. लोअर आर्म पर लगा हाइट सेंसर हलचल मापता है.',
+      extra_en: 'Car loaded and sitting low? The ECU runs the compressor and opens the valve to add air. Too high? It lets air out.', extra_gu: 'ભાર વધવાથી ગાડી નીચી થઈ? ECU કૉમ્પ્રેસર ચાલુ કરી વાલ્વ ખોલે છે અને હવા ભરે છે. વધુ ઊંચી હોય તો હવા કાઢે છે.', extra_hi: 'भार से गाड़ी नीची हुई? ECU कंप्रेसर चलाकर वाल्व खोलता है और हवा भरता है. ज़्यादा ऊँची हो तो हवा निकालता है.' }
+  }
+};
+
+/* ── helpers ── */
+let LANG = 'en';
+const tr = (k) => (UI[LANG] && UI[LANG][k]) || UI.en[k] || k;
+const sysName = (s) => (LANG !== 'en' && SYS_TX[s.id] && SYS_TX[s.id][LANG] ? SYS_TX[s.id][LANG].name : s.name);
+const sysTx = (s) => (LANG !== 'en' && SYS_TX[s.id] ? SYS_TX[s.id][LANG] : null);
+const partName = (p) => (LANG !== 'en' && PART_TX[p.info] && PART_TX[p.info][LANG] ? PART_TX[p.info][LANG][0] : p.name);
+const partSimple = (p) => { const t = PART_TX[p.info]; if (!t) return ''; return LANG === 'en' ? t.en : t[LANG][1]; };
+const catName = (c) => (LANG !== 'en' && CAT_TX[LANG] ? CAT_TX[LANG][c] : CATS[c].label);
 
 </script>
 <script>
@@ -2077,12 +2517,13 @@ const Bench = (() => {
   let sysDef = null, built = null, bodies = {}, parts = [], partById = {}, pickables = [];
   let lastT = performance.now(), clock = 0, needKin = true;
   const st = {
+    hl: new Set(),
     s: 0, sTarget: 0, cycle: false, section: false, balloons: false, hideRemoved: false, isolate: false,
     autoRot: false, selected: null, hover: null, dark: false, frozen: false
   };
   const cam = { target: V3(0.5, 0.45, 0), r: 2.8, th: 0.8, ph: 1.15, dTarget: V3(0.5, 0.45, 0), dr: 2.8, dth: 0.8, dph: 1.15 };
   const tmpBox = new THREE.Box3(), tmpV = new THREE.Vector3();
-  const api = { onSelect: null, onFrame: null, st };
+  const api = { onSelect: null, onFrame: null, onLabel: null, st, nameOf: (p) => p.name, descOf: () => '' };
 
   /* ── environment ────────────────────────────────────────── */
   function makeEnv() {
@@ -2185,9 +2626,11 @@ const Bench = (() => {
       });
       const b = document.createElement('button'); b.className = 'balloon'; b.textContent = p.n; b.title = p.name; b.tabIndex = -1;
       b.addEventListener('click', () => select(p.id, true)); balloonLayer.appendChild(b); p.balloon = b;
+      const lb = document.createElement('button'); lb.className = 'plabel'; lb.hidden = true; lb.tabIndex = -1;
+      lb.addEventListener('click', () => api.onLabel && api.onLabel(p.id)); balloonLayer.appendChild(lb); p.label = lb;
       partById[p.id] = p; parts.push(p);
     });
-    st.s = 0; st.sTarget = 0; st.cycle = false; st.selected = null; st.hover = null; st.isolate = false;
+    st.s = 0; st.sTarget = 0; st.cycle = false; st.selected = null; st.hover = null; st.isolate = false; st.hl = new Set();
     applySection(); applyGhost(); needKin = true;
     resetView(true);
     return built;
@@ -2364,7 +2807,7 @@ const Bench = (() => {
   function doHover() {
     const e = hoverPending; hoverPending = null; if (!e) return;
     const p = hitAt(e); setHover(p);
-    if (p) { const r = container.getBoundingClientRect(); tip.hidden = false; tip.textContent = `${p.n}. ${p.name}`; tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 12) + 'px'; }
+    if (p) { const r = container.getBoundingClientRect(); tip.hidden = false; tip.textContent = `${p.n}. ${api.nameOf(p)}`; tip.style.left = (e.clientX - r.left + 14) + 'px'; tip.style.top = (e.clientY - r.top + 12) + 'px'; }
     else tip.hidden = true;
   }
   function pickAt(e) { const p = hitAt(e); select(p ? p.id : null, false); }
@@ -2373,7 +2816,7 @@ const Bench = (() => {
   function loop(now) {
     requestAnimationFrame(loop);
     const dt = Math.min(0.05, (now - lastT) / 1000); lastT = now; clock += dt;
-    if (!built || !container.offsetParent) return;
+    if (!built || !container.getClientRects().length) return;
     doHover();
     // teardown animation
     let moving = false;
@@ -2381,8 +2824,9 @@ const Bench = (() => {
       if (Math.abs(p.tt - p.t) > 0.0005) { p.t += (p.tt - p.t) * (1 - Math.exp(-dt * 5)); moving = true; } else p.t = p.tt;
       const e = p.t * p.t * (3 - 2 * p.t);
       p.holders.forEach((h) => { h.position.copy(h.userData.ex).multiplyScalar(e); h.visible = !(st.hideRemoved && p.t > 0.97); });
-      const showB = st.balloons || p.id === st.selected;
-      p.balloon.hidden = !showB || (st.hideRemoved && p.t > 0.97);
+      const gone = st.hideRemoved && p.t > 0.97;
+      p.balloon.hidden = !st.balloons || gone || p.id === st.selected || st.hl.has(p.id);
+      p.label.hidden = gone || !(p.id === st.selected || st.hl.has(p.id));
     }
     // travel
     const locked = anyRemoved();
@@ -2391,7 +2835,8 @@ const Bench = (() => {
     const ds = (st.sTarget - st.s) * (1 - Math.exp(-dt * 9));
     if (Math.abs(ds) > 1e-6 || needKin || moving) { st.s += ds; kin(); needKin = false; }
     // selection pulse
-    if (st.selected) setEmissive(partById[st.selected], 0xff8a1a, 0.16 + 0.1 * Math.sin(clock * 4));
+    if (st.selected) setEmissive(partById[st.selected], 0xff8a1a, 0.22 + 0.14 * Math.sin(clock * 4));
+    st.hl.forEach((id) => { if (id !== st.selected && partById[id]) setEmissive(partById[id], 0x14b8ff, 0.3 + 0.2 * Math.sin(clock * 5)); });
     updateCamera(dt);
     // section planes face away from the camera
     if (st.section) {
@@ -2399,25 +2844,44 @@ const Bench = (() => {
       parts.forEach((p) => { if (!p.cut) return; const c = partCenter(p, tmpV); if (!c) return; p.plane.normal.set(0, 0, -toward); p.plane.constant = toward * c.z; });
     }
     renderer.render(scene, camera);
-    if (st.balloons || st.selected) placeBalloons();
+    placeBalloons();
     api.onFrame && api.onFrame(readouts(), locked);
   }
   function placeBalloons() {
     const w = container.clientWidth, h = container.clientHeight;
     for (const p of parts) {
-      if (p.balloon.hidden) continue;
-      const c = partCenter(p, tmpV); if (!c) { p.balloon.hidden = true; continue; }
+      if (p.balloon.hidden && p.label.hidden) continue;
+      const c = partCenter(p, tmpV); if (!c) { p.balloon.hidden = true; p.label.hidden = true; continue; }
       c.project(camera);
-      if (c.z > 1) { p.balloon.hidden = true; continue; }
-      p.balloon.style.transform = `translate(${((c.x + 1) / 2) * w}px, ${((1 - c.y) / 2) * h}px)`;
+      if (c.z > 1) { p.balloon.hidden = true; p.label.hidden = true; continue; }
+      const x = ((c.x + 1) / 2) * w, y = ((1 - c.y) / 2) * h;
+      if (!p.balloon.hidden) p.balloon.style.transform = `translate(${x}px, ${y}px)`;
+      if (!p.label.hidden) {
+        const sel = p.id === st.selected; const key = api.nameOf(p) + (sel ? '|s' : '');
+        if (p.label.dataset.key !== key) {
+          p.label.dataset.key = key;
+          const d = sel ? api.descOf(p) : '';
+          p.label.innerHTML = `<b><i>${p.n}</i>${esc3(api.nameOf(p))}</b>${d ? `<span>${esc3(d)}</span>` : ''}`;
+          p.label.classList.toggle('sel', sel);
+        }
+        const lw = p.label.offsetWidth, lh = p.label.offsetHeight;
+        const lx = Math.max(6, Math.min(w - lw - 6, x - lw / 2)), ly = Math.max(6, Math.min(h - lh - 6, y - lh - 16));
+        p.label.style.transform = `translate(${lx}px, ${ly}px)`;
+      }
     }
   }
 
+  const esc3 = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+  function highlight(ids) {
+    st.hl.forEach((id) => { if (id !== st.selected && partById[id]) setEmissive(partById[id], 0, 0); });
+    st.hl = new Set((ids || []).filter((id) => partById[id]));
+  }
+  function refreshLabels() { parts.forEach((p) => { p.label.dataset.key = ''; p.balloon.title = api.nameOf(p); }); }
   function snapshot() { renderer.render(scene, camera); return renderer.domElement.toDataURL('image/png'); }
 
   Object.defineProperties(api, { parts: { get: () => parts }, built: { get: () => built } });
   return Object.assign(api, {
-    init, load, setTheme, select, focusPart, resetView, fit, setRemoved, readouts, snapshot,
+    init, load, setTheme, select, focusPart, resetView, fit, setRemoved, readouts, snapshot, highlight, refreshLabels,
     setTravel(m) { st.cycle = false; st.sTarget = m; },
     setCycle(on) { st.cycle = on; if (!on) st.sTarget = 0; },
     setSection(on) { st.section = on; applySection(); },
@@ -2553,10 +3017,8 @@ const KinView = (() => {
     if (!def) return;
     const pose = built.solve(s).pose; const pose0 = built.solve(0).pose;
     const t = built.kinType;
-    document.getElementById('kinTitle').textContent = `${def.name} — kinematics`;
-    document.getElementById('kinLede').textContent = t === 'twist' || t === 'live'
-      ? 'Side view of the axle. Move the wheel through its travel and watch how the axle moves. For a beam axle the camber relative to the body does not change in heave.'
-      : 'Front view of the left-hand corner, linkage drawn to scale. Move the wheel: the instant centre (IC), the roll centre (RC), camber and track all update live. The faint copy is the design (ride-height) position.';
+    document.getElementById('kinTitle').textContent = `${sysName(def)} — ${tr('kin_suffix')}`;
+    document.getElementById('kinLede').textContent = t === 'twist' || t === 'live' ? tr('kin_lede_side') : tr('kin_lede_corner');
     document.getElementById('kinDiagTitle').textContent = t === 'twist' || t === 'live' ? 'Side-view geometry' : 'Front-view geometry';
     drawDiagram(pose, pose0, s);
     drawCharts(s);
@@ -3066,7 +3528,8 @@ const Dyn = (() => {
 
 </script>
 <script>
-/* Suspension Lab — app shell: routing, system switching, procedure / BOM / part drawer, compare table */
+/* Suspension Lab — app shell: languages, routing, system switching, procedure / BOM / part drawer,
+   "how it works" lesson, full screen, compare */
 'use strict';
 
 (() => {
@@ -3084,6 +3547,28 @@ const Dyn = (() => {
   });
   matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { Bench.setTheme(isDark()); refreshCharts(); });
 
+  /* ── language ── */
+  function buildLang() {
+    $('#langSeg').innerHTML = LANGS.map(([k, l]) => `<button role="radio" data-lang="${k}" aria-checked="${k === LANG}">${l}</button>`).join('');
+    $('#langSeg').addEventListener('click', (e) => { const b = e.target.closest('[data-lang]'); if (b) setLang(b.dataset.lang); });
+  }
+  function setLang(l) {
+    LANG = UI[l] ? l : 'en'; store.set('lang', LANG);
+    document.documentElement.lang = LANG;
+    document.querySelectorAll('#langSeg [data-lang]').forEach((b) => b.setAttribute('aria-checked', b.dataset.lang === LANG));
+    document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = tr(el.dataset.i18n); });
+    buildSysbarLabels();
+    if (!Bench.built) return;
+    $('#stTitle').textContent = sysName(state.sys);
+    Bench.refreshLabels();
+    renderProc(); renderBom(); renderSys(); renderCompare();
+    if (Bench.st.selected) openDrawer(Bench.st.selected);
+    if (how.on) showScene();
+    refreshCharts();
+  }
+  Bench.nameOf = (p) => partName(p);
+  Bench.descOf = (p) => partSimple(p);
+
   /* ── system icons (tiny schematic per type) ── */
   const ICONS = {
     macpherson: '<path d="M8 28h16M26 6v18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M22 9l8 2-8 2 8 2-8 2" fill="none" stroke="var(--accent)" stroke-width="1.8"/><circle cx="34" cy="20" r="9" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M8 28l18-2" stroke="currentColor" stroke-width="2.5"/>',
@@ -3093,10 +3578,10 @@ const Dyn = (() => {
     leaf: '<path d="M4 14q18 10 36 0M6 17q16 8 32 0M10 20q12 5 24 0" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="22" cy="12" r="4" fill="var(--accent)"/>',
     air: '<rect x="14" y="5" width="12" height="16" rx="6" fill="none" stroke="var(--accent)" stroke-width="2.5"/><path d="M20 21v12M10 33h20" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M30 10h8M34 6v8" stroke="currentColor" stroke-width="2"/>'
   };
-
   function buildSysbar() {
     const bar = $('#sysbar');
-    bar.innerHTML = SYSTEMS.map((s) => `<button class="sys-card" role="radio" aria-checked="false" data-sys="${s.id}"><svg viewBox="0 0 44 38" aria-hidden="true">${ICONS[s.id]}</svg><span><b>${esc(s.name)}</b><small>${esc(s.axle)}</small></span></button>`).join('');
+    bar.innerHTML = SYSTEMS.map((s) => `<button class="sys-card" role="radio" aria-checked="false" data-sys="${s.id}"><svg viewBox="0 0 44 38" aria-hidden="true">${ICONS[s.id]}</svg><span><b></b><small>${esc(s.axle)}</small></span></button>`).join('');
+    buildSysbarLabels();
     bar.addEventListener('click', (e) => { const b = e.target.closest('[data-sys]'); if (b) setSystem(b.dataset.sys); });
     bar.addEventListener('keydown', (e) => {
       if (!['ArrowRight', 'ArrowLeft'].includes(e.key)) return;
@@ -3104,15 +3589,18 @@ const Dyn = (() => {
       setSystem(SYSTEMS[j].id); bar.querySelector(`[data-sys="${SYSTEMS[j].id}"]`).focus(); e.preventDefault();
     });
   }
+  function buildSysbarLabels() { SYSTEMS.forEach((s) => { const b = document.querySelector(`.sys-card[data-sys="${s.id}"] b`); if (b) b.textContent = sysName(s); }); }
 
   function setSystem(id) {
     const def = SYS_BY_ID[id] || SYSTEMS[0];
+    howStop();
     state.sys = def; state.step = 0; state.exploded = false; stopPlay(); store.set('sys', def.id);
     document.querySelectorAll('.sys-card').forEach((b) => { const on = b.dataset.sys === def.id; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
     const card = document.querySelector(`.sys-card[data-sys="${def.id}"]`); if (card) card.parentElement.scrollTo({ left: card.offsetLeft - 16, behavior: 'smooth' });
     const built = Bench.load(def);
-    $('#stTitle').textContent = def.name; $('#stAxle').textContent = def.axle;
-    $('#tbExplode').setAttribute('aria-pressed', false); $('#tbIsolate').setAttribute('aria-pressed', false); $('#tbIsolate').disabled = true;
+    $('#stTitle').textContent = sysName(def); $('#stAxle').textContent = def.axle;
+    ['#tbExplode', '#tbIsolate', '#tbSection'].forEach((s) => $(s).setAttribute('aria-pressed', false)); $('#tbIsolate').disabled = true;
+    Bench.setSection(false);
     $('#cycleBtn').setAttribute('aria-pressed', false); $('#travel').value = 0; state.travel = 0;
     closeDrawer();
     renderProc(); renderBom(); renderSys();
@@ -3125,32 +3613,33 @@ const Dyn = (() => {
   const removedIds = () => state.exploded ? Bench.parts.filter((p) => p.explode).map((p) => p.id) : state.sys.steps.slice(0, state.step).flatMap((s) => s.parts);
   function applyRemoval() { Bench.setRemoved(removedIds()); renderBomState(); }
   function renderProc() {
-    const s = state.sys; const n = s.steps.length; const k = state.step;
-    const cur = s.steps[k];
-    const pname = (id) => Bench.parts.find((p) => p.id === id)?.name || id;
+    const s = state.sys; const n = s.steps.length; const k = state.step; const tx = sysTx(s);
+    const pname = (id) => { const p = Bench.parts.find((q) => q.id === id); return p ? partName(p) : id; };
     $('#paneProc').innerHTML = `
-      <div class="proc-top"><h3>Tear-down procedure</h3><span class="pill">${state.exploded ? 'exploded view' : `${k} / ${n} done`}</span></div>
+      <div class="proc-top"><h3>${tr('proc_title')}</h3><span class="pill">${state.exploded ? tr('exploded_view') : `${k} / ${n} ${tr('done_of')}`}</span></div>
       <div class="prog"><i style="width:${(state.exploded ? 1 : k / n) * 100}%"></i></div>
       <div class="proc-ctl">
-        <button class="btn ghost" id="pReset" ${k === 0 && !state.exploded ? 'disabled' : ''}>⟲ Reassemble</button>
-        <button class="btn ghost" id="pPrev" ${k === 0 || state.exploded ? 'disabled' : ''}>← Back</button>
-        <button class="btn accent" id="pNext" ${k >= n || state.exploded ? 'disabled' : ''}>${k === 0 ? 'Start' : 'Next step'} →</button>
-        <button class="btn ghost" id="pPlay" ${state.exploded ? 'disabled' : ''}>${state.playing ? '❚❚ Pause' : '▶ Auto'}</button>
+        <button class="btn ghost" id="pReset" ${k === 0 && !state.exploded ? 'disabled' : ''}>${tr('reassemble')}</button>
+        <button class="btn ghost" id="pPrev" ${k === 0 || state.exploded ? 'disabled' : ''}>${tr('back')}</button>
+        <button class="btn accent" id="pNext" ${k >= n || state.exploded ? 'disabled' : ''}>${k === 0 ? tr('start') : tr('next')}</button>
+        <button class="btn ghost" id="pPlay" ${state.exploded ? 'disabled' : ''}>${state.playing ? tr('pause') : tr('auto')}</button>
       </div>
-      <div class="prep"><b>Before you start — safety &amp; preparation</b>${esc(s.prep)}</div>
+      <div class="prep"><b>${tr('prep_title')}</b>${esc(tx ? tx.prep : s.prep)}</div>
       <ol class="steps">${s.steps.map((st, i) => {
         const cls = state.exploded || i < k ? 'done' : i === k ? 'cur' : '';
         const open = i === k && !state.exploded;
-        return `<li class="step ${cls}"><button data-goto="${i}" aria-expanded="${open}"><span class="num">${state.exploded || i < k ? '✓' : i + 1}</span><span class="st">${esc(st.t)}</span></button>
+        const title = tx && tx.steps[i] ? tx.steps[i] : st.t;
+        const warn = st.warn ? (tx && tx.warn && tx.warn[i]) || st.warn : '';
+        return `<li class="step ${cls}"><button data-goto="${i}" aria-expanded="${open}"><span class="num">${state.exploded || i < k ? '✓' : i + 1}</span><span class="st">${esc(title)}${tx ? `<small class="st-en">${esc(st.t)}</small>` : ''}</span></button>
         ${open ? `<div class="step-detail">
-          ${st.parts.length ? `<div class="kv"><span>Parts</span><div class="plist">${st.parts.map((id) => `<button data-part="${id}">${esc(pname(id))}</button>`).join('')}</div></div>` : ''}
-          <div class="kv"><span>Tools</span><span>${esc(st.tool)}</span></div>
-          <div class="kv"><span>Torque</span><span>${esc(st.torque)}</span></div>
-          ${st.note ? `<div class="kv"><span>Notes</span><span>${esc(st.note)}</span></div>` : ''}
-          ${st.warn ? `<div class="warn"><b>Warning:</b> ${esc(st.warn)}</div>` : ''}
+          ${st.parts.length ? `<div class="kv"><span>${tr('parts')}</span><div class="plist">${st.parts.map((id) => `<button data-part="${id}">${esc(pname(id))}</button>`).join('')}</div></div>` : ''}
+          <div class="kv"><span>${tr('tools')}</span><span>${esc(st.tool)}</span></div>
+          <div class="kv"><span>${tr('torque')}</span><span>${esc(st.torque)}</span></div>
+          ${st.note ? `<div class="kv"><span>${tr('notes')}</span><span>${esc(st.note)}</span></div>` : ''}
+          ${warn ? `<div class="warn"><b>${tr('warning')}:</b> ${esc(warn)}</div>` : ''}
         </div>` : ''}</li>`;
       }).join('')}</ol>
-      ${k >= n && !state.exploded ? `<div class="done-card"><b>Tear-down complete.</b><br>Reassembly is the reverse order. Tighten every rubber-bushed pivot at ride height, torque all fasteners to spec, then carry out a 4-wheel alignment and a road test.</div>` : ''}`;
+      ${k >= n && !state.exploded ? `<div class="done-card"><b>${tr('complete_title')}</b><br>${tr('complete_text')}</div>` : ''}`;
     $('#pNext').onclick = () => go(k + 1);
     $('#pPrev').onclick = () => go(k - 1);
     $('#pReset').onclick = () => { state.exploded = false; $('#tbExplode').setAttribute('aria-pressed', false); go(0); };
@@ -3158,24 +3647,25 @@ const Dyn = (() => {
     $('#paneProc').querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => { if (!state.exploded) go(+b.dataset.goto); }));
     $('#paneProc').querySelectorAll('[data-part]').forEach((b) => b.addEventListener('click', () => Bench.select(b.dataset.part, true)));
     const curEl = $('#paneProc .step.cur') || $('#paneProc .done-card');
-    if (curEl && k > 0) curEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    if (curEl && k > 0 && state.view === 'bench' && window.innerWidth > 1080) curEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
   function go(k) {
+    howStop();
     state.step = Math.max(0, Math.min(state.sys.steps.length, k));
     applyRemoval(); renderProc();
     const st = state.sys.steps[state.step - 1];
     if (st && st.parts[0]) Bench.select(st.parts[0], false, true); else Bench.select(null, false, true);
     if (state.step >= state.sys.steps.length) stopPlay();
   }
-  function startPlay() { if (state.step >= state.sys.steps.length) go(0); state.playing = setInterval(() => go(state.step + 1), 2600); renderProc(); }
+  function startPlay() { if (state.step >= state.sys.steps.length) go(0); state.playing = setInterval(() => go(state.step + 1), 2800); renderProc(); }
   function stopPlay() { if (state.playing) clearInterval(state.playing); state.playing = null; if ($('#pPlay')) renderProc(); }
 
-  /* ── BOM ── */
+  /* ── parts list ── */
   function renderBom() {
     const groups = {};
     Bench.parts.forEach((p) => { const c = PARTS[p.info].cat; (groups[c] = groups[c] || []).push(p); });
-    $('#paneBom').innerHTML = `<p class="meta">Every component in the assembly. The number matches the 3D balloon. Click a row to select and inspect the part.</p>` +
-      Object.keys(CATS).filter((c) => groups[c]).map((c) => `<div class="bom-group"><h3><i style="background:${CATS[c].color}"></i>${CATS[c].label}</h3>${groups[c].map((p) => `<button class="bom-item" data-part="${p.id}"><span class="n">${p.n}</span><span>${esc(p.name)}</span><span class="state" data-state="${p.id}"></span></button>`).join('')}</div>`).join('');
+    $('#paneBom').innerHTML = `<p class="meta">${tr('bom_intro')}</p>` +
+      Object.keys(CATS).filter((c) => groups[c]).map((c) => `<div class="bom-group"><h3><i style="background:${CATS[c].color}"></i>${esc(catName(c))}</h3>${groups[c].map((p) => `<button class="bom-item" data-part="${p.id}"><span class="n">${p.n}</span><span>${esc(partName(p))}${LANG !== 'en' ? `<small class="st-en">${esc(p.name)}</small>` : ''}</span><span class="state" data-state="${p.id}"></span></button>`).join('')}</div>`).join('');
     $('#paneBom').querySelectorAll('[data-part]').forEach((b) => b.addEventListener('click', () => Bench.select(b.dataset.part, true)));
     renderBomState();
   }
@@ -3183,23 +3673,25 @@ const Dyn = (() => {
     const rem = new Set(removedIds());
     Bench.parts.forEach((p) => {
       const el = document.querySelector(`[data-state="${p.id}"]`); if (!el) return;
-      el.textContent = !p.explode ? 'fixed' : rem.has(p.id) ? 'removed' : 'fitted'; el.classList.toggle('off', rem.has(p.id));
+      el.textContent = !p.explode ? tr('fixed') : rem.has(p.id) ? tr('removed') : tr('fitted'); el.classList.toggle('off', rem.has(p.id));
     });
   }
 
   /* ── system pane ── */
   function renderSys() {
-    const s = state.sys;
+    const s = state.sys; const tx = sysTx(s);
     $('#paneSys').innerHTML = `<div class="sys-pane">
-      <h2>${esc(s.name)}</h2><p class="meta">${esc(s.axle)}</p>
+      <h2>${esc(sysName(s))}</h2><p class="meta">${esc(s.axle)}${tx ? ` · ${esc(s.name)}` : ''}</p>
+      ${tx ? `<div class="simple"><h3>${tr('desc')}</h3><p>${esc(tx.simple)}</p><h3>${tr('how_works')}</h3><p>${esc(tx.how)}</p></div><h3>${tr('tech_en')}</h3>` : ''}
       <p>${esc(s.desc)}</p>
-      <h3>How it works</h3><p>${esc(s.how)}</p>
-      <div class="pc"><div><h3>Advantages</h3><ul class="pro">${s.pros.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
-      <div><h3>Limitations</h3><ul class="con">${s.cons.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
-      <h3>Typical design values</h3><table class="tbl">${Object.entries(s.char).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
-      <h3>Origin</h3><p>${esc(s.history)}</p>
-      <h3>Where you'll find it</h3><p>${esc(s.used)}</p>
-      <div class="d-actions"><a class="btn ghost" href="#kin">Open kinematics →</a><a class="btn ghost" href="#dyn">Ride dynamics →</a></div></div>`;
+      <h3>${tr('how_works')}</h3><p>${esc(s.how)}</p>
+      <div class="pc"><div><h3>${tr('advantages')}</h3><ul class="pro">${s.pros.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
+      <div><h3>${tr('limitations')}</h3><ul class="con">${s.cons.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
+      <h3>${tr('design_values')}</h3><table class="tbl">${Object.entries(s.char).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
+      <h3>${tr('origin')}</h3><p>${esc(s.history)}</p>
+      <h3>${tr('where')}</h3><p>${esc(s.used)}</p>
+      <div class="d-actions"><button class="btn accent" id="sysHow">${tr('how_btn')}</button><a class="btn ghost" href="#kin">${tr('kin_open')}</a><a class="btn ghost" href="#dyn">${tr('dyn_open')}</a></div></div>`;
+    $('#sysHow').onclick = () => { $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); howStart(); };
   }
 
   /* ── part drawer ── */
@@ -3207,29 +3699,44 @@ const Dyn = (() => {
     const p = Bench.parts.find((q) => q.id === id); if (!p) { closeDrawer(); return; }
     const d = PARTS[p.info]; const cat = CATS[d.cat];
     const stepIdx = state.sys.steps.findIndex((s) => s.parts.includes(id));
-    $('#drawerCat').textContent = cat.label; $('#drawerCat').style.background = cat.color + '26'; $('#drawerCat').style.color = 'var(--ink)';
+    $('#drawerCat').textContent = catName(d.cat); $('#drawerCat').style.background = cat.color + '26'; $('#drawerCat').style.color = 'var(--ink)';
     $('#drawerBody').innerHTML = `
-      <div class="meta">Item ${p.n}${stepIdx >= 0 ? ` · removed in step ${stepIdx + 1}` : ' · fixed structure'}</div>
-      <h2>${esc(p.name)}</h2>
-      <p>${esc(d.fn)}</p>
-      <h3>Construction &amp; material</h3><p>${esc(d.build)}</p>
-      <h3>Engineering</h3><div class="eng">${esc(d.eng)}</div>
-      <h3>Typical specification</h3><table class="tbl">${Object.entries(d.specs).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
-      <h3>Failure modes → symptoms</h3><ul>${d.fail.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
-      <h3>Inspection &amp; service</h3><ul>${d.test.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+      <div class="meta">${tr('item')} ${p.n}${stepIdx >= 0 ? ` · ${tr('removed_in_step')} ${stepIdx + 1}` : ` · ${tr('fixed_struct')}`}</div>
+      <h2>${esc(partName(p))}</h2>${LANG !== 'en' ? `<p class="meta">${esc(p.name)}</p>` : ''}
+      <div class="simple"><h3>${tr('simple')}</h3><p>${esc(partSimple(p))}</p></div>
       <div class="d-actions">
-        ${stepIdx >= 0 ? `<button class="btn ghost" id="dGo">Go to step ${stepIdx + 1}</button>` : ''}
-        ${p.cut ? `<button class="btn ghost" id="dCut">Show in section</button>` : ''}
-        <button class="btn ghost" id="dIso">Isolate</button>
-      </div>`;
+        <button class="btn accent" id="dWork">${tr('see_working')}</button>
+        ${p.cut ? `<button class="btn ghost" id="dCut">${tr('show_section')}</button>` : ''}
+        <button class="btn ghost" id="dIso">${tr('isolate_btn')}</button>
+        ${stepIdx >= 0 ? `<button class="btn ghost" id="dGo">${tr('go_step')} ${stepIdx + 1}</button>` : ''}
+      </div>
+      <h3>${LANG !== 'en' ? tr('tech_en') : tr('desc')}</h3><p>${esc(d.fn)}</p>
+      <h3>${tr('construction')}</h3><p>${esc(d.build)}</p>
+      <h3>${tr('engineering')}</h3><div class="eng">${esc(d.eng)}</div>
+      <h3>${tr('specs')}</h3><table class="tbl">${Object.entries(d.specs).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
+      <h3>${tr('failures')}</h3><ul>${d.fail.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+      <h3>${tr('inspection')}</h3><ul>${d.test.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
     $('#drawer').hidden = false;
     $('#dGo') && ($('#dGo').onclick = () => { state.exploded = false; $('#tbExplode').setAttribute('aria-pressed', false); go(stepIdx + 1); Bench.select(id, true); setSide('proc'); });
-    $('#dCut') && ($('#dCut').onclick = () => { toggleTb('#tbSection', true); });
+    $('#dCut') && ($('#dCut').onclick = () => toggleTb('#tbSection', true));
     $('#dIso').onclick = () => toggleTb('#tbIsolate', true);
+    $('#dWork').onclick = () => seeWorking(id);
     document.querySelectorAll('.bom-item').forEach((b) => b.classList.toggle('sel', b.dataset.part === id));
   }
   function closeDrawer() { $('#drawer').hidden = true; document.querySelectorAll('.bom-item.sel').forEach((b) => b.classList.remove('sel')); }
   $('#drawerBack').addEventListener('click', () => Bench.select(null));
+
+  /* Show one part moving: reassemble, isolate it, cut it open if it has internals, bounce the wheel */
+  function seeWorking(id) {
+    howStop();
+    if (state.exploded || state.step) { state.exploded = false; $('#tbExplode').setAttribute('aria-pressed', false); state.step = 0; applyRemoval(); renderProc(); }
+    Bench.select(id, true);
+    toggleTb('#tbIsolate', true);
+    const p = Bench.parts.find((q) => q.id === id);
+    toggleTb('#tbSection', !!(p && p.cut && ['damper', 'cdc', 'airspring', 'bushing', 'lbj', 'hub', 'tyre', 'topmount'].includes(p.info)));
+    $('#cycleBtn').setAttribute('aria-pressed', true); Bench.setCycle(true);
+    if (window.innerWidth <= 1080) $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
 
   /* ── side tabs ── */
   function setSide(k) {
@@ -3244,7 +3751,7 @@ const Dyn = (() => {
   function toggleTb(sel, force) {
     const b = $(sel); if (b.disabled) return;
     const on = force ?? b.getAttribute('aria-pressed') !== 'true'; b.setAttribute('aria-pressed', on);
-    if (sel === '#tbExplode') { state.exploded = on; stopPlay(); applyRemoval(); renderProc(); setTimeout(() => (on ? Bench.fit() : Bench.resetView(false)), on ? 900 : 0); }
+    if (sel === '#tbExplode') { howStop(); state.exploded = on; stopPlay(); applyRemoval(); renderProc(); setTimeout(() => (on ? Bench.fit() : Bench.resetView(false)), on ? 900 : 0); }
     if (sel === '#tbSection') Bench.setSection(on);
     if (sel === '#tbLabels') Bench.setBalloons(on);
     if (sel === '#tbIsolate') Bench.setIsolate(on);
@@ -3254,48 +3761,130 @@ const Dyn = (() => {
   ['#tbExplode', '#tbSection', '#tbLabels', '#tbIsolate', '#tbHide', '#tbRotate'].forEach((s) => $(s).addEventListener('click', () => toggleTb(s)));
   $('#tbReset').addEventListener('click', () => Bench.resetView(false));
 
+  /* ── full screen (real fullscreen where allowed, otherwise fill the window) ── */
+  const stageEl = $('#stage');
+  const fsEl = () => document.fullscreenElement || document.webkitFullscreenElement;
+  const isFull = () => fsEl() === stageEl || stageEl.classList.contains('max');
+  function setFullUI() {
+    const on = isFull(); $('#tbFull').setAttribute('aria-pressed', on);
+    $('#tbFull span').textContent = on ? tr('tb_exitfull') : tr('tb_full');
+    document.body.style.overflow = stageEl.classList.contains('max') ? 'hidden' : '';
+    setTimeout(() => Bench.resetView(false), 350);
+  }
+  function toggleFull() {
+    if (isFull()) {
+      if (fsEl()) (document.exitFullscreen || document.webkitExitFullscreen).call(document)?.catch?.(() => {});
+      stageEl.classList.remove('max'); setFullUI(); return;
+    }
+    const req = stageEl.requestFullscreen || stageEl.webkitRequestFullscreen;
+    const fallback = () => { stageEl.classList.add('max'); setFullUI(); };
+    if (!req) { fallback(); return; }
+    try { const r = req.call(stageEl); if (r && r.catch) r.catch(fallback); } catch (e) { fallback(); }
+    setTimeout(() => { if (!fsEl()) fallback(); }, 400);
+  }
+  $('#tbFull').addEventListener('click', toggleFull);
+  document.addEventListener('fullscreenchange', setFullUI); document.addEventListener('webkitfullscreenchange', setFullUI);
+  document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && stageEl.classList.contains('max')) { stageEl.classList.remove('max'); setFullUI(); } });
+
   /* ── travel ── */
   const travel = $('#travel');
-  travel.addEventListener('input', () => { state.travel = +travel.value; $('#cycleBtn').setAttribute('aria-pressed', false); Bench.setTravel(state.travel / 1000); });
+  travel.addEventListener('input', () => { howStop(); state.travel = +travel.value; $('#cycleBtn').setAttribute('aria-pressed', false); Bench.setTravel(state.travel / 1000); });
   $('#cycleBtn').addEventListener('click', (e) => { const on = e.currentTarget.getAttribute('aria-pressed') !== 'true'; e.currentTarget.setAttribute('aria-pressed', on); Bench.setCycle(on); if (!on) { travel.value = 0; state.travel = 0; } });
 
   let roT = 0;
   Bench.onFrame = (r, locked) => {
     const now = performance.now(); if (now - roT < 100) return; roT = now;
     $('#travelBox').classList.toggle('locked', locked); travel.disabled = locked; $('#cycleBtn').disabled = locked;
-    const mm = (r.s * 1000); $('#travelVal').textContent = locked ? 'locked — parts removed' : `${mm > 0 ? '+' : ''}${mm.toFixed(0)} mm`;
+    const mm = (r.s * 1000); $('#travelVal').textContent = locked ? tr('locked') : `${mm > 0 ? '+' : ''}${mm.toFixed(0)} mm`;
     if (Bench.st.cycle) travel.value = Math.round(mm);
-    const rows = [['Travel', `${mm.toFixed(0)} mm`], ['Camber', `${r.camber.toFixed(2)}°`]];
-    if (r.rcH != null) rows.push(['Roll ctr', `${(r.rcH * 1000).toFixed(0)} mm`]);
-    rows.push(['Track Δ', `${((r.halfTrack - Bench.built.hp.W[0]) * 1000).toFixed(1)} mm`]);
-    if (r.springLen && Bench.built.kinType !== 'live') rows.push(['Strut L', `${(r.springLen * 1000).toFixed(0)} mm`]);
-    if (isFinite(r.mr)) rows.push(['Motion r.', r.mr.toFixed(3)]);
+    const rows = [[tr('r_travel'), `${mm.toFixed(0)} mm`], [tr('r_camber'), `${r.camber.toFixed(2)}°`]];
+    if (r.rcH != null) rows.push([tr('r_rc'), `${(r.rcH * 1000).toFixed(0)} mm`]);
+    rows.push([tr('r_track'), `${((r.halfTrack - Bench.built.hp.W[0]) * 1000).toFixed(1)} mm`]);
+    if (r.springLen && Bench.built.kinType !== 'live') rows.push([tr('r_strut'), `${(r.springLen * 1000).toFixed(0)} mm`]);
+    if (isFinite(r.mr)) rows.push([tr('r_mr'), r.mr.toFixed(3)]);
     $('#readout').innerHTML = rows.map(([a, b]) => `<span>${a}</span><b>${b}</b>`).join('');
   };
   Bench.onSelect = (id, quiet) => {
     $('#tbIsolate').disabled = !id;
     if (quiet) { closeDrawer(); return; }
     if (!id) { if ($('#tbIsolate').getAttribute('aria-pressed') === 'true') toggleTb('#tbIsolate', false); closeDrawer(); return; }
+    if (state.side !== 'proc' && state.side !== 'bom' && state.side !== 'sys') setSide('proc');
     openDrawer(id);
   };
+  Bench.onLabel = () => { if (!isFull() && window.innerWidth <= 1080 && !$('#drawer').hidden) $('#drawer').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+
+  /* ── "How it works" lesson ── */
+  const how = { on: false, i: 0, t: 0, paused: false, raf: 0, last: 0, userSection: false };
+  const scenes = () => HOW.common;
+  function sceneText(sc) {
+    const r = HOW.roles[state.sys.id];
+    if (sc.k === 'arm' || sc.k === 'extra') return r[`${sc.k}_${LANG}`] || r[`${sc.k}_en`];
+    return sc[LANG] || sc.en;
+  }
+  function showScene() {
+    const list = scenes(); const sc = list[how.i]; const r = HOW.roles[state.sys.id];
+    $('#howText').textContent = sceneText(sc);
+    $('#howCount').textContent = `${how.i + 1} / ${list.length}`;
+    $('#howPause').textContent = how.paused ? '▶' : '❚❚';
+    const ids = sc.roles.flatMap((role) => r[role] || []);
+    Bench.highlight(ids);
+    Bench.setSection(!!sc.section || how.userSection);
+  }
+  function howStart() {
+    if (how.on) return;
+    stopPlay(); closeDrawer(); Bench.select(null, false, true);
+    if (state.exploded || state.step) { state.exploded = false; $('#tbExplode').setAttribute('aria-pressed', false); state.step = 0; applyRemoval(); renderProc(); }
+    if ($('#tbIsolate').getAttribute('aria-pressed') === 'true') toggleTb('#tbIsolate', false);
+    Bench.setCycle(false); $('#cycleBtn').setAttribute('aria-pressed', false);
+    how.userSection = $('#tbSection').getAttribute('aria-pressed') === 'true';
+    Object.assign(how, { on: true, i: 0, t: 0, paused: false, last: performance.now() });
+    $('#how').hidden = false; stageEl.classList.add('how-on');
+    showScene(); how.raf = requestAnimationFrame(howTick);
+  }
+  function howTick(now) {
+    if (!how.on) return;
+    const dt = Math.min(0.1, (now - how.last) / 1000); how.last = now;
+    const list = scenes(); let sc = list[how.i];
+    if (!how.paused) {
+      how.t += dt;
+      if (how.t > sc.dur) { how.i = (how.i + 1) % list.length; how.t = 0; sc = list[how.i]; showScene(); }
+    }
+    Bench.setTravel(sc.s(how.t));
+    $('#howProg').style.width = `${((how.i + Math.min(1, how.t / sc.dur)) / list.length) * 100}%`;
+    how.raf = requestAnimationFrame(howTick);
+  }
+  function howJump(d) { const n = scenes().length; how.i = (how.i + d + n) % n; how.t = 0; showScene(); }
+  function howStop() {
+    if (!how.on) return;
+    how.on = false; cancelAnimationFrame(how.raf);
+    $('#how').hidden = true; stageEl.classList.remove('how-on');
+    Bench.highlight([]); Bench.setTravel(0); Bench.setSection(how.userSection);
+  }
+  $('#howBtn').addEventListener('click', howStart);
+  $('#howStop').addEventListener('click', howStop);
+  $('#howPrev').addEventListener('click', () => howJump(-1));
+  $('#howNext').addEventListener('click', () => howJump(1));
+  $('#howPause').addEventListener('click', () => { how.paused = !how.paused; $('#howPause').textContent = how.paused ? '▶' : '❚❚'; });
 
   /* ── kinematics slider ── */
   $('#kinTravel').addEventListener('input', (e) => KinView.render(+e.target.value / 1000));
 
   /* ── compare ── */
   function renderCompare() {
-    const keys = [['comfort', 'Ride comfort'], ['handling', 'Handling / camber control'], ['load', 'Load capacity'], ['packaging', 'Packaging'], ['cost', 'Cost (5 = cheapest)'], ['simplicity', 'Simplicity']];
+    const keys = ['comfort', 'handling', 'load', 'packaging', 'cost', 'simplicity'];
     const bar = (v) => `<div class="bar"><i>${[1, 2, 3, 4, 5].map((i) => `<b class="${i <= v ? 'on' : ''}"></b>`).join('')}</i><span>${v}</span></div>`;
-    $('#cmpRatings').innerHTML = `<thead><tr><th>System</th>${keys.map(([, l]) => `<th>${l}</th>`).join('')}</tr></thead><tbody>${SYSTEMS.map((s) => `<tr class="${s === state.sys ? 'cur' : ''}"><td class="sysn">${esc(s.name)}<small>${esc(s.axle)}</small></td>${keys.map(([k]) => `<td>${bar(s.ratings[k])}</td>`).join('')}</tr>`).join('')}</tbody>`;
-    $('#cmpTable').innerHTML = `<thead><tr><th>System</th><th>Key design values</th><th>Body freq. (preset)</th><th>Typical vehicles</th><th>Origin</th></tr></thead><tbody>${SYSTEMS.map((s) => {
+    $('#cmpRatings').innerHTML = `<thead><tr><th>${tr('c_system')}</th>${keys.map((k) => `<th>${tr('c_' + k)}</th>`).join('')}</tr></thead><tbody>${SYSTEMS.map((s) => `<tr class="${s === state.sys ? 'cur' : ''}"><td class="sysn">${esc(sysName(s))}<small>${esc(s.axle)}</small></td>${keys.map((k) => `<td>${bar(s.ratings[k])}</td>`).join('')}</tr>`).join('')}</tbody>`;
+    $('#cmpCards').innerHTML = SYSTEMS.map((s) => `<div class="cmp-card ${s === state.sys ? 'cur' : ''}"><h3>${esc(sysName(s))}</h3><small>${esc(s.axle)}</small><dl>${keys.map((k) => `<dt>${tr('c_' + k)}</dt><dd>${bar(s.ratings[k])}</dd>`).join('')}</dl></div>`).join('');
+    $('#cmpTable').innerHTML = `<thead><tr><th>${tr('c_system')}</th><th>${tr('c_values')}</th><th>${tr('c_freq')}</th><th>${tr('c_used')}</th><th>${tr('origin')}</th></tr></thead><tbody>${SYSTEMS.map((s) => {
       const p = s.preset; const kr = p.ks * p.kt / (p.ks + p.kt); const f = Math.sqrt(kr / p.ms) / (2 * Math.PI);
-      return `<tr class="${s === state.sys ? 'cur' : ''}"><td class="sysn">${esc(s.name)}<small>${esc(s.axle)}</small></td><td><table class="tbl">${Object.entries(s.char).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></td><td>${f.toFixed(2)} Hz</td><td>${esc(s.used)}</td><td class="meta">${esc(s.history)}</td></tr>`;
+      return `<tr class="${s === state.sys ? 'cur' : ''}"><td class="sysn">${esc(sysName(s))}<small>${esc(s.axle)}</small></td><td><table class="tbl">${Object.entries(s.char).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></td><td>${f.toFixed(2)} Hz</td><td>${esc(s.used)}</td><td class="meta">${esc(s.history)}</td></tr>`;
     }).join('')}</tbody>`;
   }
 
   /* ── routing ── */
   function route() {
     const v = (location.hash || '#bench').slice(1); const view = ['bench', 'kin', 'dyn', 'compare'].includes(v) ? v : 'bench';
+    if (view !== 'bench') howStop();
     state.view = view;
     document.querySelectorAll('.view').forEach((s) => { s.hidden = s.id !== 'view-' + view; });
     document.querySelectorAll('.tabs a').forEach((a) => a.classList.toggle('on', a.dataset.view === view));
@@ -3310,14 +3899,16 @@ const Dyn = (() => {
 
   /* ── boot ── */
   initMaterials();
-  Bench.init($('#stage'));
+  Bench.init(stageEl);
   Bench.setTheme(isDark());
+  buildLang();
   buildSysbar();
   Dyn.init();
   route();
   setSystem(store.get('sys') || SYSTEMS[0].id);
+  setLang(store.get('lang') || 'en');
   route();
-  window.SuspLab = { setSystem, go, state };
+  window.SuspLab = { setSystem, go, state, setLang, howStart, howStop, toggleFull };
 })();
 
 </script>

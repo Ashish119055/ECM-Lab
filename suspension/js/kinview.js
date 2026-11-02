@@ -32,10 +32,8 @@ const KinView = (() => {
     if (!def) return;
     const pose = built.solve(s).pose; const pose0 = built.solve(0).pose;
     const t = built.kinType;
-    document.getElementById('kinTitle').textContent = `${def.name} — kinematics`;
-    document.getElementById('kinLede').textContent = t === 'twist' || t === 'live'
-      ? 'Side view of the axle. Move the wheel through its travel and watch how the axle moves. For a beam axle the camber relative to the body does not change in heave.'
-      : 'Front view of the left-hand corner, linkage drawn to scale. Move the wheel: the instant centre (IC), the roll centre (RC), camber and track all update live. The faint copy is the design (ride-height) position.';
+    document.getElementById('kinTitle').textContent = `${sysName(def)} — ${tr('kin_suffix')}`;
+    document.getElementById('kinLede').textContent = t === 'twist' || t === 'live' ? tr('kin_lede_side') : tr('kin_lede_corner');
     document.getElementById('kinDiagTitle').textContent = t === 'twist' || t === 'live' ? 'Side-view geometry' : 'Front-view geometry';
     drawDiagram(pose, pose0, s);
     drawCharts(s);
