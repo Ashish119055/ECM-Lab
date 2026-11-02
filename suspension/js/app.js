@@ -29,7 +29,7 @@
     document.querySelectorAll('[data-i18n]').forEach((el) => { el.textContent = tr(el.dataset.i18n); });
     buildSysbarLabels();
     if (!Bench.built) return;
-    $('#stTitle').textContent = sysName(state.sys);
+    $('#stTitle').textContent = sysName(state.sys); $('#stAxle').textContent = sysAxle(state.sys);
     Bench.refreshLabels();
     renderProc(); renderBom(); renderSys(); renderCompare(); renderTheory();
     if (Bench.st.selected) openDrawer(Bench.st.selected);
@@ -59,7 +59,7 @@
       setSystem(SYSTEMS[j].id); bar.querySelector(`[data-sys="${SYSTEMS[j].id}"]`).focus(); e.preventDefault();
     });
   }
-  function buildSysbarLabels() { SYSTEMS.forEach((s) => { const b = document.querySelector(`.sys-card[data-sys="${s.id}"] b`); if (b) b.textContent = sysName(s); }); }
+  function buildSysbarLabels() { SYSTEMS.forEach((s) => { const c = document.querySelector(`.sys-card[data-sys="${s.id}"]`); if (c) { c.querySelector('b').textContent = sysName(s); c.querySelector('small').textContent = sysAxle(s); } }); }
 
   function setSystem(id) {
     const def = SYS_BY_ID[id] || SYSTEMS[0];
@@ -68,7 +68,7 @@
     document.querySelectorAll('.sys-card').forEach((b) => { const on = b.dataset.sys === def.id; b.setAttribute('aria-checked', on); b.tabIndex = on ? 0 : -1; });
     const card = document.querySelector(`.sys-card[data-sys="${def.id}"]`); if (card) card.parentElement.scrollTo({ left: card.offsetLeft - 16, behavior: 'smooth' });
     const built = Bench.load(def);
-    $('#stTitle').textContent = sysName(def); $('#stAxle').textContent = def.axle;
+    $('#stTitle').textContent = sysName(def); $('#stAxle').textContent = sysAxle(def);
     ['#tbExplode', '#tbIsolate', '#tbSection'].forEach((s) => $(s).setAttribute('aria-pressed', false)); $('#tbIsolate').disabled = true;
     Bench.setSection(false);
     $('#cycleBtn').setAttribute('aria-pressed', false); $('#travel').value = 0; state.travel = 0;
@@ -100,12 +100,13 @@
         const open = i === k && !state.exploded;
         const title = tx && tx.steps[i] ? tx.steps[i] : st.t;
         const warn = st.warn ? (tx && tx.warn && tx.warn[i]) || st.warn : '';
-        return `<li class="step ${cls}"><button data-goto="${i}" aria-expanded="${open}"><span class="num">${state.exploded || i < k ? '✓' : i + 1}</span><span class="st">${esc(title)}${tx ? `<small class="st-en">${esc(st.t)}</small>` : ''}</span></button>
+        return `<li class="step ${cls}"><button data-goto="${i}" aria-expanded="${open}"><span class="num">${state.exploded || i < k ? '✓' : i + 1}</span><span class="st">${esc(title)}</span></button>
         ${open ? `<div class="step-detail">
           ${st.parts.length ? `<div class="kv"><span>${tr('parts')}</span><div class="plist">${st.parts.map((id) => `<button data-part="${id}">${esc(pname(id))}</button>`).join('')}</div></div>` : ''}
+          ${tx ? (torqueOf(st.torque) ? `<div class="kv"><span>${tr('torque')}</span><span>${torqueOf(st.torque)}</span></div>` : '') : `
           <div class="kv"><span>${tr('tools')}</span><span>${esc(st.tool)}</span></div>
           <div class="kv"><span>${tr('torque')}</span><span>${esc(st.torque)}</span></div>
-          ${st.note ? `<div class="kv"><span>${tr('notes')}</span><span>${esc(st.note)}</span></div>` : ''}
+          ${st.note ? `<div class="kv"><span>${tr('notes')}</span><span>${esc(st.note)}</span></div>` : ''}`}
           ${warn ? `<div class="warn"><b>${tr('warning')}:</b> ${esc(warn)}</div>` : ''}
         </div>` : ''}</li>`;
       }).join('')}</ol>
@@ -119,6 +120,7 @@
     const curEl = $('#paneProc .step.cur') || $('#paneProc .done-card');
     if (curEl && k > 0 && state.view === 'bench' && window.innerWidth > 1080) curEl.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
+  const torqueOf = (s) => { const m = (s || '').match(/\d+(?:[–-]\d+)?\s*N·m/g); return m ? [...new Set(m)].join(' / ') : ''; };
   function go(k) {
     howStop();
     state.step = Math.max(0, Math.min(state.sys.steps.length, k));
@@ -135,7 +137,7 @@
     const groups = {};
     Bench.parts.forEach((p) => { const c = PARTS[p.info].cat; (groups[c] = groups[c] || []).push(p); });
     $('#paneBom').innerHTML = `<p class="meta">${tr('bom_intro')}</p>` +
-      Object.keys(CATS).filter((c) => groups[c]).map((c) => `<div class="bom-group"><h3><i style="background:${CATS[c].color}"></i>${esc(catName(c))}</h3>${groups[c].map((p) => `<button class="bom-item" data-part="${p.id}"><span class="n">${p.n}</span><span>${esc(partName(p))}${LANG !== 'en' ? `<small class="st-en">${esc(p.name)}</small>` : ''}</span><span class="state" data-state="${p.id}"></span></button>`).join('')}</div>`).join('');
+      Object.keys(CATS).filter((c) => groups[c]).map((c) => `<div class="bom-group"><h3><i style="background:${CATS[c].color}"></i>${esc(catName(c))}</h3>${groups[c].map((p) => `<button class="bom-item" data-part="${p.id}"><span class="n">${p.n}</span><span>${esc(partName(p))}</span><span class="state" data-state="${p.id}"></span></button>`).join('')}</div>`).join('');
     $('#paneBom').querySelectorAll('[data-part]').forEach((b) => b.addEventListener('click', () => Bench.select(b.dataset.part, true)));
     renderBomState();
   }
@@ -150,16 +152,12 @@
   /* ── system pane ── */
   function renderSys() {
     const s = state.sys; const tx = sysTx(s);
-    $('#paneSys').innerHTML = `<div class="sys-pane">
-      <h2>${esc(sysName(s))}</h2><p class="meta">${esc(s.axle)}${tx ? ` · ${esc(s.name)}` : ''}</p>
-      ${tx ? `<div class="simple"><h3>${tr('desc')}</h3><p>${esc(tx.simple)}</p><h3>${tr('how_works')}</h3><p>${esc(tx.how)}</p></div><h3>${tr('tech_en')}</h3>` : ''}
-      <p>${esc(s.desc)}</p>
-      <h3>${tr('how_works')}</h3><p>${esc(s.how)}</p>
+    const body = tx ? `<div class="simple"><h3>${tr('desc')}</h3><p>${esc(tx.simple)}</p><h3>${tr('how_works')}</h3><p>${esc(tx.how)}</p></div>`
+      : `<p>${esc(s.desc)}</p><h3>${tr('how_works')}</h3><p>${esc(s.how)}</p>
       <div class="pc"><div><h3>${tr('advantages')}</h3><ul class="pro">${s.pros.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div>
       <div><h3>${tr('limitations')}</h3><ul class="con">${s.cons.map((x) => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
-      <h3>${tr('design_values')}</h3><table class="tbl">${Object.entries(s.char).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
-      <h3>${tr('origin')}</h3><p>${esc(s.history)}</p>
-      <h3>${tr('where')}</h3><p>${esc(s.used)}</p>
+      <h3>${tr('where')}</h3><p>${esc(s.used)}</p>`;
+    $('#paneSys').innerHTML = `<div class="sys-pane"><h2>${esc(sysName(s))}</h2><p class="meta">${esc(sysAxle(s))}</p>${body}
       <div class="d-actions"><button class="btn accent" id="sysHow">${tr('how_btn')}</button><a class="btn ghost" href="#theory">${tr('tab_theory')} →</a><a class="btn ghost" href="#diagram">${tr('tab_diagram')} →</a></div></div>`;
     $('#sysHow').onclick = () => { if (state.view !== 'bench') location.hash = '#bench'; $('#stage').scrollIntoView({ behavior: 'smooth', block: 'start' }); howStart(); };
   }
@@ -170,9 +168,10 @@
     const d = PARTS[p.info]; const cat = CATS[d.cat];
     const stepIdx = state.sys.steps.findIndex((s) => s.parts.includes(id));
     $('#drawerCat').textContent = catName(d.cat); $('#drawerCat').style.background = cat.color + '26'; $('#drawerCat').style.color = 'var(--ink)';
+    const en = LANG === 'en';
     $('#drawerBody').innerHTML = `
       <div class="meta">${tr('item')} ${p.n}${stepIdx >= 0 ? ` · ${tr('removed_in_step')} ${stepIdx + 1}` : ` · ${tr('fixed_struct')}`}</div>
-      <h2>${esc(partName(p))}</h2>${LANG !== 'en' ? `<p class="meta">${esc(p.name)}</p>` : ''}
+      <h2>${esc(partName(p))}</h2>
       <div class="simple"><h3>${tr('simple')}</h3><p>${esc(partSimple(p))}</p></div>
       <div class="d-actions">
         <button class="btn accent" id="dWork">${tr('see_working')}</button>
@@ -180,12 +179,10 @@
         <button class="btn ghost" id="dIso">${tr('isolate_btn')}</button>
         ${stepIdx >= 0 ? `<button class="btn ghost" id="dGo">${tr('go_step')} ${stepIdx + 1}</button>` : ''}
       </div>
-      <h3>${LANG !== 'en' ? tr('tech_en') : tr('desc')}</h3><p>${esc(d.fn)}</p>
+      ${en ? `<h3>${tr('desc')}</h3><p>${esc(d.fn)}</p>
       <h3>${tr('construction')}</h3><p>${esc(d.build)}</p>
-      <h3>${tr('engineering')}</h3><div class="eng">${esc(d.eng)}</div>
-      <h3>${tr('specs')}</h3><table class="tbl">${Object.entries(d.specs).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table>
       <h3>${tr('failures')}</h3><ul>${d.fail.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
-      <h3>${tr('inspection')}</h3><ul>${d.test.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>`;
+      <h3>${tr('inspection')}</h3><ul>${d.test.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}`;
     $('#drawer').hidden = false;
     $('#dGo') && ($('#dGo').onclick = () => { state.exploded = false; $('#tbExplode').setAttribute('aria-pressed', false); go(stepIdx + 1); Bench.select(id, true); setSide('proc'); });
     $('#dCut') && ($('#dCut').onclick = () => toggleTb('#tbSection', true));
@@ -277,12 +274,6 @@
     const mm = (r.s * 1000); $('#travelVal').textContent = locked ? tr('locked') : `${mm > 0 ? '+' : ''}${mm.toFixed(0)} mm`;
     if (Bench.st.cycle || Bench.st.drive || how.on) travel.value = Math.round(mm);
     $('#driveBtn').disabled = locked;
-    const rows = [[tr('r_travel'), `${mm.toFixed(0)} mm`], [tr('r_camber'), `${r.camber.toFixed(2)}°`]];
-    if (r.rcH != null) rows.push([tr('r_rc'), `${(r.rcH * 1000).toFixed(0)} mm`]);
-    rows.push([tr('r_track'), `${((r.halfTrack - Bench.built.hp.W[0]) * 1000).toFixed(1)} mm`]);
-    if (r.springLen && Bench.built.kinType !== 'live') rows.push([tr('r_strut'), `${(r.springLen * 1000).toFixed(0)} mm`]);
-    if (isFinite(r.mr)) rows.push([tr('r_mr'), r.mr.toFixed(3)]);
-    $('#readout').innerHTML = rows.map(([a, b]) => `<span>${a}</span><b>${b}</b>`).join('');
   };
   Bench.onSelect = (id, quiet) => {
     $('#tbIsolate').disabled = !id;
@@ -353,6 +344,7 @@
     howStop(); stopPlay(); setDrive(false); Bench.setCycle(false);
     document.body.classList.add('diagram-mode'); $('#diagramHint').hidden = false;
     state.step = 0; toggleTb('#tbExplode', true); Bench.setAllNames(true);
+    setTimeout(() => Bench.fit($('#viewport').clientWidth >= 700 ? 1.5 : 1.3), 950);
     setSide('bom');
   }
   function leaveDiagram() {
@@ -373,7 +365,7 @@
         ${s.id === 'parts' && s.p ? s.p.map((x) => `<p style="margin-top:10px">${esc(x)}</p>`).join('') : ''}
         ${s.table ? `<div class="scroll-x"><table class="th-table"><thead><tr><th>${head[0]}</th><th>${head[1]}</th></tr></thead><tbody>${s.table.map(([x, y]) => `<tr><td>${esc(x)}</td><td>${esc(y)}</td></tr>`).join('')}</tbody></table></div>` : ''}
       </div>
-      ${s.svg ? `<div class="th-fig">${THEORY_SVG[s.svg]}</div>` : ''}
+      ${s.svg ? `<div class="th-fig">${THEORY_SVG[s.svg].replace(/\{(\w+)\}/g, (m, k) => (THEORY_SVG_TX[LANG] || THEORY_SVG_TX.en)[k] || '')}</div>` : ''}
     </article>`).join('');
     $('#thToc').querySelectorAll('[data-th]').forEach((el) => el.addEventListener('click', (e) => { e.preventDefault(); document.getElementById('th-' + el.dataset.th).scrollIntoView({ behavior: 'smooth', block: 'start' }); }));
   }
@@ -382,12 +374,8 @@
   function renderCompare() {
     const keys = ['comfort', 'handling', 'load', 'packaging', 'cost', 'simplicity'];
     const bar = (v) => `<div class="bar"><i>${[1, 2, 3, 4, 5].map((i) => `<b class="${i <= v ? 'on' : ''}"></b>`).join('')}</i><span>${v}</span></div>`;
-    $('#cmpRatings').innerHTML = `<thead><tr><th>${tr('c_system')}</th>${keys.map((k) => `<th>${tr('c_' + k)}</th>`).join('')}</tr></thead><tbody>${SYSTEMS.map((s) => `<tr class="${s === state.sys ? 'cur' : ''}"><td class="sysn">${esc(sysName(s))}<small>${esc(s.axle)}</small></td>${keys.map((k) => `<td>${bar(s.ratings[k])}</td>`).join('')}</tr>`).join('')}</tbody>`;
-    $('#cmpCards').innerHTML = SYSTEMS.map((s) => `<div class="cmp-card ${s === state.sys ? 'cur' : ''}"><h3>${esc(sysName(s))}</h3><small>${esc(s.axle)}</small><dl>${keys.map((k) => `<dt>${tr('c_' + k)}</dt><dd>${bar(s.ratings[k])}</dd>`).join('')}</dl></div>`).join('');
-    $('#cmpTable').innerHTML = `<thead><tr><th>${tr('c_system')}</th><th>${tr('c_values')}</th><th>${tr('c_freq')}</th><th>${tr('c_used')}</th><th>${tr('origin')}</th></tr></thead><tbody>${SYSTEMS.map((s) => {
-      const p = s.preset; const kr = p.ks * p.kt / (p.ks + p.kt); const f = Math.sqrt(kr / p.ms) / (2 * Math.PI);
-      return `<tr class="${s === state.sys ? 'cur' : ''}"><td class="sysn">${esc(sysName(s))}<small>${esc(s.axle)}</small></td><td><table class="tbl">${Object.entries(s.char).map(([k, v]) => `<tr><td>${esc(k)}</td><td>${esc(v)}</td></tr>`).join('')}</table></td><td>${f.toFixed(2)} Hz</td><td>${esc(s.used)}</td><td class="meta">${esc(s.history)}</td></tr>`;
-    }).join('')}</tbody>`;
+    $('#cmpRatings').innerHTML = `<thead><tr><th>${tr('c_system')}</th>${keys.map((k) => `<th>${tr('c_' + k)}</th>`).join('')}</tr></thead><tbody>${SYSTEMS.map((s) => `<tr class="${s === state.sys ? 'cur' : ''}"><td class="sysn">${esc(sysName(s))}<small>${esc(sysAxle(s))}</small></td>${keys.map((k) => `<td>${bar(s.ratings[k])}</td>`).join('')}</tr>`).join('')}</tbody>`;
+    $('#cmpCards').innerHTML = SYSTEMS.map((s) => `<div class="cmp-card ${s === state.sys ? 'cur' : ''}"><h3>${esc(sysName(s))}</h3><small>${esc(sysAxle(s))}</small><dl>${keys.map((k) => `<dt>${tr('c_' + k)}</dt><dd>${bar(s.ratings[k])}</dd>`).join('')}</dl></div>`).join('');
   }
 
   /* ── routing ── */

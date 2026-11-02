@@ -21,8 +21,8 @@
       <path d="M20 28v3" stroke="currentColor" stroke-width="2.5"/>
     </svg>
     <div>
-      <div class="brand-name">Suspension Lab</div>
-      <div class="brand-sub">3D tear-down, kinematics &amp; ride-dynamics simulator</div>
+      <div class="brand-name" data-i18n="brand">Suspension Lab</div>
+      <div class="brand-sub" data-i18n="brand_sub">3D tear-down practice — learn how a suspension works</div>
     </div>
   </div>
   <div class="top-actions">
@@ -51,7 +51,6 @@
         <div class="stage" id="stage">
           <div class="viewport" id="viewport">
             <div class="stage-title"><b id="stTitle">—</b><span id="stAxle"></span><button class="btn accent how-btn" id="howBtn" data-i18n="how_btn">▶ How it works</button></div>
-            <div class="readout" id="readout" aria-live="off"></div>
             <div class="stage-hint" id="stageHint" data-i18n="hint">Tap any part to see its name · drag to turn · pinch to zoom</div>
             <div class="diagram-hint" id="diagramHint" data-i18n="diagram_hint" hidden></div>
           </div>
@@ -125,7 +124,6 @@
     </div>
     <div class="cmp-cards" id="cmpCards"></div>
     <div class="panel scroll-x cmp-wide"><table class="cmp" id="cmpRatings"></table></div>
-    <div class="panel scroll-x" style="margin-top:14px"><table class="cmp" id="cmpTable"></table></div>
   </section>
 </main>
 

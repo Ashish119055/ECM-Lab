@@ -3,7 +3,8 @@
 'use strict';
 
 const Bench = (() => {
-  let renderer, scene, camera, root, ground, grid, keyLight, container, balloonLayer, tip, road, car = null, spinList = [], spinA = 0;
+  let leaderSvg, renderer, scene, camera, root, ground, grid, keyLight, container, balloonLayer, tip, road, car = null, spinList = [], spinA = 0;
+  let wideMode = true;
   const SPIN = new Set(['tyre', 'rim', 'wheelnuts', 'disc', 'drum', 'hub']);
   let sysDef = null, built = null, bodies = {}, parts = [], partById = {}, pickables = [];
   let lastT = performance.now(), clock = 0, needKin = true;
@@ -75,6 +76,7 @@ const Bench = (() => {
     road = makeRoad(); road.visible = false; scene.add(road);
 
     balloonLayer = document.createElement('div'); balloonLayer.className = 'balloons'; el.appendChild(balloonLayer);
+    leaderSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); leaderSvg.setAttribute('class', 'leaders'); el.insertBefore(leaderSvg, balloonLayer);
     tip = document.createElement('div'); tip.className = 'tip3d'; tip.hidden = true; el.appendChild(tip);
 
     bindControls(renderer.domElement);
@@ -98,7 +100,7 @@ const Bench = (() => {
   /* ── load a system ─────────────────────────────────────── */
   function clear() {
     root.traverse((o) => { if (o.isMesh) { o.geometry.dispose(); [].concat(o.material).forEach((m) => m.dispose()); } });
-    root.clear(); bodies = {}; parts = []; partById = {}; pickables = []; balloonLayer.innerHTML = '';
+    root.clear(); bodies = {}; parts = []; partById = {}; pickables = []; balloonLayer.innerHTML = ''; leaderSvg.innerHTML = '';
   }
   function load(def) {
     clear(); sysDef = def; built = def.build();
@@ -211,12 +213,13 @@ const Bench = (() => {
     p.holders.forEach((h) => { if (h.visible) tmpBox.expandByObject(h); });
     return tmpBox.isEmpty() ? null : tmpBox.getCenter(out);
   }
-  function fit() {
+  function fit(k = 1) {
     const box = new THREE.Box3();
     parts.forEach((p) => p.holders.forEach((h) => { if (h.visible) box.expandByObject(h); }));
     if (box.isEmpty()) return;
     const c = box.getCenter(V3(0, 0, 0)); const r = box.getSize(V3(0, 0, 0)).length() / 2;
-    cam.dTarget.copy(c); cam.dr = clampR(r / Math.sin((camera.fov * Math.PI / 180) / 2) * 0.82);
+    const half = Math.min(camera.fov * Math.PI / 360, Math.atan(Math.tan(camera.fov * Math.PI / 360) * camera.aspect));
+    cam.dTarget.copy(c); cam.dr = clampR(r / Math.sin(half) * 0.82 * k);
   }
   function focusPart(id) { const c = partCenter(partById[id], V3(0, 0, 0)); if (c) cam.dTarget.copy(c); }
 
@@ -319,14 +322,17 @@ const Bench = (() => {
     if (!built || !container.getClientRects().length) return;
     doHover();
     // teardown animation
+    wideMode = container.clientWidth >= 700;
     let moving = false;
     for (const p of parts) {
       if (Math.abs(p.tt - p.t) > 0.0005) { p.t += (p.tt - p.t) * (1 - Math.exp(-dt * 5)); moving = true; } else p.t = p.tt;
       const e = p.t * p.t * (3 - 2 * p.t);
       p.holders.forEach((h) => { h.position.copy(h.userData.ex).multiplyScalar(e); h.visible = !(st.hideRemoved && p.t > 0.97); });
       const gone = st.hideRemoved && p.t > 0.97;
-      p.balloon.hidden = !st.balloons || gone || p.id === st.selected || st.hl.has(p.id);
-      p.label.hidden = gone || !(p.id === st.selected || st.hl.has(p.id) || (st.allNames && p.explode));
+      const call = st.allNames && wideMode && p.explode; // side callout with leader line
+      p.balloon.hidden = !(st.balloons || (st.allNames && !wideMode && p.explode)) || gone || p.id === st.selected || st.hl.has(p.id) || call;
+      p.label.hidden = gone || !(p.id === st.selected || st.hl.has(p.id) || call);
+      p.call = call && p.id !== st.selected;
     }
     // travel
     const locked = anyRemoved();
@@ -354,7 +360,7 @@ const Bench = (() => {
     api.onFrame && api.onFrame(readouts(), locked);
   }
   function placeBalloons() {
-    const w = container.clientWidth, h = container.clientHeight; const boxes = [];
+    const w = container.clientWidth, h = container.clientHeight; const boxes = [], calls = [];
     for (const p of parts) {
       if (p.balloon.hidden && p.label.hidden) continue;
       const c = partCenter(p, tmpV); if (!c) { p.balloon.hidden = true; p.label.hidden = true; continue; }
@@ -371,6 +377,7 @@ const Bench = (() => {
           p.label.classList.toggle('sel', sel); p.label.classList.toggle('mini', !sel && st.allNames && !st.hl.has(p.id));
           p.label._w = p.label.offsetWidth; p.label._h = p.label.offsetHeight;
         }
+        if (p.call) { calls.push({ p, x, y, w: p.label._w, h: p.label._h }); continue; }
         boxes.push({ p, x, y, w: p.label._w, h: p.label._h, pri: sel ? 2 : st.hl.has(p.id) ? 1 : 0 });
       }
     }
@@ -388,6 +395,24 @@ const Bench = (() => {
       bx.p.label.style.transform = `translate(${lx}px, ${ly}px)`;
       bx.p.label.classList.toggle('far', Math.abs(ly + bx.h - bx.y) > 40);
     }
+    // exploded-drawing callouts: two columns at the sides, ordered by height, joined by leader lines
+    let svg = '';
+    if (calls.length) {
+      const cols = [calls.filter((c) => c.x < w / 2), calls.filter((c) => c.x >= w / 2)];
+      cols.forEach((col, side) => {
+        col.sort((a, b2) => a.y - b2.y);
+        const top = 64, bot = h - 8; const gap = col.length ? Math.min(30, (bot - top) / col.length) : 30;
+        let y = top; const ys = col.map((c) => { y = Math.max(y, c.y - c.h / 2); const v = y; y += gap; return v; });
+        const over = ys.length ? ys[ys.length - 1] + gap - bot : 0; if (over > 0) for (let i = ys.length - 1, lim = bot - gap; i >= 0; i--) { ys[i] = Math.min(ys[i], lim); lim -= gap; }
+        col.forEach((c, i) => {
+          const lx = side === 0 ? 8 : w - c.w - 8; const ly = Math.max(top, ys[i]);
+          c.p.label.style.transform = `translate(${lx}px, ${ly}px)`;
+          const ax = side === 0 ? lx + c.w : lx; const ay = ly + c.h / 2;
+          svg += `<path d="M${ax.toFixed(1)} ${ay.toFixed(1)} L${(ax + (side === 0 ? 14 : -14)).toFixed(1)} ${ay.toFixed(1)} L${c.x.toFixed(1)} ${c.y.toFixed(1)}"/><circle cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="3.2"/>`;
+        });
+      });
+    }
+    if (leaderSvg._last !== svg) { leaderSvg.innerHTML = svg; leaderSvg._last = svg; }
   }
   const esc3 = (s) => String(s).replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
   function highlight(ids) {
