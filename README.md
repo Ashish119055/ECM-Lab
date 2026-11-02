@@ -17,6 +17,9 @@ Open `index.html` directly, or serve the folder (`python3 -m http.server`) and v
 
 Wire colours and values are typical examples for training. Always use the manufacturer's wiring diagram and data for a specific vehicle.
 
+
+Suspension Lab (3D suspension tear-down simulator) now lives in its own repository: https://github.com/Ashish119055/suspension-lab
+
 ## Files
 
 - `index.html` – page structure
