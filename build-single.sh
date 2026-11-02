@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
-# Bundle each app into a single self-contained HTML file:
-#   dist/ecm-lab.html         (ECM Lab)
-#   dist/suspension-lab.html  (Suspension Lab)
+# Bundle ECM Lab into a single self-contained HTML file: dist/ecm-lab.html
 set -euo pipefail
 cd "$(dirname "$0")"
 mkdir -p dist
@@ -22,6 +20,5 @@ def bundle(base, out, links=()):
     open(out, 'w', encoding='utf-8').write(html)
     print('Built', out)
 
-bundle('.', 'dist/ecm-lab.html', [('suspension/index.html', 'suspension-lab.html')])
-bundle('suspension', 'dist/suspension-lab.html', [('../index.html', 'ecm-lab.html')])
+bundle('.', 'dist/ecm-lab.html')
 PY

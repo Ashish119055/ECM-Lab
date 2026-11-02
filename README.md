@@ -17,22 +17,8 @@ Open `index.html` directly, or serve the folder (`python3 -m http.server`) and v
 
 Wire colours and values are typical examples for training. Always use the manufacturer's wiring diagram and data for a specific vehicle.
 
-# Suspension Lab
 
-Interactive **3D suspension tear-down simulator** (in `suspension/`). Open `suspension/index.html`, or use the "Suspension Lab" button in the ECM Lab header.
-
-Available in **English, ગુજરાતી and हिन्दी** (switch in the header) with simple ITI-level explanations of every part, a **▶ How it works** animated lesson for each system (captions, highlighted parts, cut-open damper), touch-to-name part labels and a full-screen mode.
-
-Six systems, each modelled part-by-part from real hard points: **MacPherson strut** (front FWD), **double wishbone / SLA** (front RWD), **5-link multi-link** (rear RWD), **twist-beam axle** (rear FWD), **leaf-spring Hotchkiss live axle** (pickup rear) and **adaptive air suspension** (air strut + CDC damper, compressor, reservoir, valve block, height sensor, ECU).
-
-| Section | What you can do |
-|---|---|
-| **Tear-down bench** | Orbit / zoom / pan a PBR-rendered 3D assembly. Work through the workshop procedure step by step (tools, refit torques, notes, safety warnings) and watch each part come off. Toggle a full exploded view, a half-section cut (damper valves and oil, bushings, ball joints, hub-bearing balls, tyre carcass), numbered BOM balloons, isolate, parts tray and auto-rotate. Move the wheel through bump/rebound and the linkage, spring and damper move with live camber, roll centre, track change and motion ratio. Click any part for function, construction and material, engineering equations, specs, failure modes and inspection. |
-| **Diagram** | Exploded view of the selected system with every part named (in the chosen language), plus the numbered parts list. |
-| **Theory** | Simple illustrated lessons with animated pictures: what a suspension does, main parts, sprung/unsprung weight, spring law F = k·x, how a shock absorber works, independent vs rigid axles, alignment angles (camber, caster, toe, KPI), body roll and the anti-roll bar, faults & symptoms, workshop safety. |
-| **Compare** | Ratings matrix and key design values for all six systems. |
-
-Torques, dimensions and specs are typical figures for training — always follow the manufacturer's workshop manual for a specific vehicle.
+Suspension Lab (3D suspension tear-down simulator) now lives in its own repository: https://github.com/Ashish119055/suspension-lab
 
 ## Files
 
@@ -45,17 +31,4 @@ Torques, dimensions and specs are typical figures for training — always follow
 - `js/views.js` – car map, wiring, simulator, library, quiz, part drawer
 - `js/body.js` – body electrics bench
 - `js/app.js` – routing, controls, main loop
-- `build-single.sh` – bundles each app into one self-contained HTML file in `dist/` (`ecm-lab.html`, `suspension-lab.html`)
-
-Suspension Lab (`suspension/`):
-
-- `index.html`, `css/susp.css` – page and styles (light & dark themes)
-- `js/vendor/three.min.js` – Three.js r149 (MIT), vendored so the app works offline
-- `js/parts-data.js` – component library: function, construction, engineering, specs, failures, inspection
-- `js/i18n.js` – English / Gujarati / Hindi text: UI, simple part explanations, procedures, "how it works" lessons
-- `js/geom.js` – materials and procedural 3D builders (coil springs, dampers with internals, tyres, rims, discs, joints…)
-- `js/kinmath.js` – planar kinematic solvers (SLA, MacPherson, twist beam, live axle)
-- `js/theory.js` – theory lessons and animated diagrams (EN / GU / HI)
-- `js/systems.js` – the six systems: hard points, 3D assembly, kinematics, tear-down procedures
-- `js/bench.js` – 3D renderer, orbit camera, picking, explode / section / balloons
-- `js/app.js` – UI, routing, procedure, BOM and part drawer
+- `build-single.sh` – bundles everything into one HTML file in `dist/`
