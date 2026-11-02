@@ -17,6 +17,21 @@ Open `index.html` directly, or serve the folder (`python3 -m http.server`) and v
 
 Wire colours and values are typical examples for training. Always use the manufacturer's wiring diagram and data for a specific vehicle.
 
+# Suspension Lab
+
+Interactive **3D suspension tear-down simulator** (in `suspension/`). Open `suspension/index.html`, or use the "Suspension Lab" button in the ECM Lab header.
+
+Six systems, each modelled part-by-part from real hard points: **MacPherson strut** (front FWD), **double wishbone / SLA** (front RWD), **5-link multi-link** (rear RWD), **twist-beam axle** (rear FWD), **leaf-spring Hotchkiss live axle** (pickup rear) and **adaptive air suspension** (air strut + CDC damper, compressor, reservoir, valve block, height sensor, ECU).
+
+| Section | What you can do |
+|---|---|
+| **Tear-down bench** | Orbit / zoom / pan a PBR-rendered 3D assembly. Work through the workshop procedure step by step (tools, refit torques, notes, safety warnings) and watch each part come off. Toggle a full exploded view, a half-section cut (damper valves and oil, bushings, ball joints, hub-bearing balls, tyre carcass), numbered BOM balloons, isolate, parts tray and auto-rotate. Move the wheel through bump/rebound and the linkage, spring and damper move with live camber, roll centre, track change and motion ratio. Click any part for function, construction and material, engineering equations, specs, failure modes and inspection. |
+| **Kinematics** | Scaled front-view (or side-view for beam axles) geometry with instant centre and roll-centre construction lines. Curves of camber, roll-centre height, track change, wheel-centre shift, leaf arch and motion ratio vs wheel travel. Wheel-rate KPIs and design notes. |
+| **Ride dynamics** | 2-DOF quarter-car model (RK4, 2 kHz) with asymmetric damping, bump/rebound stops, tyre lift-off, Coulomb leaf friction, progressive air spring and skyhook semi-active control. Road inputs: bump, speed hump, pothole, kerb, sine, ISO 8608 random road (A–E). Live animation, scopes, natural frequencies, damping ratio, RMS comfort (ISO 2631 scale), dynamic tyre load and the frequency response. |
+| **Compare** | Ratings matrix and key design values for all six systems. |
+
+Torques, dimensions and specs are typical figures for training — always follow the manufacturer's workshop manual for a specific vehicle.
+
 ## Files
 
 - `index.html` – page structure
@@ -28,4 +43,17 @@ Wire colours and values are typical examples for training. Always use the manufa
 - `js/views.js` – car map, wiring, simulator, library, quiz, part drawer
 - `js/body.js` – body electrics bench
 - `js/app.js` – routing, controls, main loop
-- `build-single.sh` – bundles everything into one HTML file in `dist/`
+- `build-single.sh` – bundles each app into one self-contained HTML file in `dist/` (`ecm-lab.html`, `suspension-lab.html`)
+
+Suspension Lab (`suspension/`):
+
+- `index.html`, `css/susp.css` – page and styles (light & dark themes)
+- `js/vendor/three.min.js` – Three.js r149 (MIT), vendored so the app works offline
+- `js/parts-data.js` – component library: function, construction, engineering, specs, failures, inspection
+- `js/geom.js` – materials and procedural 3D builders (coil springs, dampers with internals, tyres, rims, discs, joints…)
+- `js/kinmath.js` – planar kinematic solvers (SLA, MacPherson, twist beam, live axle)
+- `js/systems.js` – the six systems: hard points, 3D assembly, kinematics, tear-down procedures
+- `js/bench.js` – 3D renderer, orbit camera, picking, explode / section / balloons
+- `js/kinview.js`, `js/charts.js` – kinematics view and SVG charts
+- `js/dynamics.js` – quarter-car ride simulator
+- `js/app.js` – UI, routing, procedure, BOM and part drawer
